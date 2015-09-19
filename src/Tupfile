@@ -1,0 +1,4 @@
+include_rules
+
+: foreach *.cc |> !cxx |>
+: *.o |> g++ $(LDFLAGS) %f -o %o |> spoony

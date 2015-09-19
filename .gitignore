@@ -1,0 +1,5 @@
+*.o
+*.swp
+/.tup
+/src/spoony
+/src/version.hh
