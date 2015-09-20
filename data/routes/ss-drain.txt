@@ -1,0 +1,280 @@
+ROUTE	Final Fantasy IV Any% No64 Single Segment (Edge+Drain)
+VERSION	2
+PATH	Castle Baron				45	27	0	0	0	5	+	+	+	-
+PATH	World Map (Baron)			18	17	0	7	0	1	-	-	+	+
+PATH	Misty Cave				115	111	0	7	16	1	+	+	+	-
+PATH	World Map (Mist)			13	12	0	7	1	1	-	-	+	+
+PATH	World Map (Kaipo)			37	36	0	8	1	1	-	-	+	+
+NOTE	Kaipo
+PATH	World Map (Kaipo)			33	32	0	8	1	1	-	-	+	+
+PATH	Watery Pass-South B1F			32	32	0	7	17	1	-	-	+	-
+NOTE	Recruit Tellah
+SEARCH	Watery Pass Pike Hunt			13
+PATH	Watery Pass-South B1F			21	20	0	7	17	0	-	-	+	-
+PATH	Watery Pass-South B2F			91	90	0	7	17	1	-	-	+	-
+WAIT
+PATH	Watery Pass-South Save Room		5	4	0	0	0	1	+	+	+	-
+PATH	Watery Pass-South B2F			40	39	0	7	17	1	-	-	+	-
+PATH	Watery Pass-South B3F			35	34	0	7	18	1	+	-	+	-
+PATH	Watery Pass-North B2F			22	21	0	8	18	1	-	-	+	-
+PATH	Watery Pass-North B1F			62	60	0	8	19	1	-	+	+	-
+PATH	World Map (Kaipo)			10	9	0	8	1	1	-	-	+	+
+PATH	Waterfalls B1F				2	1	0	0	0	1	+	-	+	-
+PATH	Waterfalls B2F				46	45	0	8	20	1	-	-	+	-
+PATH	Waterfalls Lake				38	37	0	8	20	1	-	-	+	-
+NOTE	Battle: Octomamm
+PATH	Waterfalls Lake				2	1	0	8	20	0	-	+	+	-
+PATH	World Map (Kaipo)			11	11	0	8	1	1	-	-	+	+
+PATH	World Map (Damcyan)			6	4	0	8	2	0	-	-	+	+
+PATH	Damcyan					17	7	1	0	0	3	+	+	+	-
+PATH	Antlion B1F				39	38	0	8	21	1	-	-	+	-
+CHOICE	2
+OPTION	Antlion B2F Inward Direct
+PATH	Antlion B2F				83	80	0	8	22	1	-	+	+	-
+NOOP	1
+OPTION	Antlion B2F Inward Charm Room Steps
+PATH	Antlion B2F				34	33	0	8	22	1	-	-	+	-
+PATH	Antlion Charm Room			1	0	0	0	0	1	+	-	+	-
+PATH	Antlion B2F				55	52	0	8	22	1	-	+	+	-
+NOOP	0
+END
+PATH	Antlion's Nest				15	14	0	8	22	1	-	-	+	-
+NOTE	Battle: Antlion
+PATH	Antlion's Nest				17	15	0	8	22	0	-	+	+	-
+CHOICE	2
+OPTION	Antlion B2F Outward Direct
+NOOP	1
+PATH	Antlion B2F				83	80	0	8	22	1	-	+	+	-
+OPTION	Antlion B2F Outward Charm Room Steps
+NOOP	0
+PATH	Antlion B2F				54	51	0	8	22	1	-	+	+	-
+PATH	Antlion Charm Room			1	0	0	0	0	1	+	-	+	-
+PATH	Antlion B2F				35	34	0	8	22	1	-	-	+	-
+END
+PATH	Antlion B1F				39	38	0	8	21	1	-	-	+	-
+NOTE	Kaipo Revisited
+PATH	Mt.Hobs-West				41	39	0	8	23	1	-	+	+	-
+PATH	Mt.Hobs Summit				16	15	0	8	24	1	-	-	+	-
+NOTE	Battle: MomBomb
+PATH	Mt.Hobs Summit				7	6	0	8	24	0	-	-	+	-
+PATH	Mt.Hobs-East				55	46	0	8	25	1	+	+	+	-
+PATH	World Map (Fabul)			86	84	0	10	3	1	-	+	+	+
+PATH	Fabul					101	60	10	0	0	10	+	+	+	-
+PATH	World Map (Fabul)			9	7	0	10	3	1	-	+	+	+
+NOTE	Fabul Boat and Leviatan
+PATH	World Map (Mysidia)			10	9	0	8	4	0	-	-	+	+
+NOTE	Mysidia
+PATH	World Map (Mysidia)			10	10	0	8	4	1	+	-	+	+
+PATH	World Map (Mt.Ordeals)			95	94	0	10	4	0	-	-	+	+
+PATH	Mt.Ordeals				45	43	0	8	26	1	-	-	+	-
+PATH	Mt.Ordeals-3rd station			30	28	0	8	27	1	-	-	+	-
+PATH	Mt.Ordeals-7th station			44	42	0	8	28	1	-	+	+	-
+PATH	Mt.Ordeals Summit			21	17	1	8	28	1	-	+	+	-
+NOTE	Battle: Milon and Milon Z
+PATH	Mt.Ordeals Summit			5	4	0	8	28	0	-	+	+	-
+NOTE	Paladin
+PATH	Mt.Ordeals Summit			32	22	1	8	28	1	-	+	+	-
+PATH	Mt.Ordeals-7th station			44	42	0	8	28	1	-	+	+	-
+PATH	Mt.Ordeals-3rd station			32	30	0	8	27	1	-	+	+	-
+PATH	Mt.Ordeals				46	44	0	8	26	1	+	+	+	-
+PATH	World Map (Mt.Ordeals)			14	13	0	10	4	1	-	-	+	+
+NOTE	Take Chocobo to Mysidia
+PATH	Serpent Road				11	4	0	0	0	1	+	+	+	-
+PATH	Old Water-way				91	90	0	8	30	1	-	-	+	-
+PATH	Castle Baron B3F			55	54	0	8	31	1	-	-	+	-
+PATH	Castle Baron B2F			27	26	0	8	32	1	-	-	+	-
+CHOICE	2
+OPTION	Castle Baron B1F Inward Direct
+NOOP	1
+PATH	Castle Baron B1F			22	21	0	8	32	1	-	-	+	-
+OPTION	Castle Baron B1F Inward Save Room Steps
+PATH	Castle Baron B1F			11	10	0	8	32	1	-	-	+	-
+PATH	Castle Baron B1F Save Room		1	0	0	0	0	1	+	-	+	-
+NOOP	0
+PATH	Castle Baron B1F			25	24	0	8	32	1	-	-	+	-
+END
+PATH	Castle Baron				24	14	0	0	0	3	+	+	+	-
+NOTE	Battle: Kainazzo
+NOTE	Mist
+PATH	World Map (Mist)			1	1	0	7	1	1	+	-	+	+
+PATH	World Map (Toroia)			2	1	0	10	5	0	-	-	+	+
+PATH	Toroian Castle				27	11	3	0	0	2	+	+	+	-
+PATH	World Map (Toroia)			39	37	1	10	5	1	-	-	+	+
+NOTE	Black Chocobo to Cave Magnes
+PATH	World Map (Toroia)			2	1	0	10	5	0	-	-	+	+
+PATH	Cave Magnes B1F				71	68	0	8	33	1	-	+	+	-
+PATH	Cave Magnes B2F				42	41	0	8	34	1	-	-	+	-
+CHOICE	2
+OPTION	Cave Magnes B3F Inward Direct
+NOOP	1
+PATH	Cave Magnes B3F				72	70	0	8	35	1	-	+	+	-
+OPTION	Cave Magnes B3F Inward Save Room Steps
+NOOP	0
+PATH	Cave Magnes B3F				9	8	0	8	35	1	-	-	+	-
+PATH	Cave Magnes B3F Save Room		1	0	0	0	0	1	+	-	+	-
+PATH	Cave Magnes B3F				65	63	0	8	35	1	-	+	+	-
+END
+PATH	Cave Magnes B3F Room			12	11	0	8	36	1	-	-	+	-
+CHOICE	2
+OPTION	Cave Magnes B4F Inward Direct
+NOOP	1
+PATH	Cave Magnes B4F				31	30	0	8	36	1	+	-	+	-
+OPTION	Cave Magnes B4F Inward Save Room Steps
+PATH	Cave Magnes B4F				39	38	0	8	36	1	-	-	+	-
+PATH	Cave Magnes B4F Save Room		1	0	0	0	0	1	+	-	+	-
+NOOP	0
+PATH	Cave Magnes B4F				24	23	0	8	36	1	+	-	+	-
+END
+NOTE	Battle: Dark Elf
+PATH	World Map (Toroia)			2	2	0	10	5	1	-	-	+	+
+NOTE	Black Chocobo to Toroia
+CHOICE	2
+OPTION	Toroian Castle 1F Inward Direct
+PATH	Toroian Castle 1F			15	0	0	0	0	1	-	-	-	-
+NOOP	1
+OPTION	Toroian Castle 1F Inward Steps
+PATH	Toroian Castle 1F			19	1	3	0	0	1	+	+	+	-
+END
+PATH	World Map (Toroia)			3	1	2	10	5	1	-	-	+	+
+PATH	Tower of Zot 1F				39	38	0	8	37	1	-	-	+	-
+PATH	Tower of Zot 2F				70	69	0	8	38	1	-	-	+	-
+PATH	Tower of Zot 3F				87	86	0	8	39	1	-	-	+	-
+PATH	Tower of Zot 4F				61	60	0	8	40	1	-	-	+	-
+PATH	Tower of Zot 5F				24	23	0	8	41	1	-	-	+	-
+NOTE	Battle: Magus Sisters
+PATH	Tower of Zot 5F				2	1	0	8	41	0	-	-	+	-
+PATH	Tower of Zot 6F				15	14	0	0	0	1	-	-	+	-
+NOTE	Battle: Valvalis
+PATH	Castle Baron				34	19	0	0	0	4	+	+	+	-
+NOTE	Fly to Agart
+PATH	World Map (Agart)			1	1	0	8	6	1	-	-	+	+
+PATH	Underworld Map (Castle of Dwarves)	2	1	0	8	7	0	-	-	+	+
+PATH	Castle of Dwarves			218	111	20	0	0	13	+	+	+	-
+PATH	Underworld Map (Castle of Dwarves)	127	123	0	8	7	1	-	+	+	+
+PATH	Tower of Bab-il 1F			20	18	0	7	44	1	-	+	+	-
+PATH	Tower of Bab-il 2F			39	38	0	7	45	1	-	-	+	-
+PATH	Tower of Bab-il 3F			59	58	0	7	46	1	-	+	+	-
+PATH	Tower of Bab-il 4F			63	62	0	7	47	1	-	-	+	-
+PATH	Tower of Bab-il 5F			58	57	0	7	48	1	-	-	+	-
+PATH	Tower of Bab-il 6F			13	12	0	7	49	1	-	-	+	-
+PATH	Tower of Bab-il 7F			44	43	0	7	50	1	-	-	+	-
+PATH	Tower of Bab-il 8F			26	25	0	7	51	1	-	-	+	-
+NOTE	Battle: Dr.Lugae
+PATH	Tower of Bab-il 8F			28	26	0	7	51	0	-	+	+	-
+PATH	Tower of Bab-il 7F			45	44	0	7	50	1	-	-	+	-
+PATH	Tower of Bab-il 6F			14	13	0	7	49	1	-	-	+	-
+PATH	Tower of Bab-il 5F			43	42	0	7	48	1	-	-	+	-
+NOTE	Battle: Dark Imps
+PATH	Tower of Bab-il 5F			45	44	0	7	48	1	-	-	+	-
+PATH	Tower of Bab-il 4F			63	62	0	7	47	1	-	-	+	-
+PATH	Tower of Bab-il 3F			51	50	0	7	46	1	-	-	+	-
+PATH	Tower of Bab-il 2F			39	38	0	7	45	1	-	-	+	-
+PATH	Tower of Bab-il 1F			16	15	0	7	44	1	-	-	+	-
+NOTE	Travel to Baron
+PATH	Castle Baron				20	13	0	0	0	2	-	+	+	-
+NOTE	Airship Hook
+PATH	Eblan					22	5	3	0	0	1	+	+	+	-
+PATH	World Map (Eblan)			1	1	0	8	6	1	-	-	+	+
+PATH	Cave Eblana B1F				43	42	0	8	42	1	-	-	+	-
+PATH	Cave Eblana B2F				67	56	2	0	0	3	+	+	+	-
+PATH	Pass to Bab-il				32	31	0	8	43	1	-	-	+	-
+PATH	Pass to Bab-il 2			34	33	0	8	29	1	-	-	+	-
+PATH	Pass to Bab-il				65	64	0	8	43	1	-	-	+	-
+CHOICE	2
+OPTION	Pass to Bab-il 2 Inward Direct
+PATH	Pass to Bab-il 2			27	25	0	8	29	1	-	-	+	-
+NOOP	1
+OPTION	Pass to Bab-il 2 Inward Save Room Steps
+PATH	Pass to Bab-il 2			5	4	0	8	29	1	-	-	+	-
+PATH	Pass to Bab-il 2 Save Room		1	0	0	0	0	1	+	-	+	-
+NOOP	0
+PATH	Pass to Bab-il 2			28	26	0	8	29	1	-	-	+	-
+END
+PATH	Tower of Bab-il 1F			84	82	0	8	52	1	-	-	+	-
+PATH	Tower of Bab-il B2F			75	74	0	8	53	1	-	-	+	-
+PATH	Tower of Bab-il B3F			14	13	0	8	54	1	-	-	+	-
+PATH	Tower of Bab-il B4F			68	67	0	8	55	1	-	-	+	-
+PATH	Tower of Bab-il B3F			43	42	0	8	54	1	-	-	+	-
+PATH	Tower of Bab-il B4F			4	3	0	8	55	1	-	-	+	-
+PATH	Tower of Bab-il B5F			28	27	0	8	56	1	-	-	+	-
+NOTE	Battle: Rubicant
+PATH	Tower of Bab-il B5F			2	1	0	8	56	0	-	-	+	-
+PATH	Tower of Bab-il 8F			17	16	0	8	59	0	-	-	+	-
+PATH	Tower of Bab-il 7F			25	24	0	8	60	1	-	-	+	-
+PATH	Tower of Bab-il 6F			51	50	0	8	61	1	-	-	+	-
+NOTE	Fly to Castle of Dwarves
+PATH	Castle of Dwarves			36	23	4	0	0	4	+	+	+	-
+PATH	Underworld Map (Castle of Dwarves)	1	1	0	8	7	1	-	-	+	+
+PATH	Sealed Cave				9	7	0	0	0	1	+	-	+	-
+PATH	Underworld Map (Sealed Cave)		1	1	0	8	8	1	-	-	+	+
+NOTE	Return to Castle of Dwarves
+PATH	Castle of Dwarves			2	1	0	0	0	1	+	+	+	-
+PATH	Underworld Map (Castle of Dwarves)	1	1	0	8	7	1	-	-	+	+
+NOTE	Return to Mysidia
+PATH	World Map (Mysidia)			3	3	0	8	4	0	-	-	+	+
+PATH	Hummingway Cave (16 Step Minimum)	17	16	0	0	0	1	+	-	+	-
+PATH	Lunar World Map				1	1	0	8	9	1	-	-	+	+
+NOTE	Fly to Lunar Path
+PATH	Lunar World Map				6	5	0	8	9	0	-	-	+	+
+PATH	Lunar Path				39	38	0	8	90	1	-	-	+	-
+PATH	Lunar World Map				36	35	0	8	9	1	-	-	+	+
+PATH	Lunar Path 2				32	31	0	8	91	1	-	-	+	-
+PATH	Lunar World Map				18	17	0	8	9	1	-	-	+	+
+NOTE	Recruit FuSoYa
+PATH	Lunar World Map				19	18	0	8	9	1	-	-	+	+
+PATH	Lunar Path 2				32	31	0	8	91	1	-	-	+	-
+PATH	Lunar World Map				36	35	0	8	9	1	-	-	+	+
+PATH	Lunar Path				39	38	0	8	90	1	-	-	+	-
+PATH	Lunar World Map				5	5	0	8	9	1	+	-	+	+
+PATH	Giant of Bab-il Mouth			23	18	1	9	74	1	-	+	+	-
+PATH	Giant of Bab-il Neck			3	2	0	9	74	1	-	-	+	-
+PATH	Giant of Bab-il Chest			98	82	0	9	75	1	-	+	+	-
+PATH	Giant of Bab-il Stomach			52	49	0	9	76	1	-	+	+	-
+SEARCH	Grind Fight Search			200
+PATH	Giant of Bab-il Passage			72	61	0	9	77	1	+	+	+	-
+PATH	Giant of Bab-il Lung			9	8	0	9	78	1	-	+	+	-
+WAIT
+NOTE	Battle: Elements
+PATH	Giant of Bab-il Lung			11	7	0	9	78	0	-	+	+	-
+PATH	Giant of Bab-il CPU			6	2	0	0	0	1	+	+	+	-
+NOTE	Return to Moon
+PATH	Lunar World Map				6	5	0	8	9	0	-	-	+	+
+PATH	Lunar Path				39	38	0	8	90	1	-	-	+	-
+PATH	Lunar World Map				36	35	0	8	9	1	-	-	+	+
+PATH	Lunar Path 2				32	31	0	8	91	1	-	-	+	-
+PATH	Lunar World Map				18	17	0	8	9	1	-	-	+	+
+PATH	Lunar Subterrane B1			34	33	0	7	80	1	-	-	+	-
+PATH	Lunar Subterrane B2			61	29	0	7	81	1	+	+	+	-
+PATH	Lunar Subterrane B3			15	14	0	7	82	1	-	-	+	-
+PATH	Lunar Subterrane B4			57	56	0	8	83	1	+	-	+	-
+PATH	Lunar Subterrane B4 Room		30	29	0	10	86	1	-	-	+	-
+PATH	Lunar Subterrane B4			16	15	0	8	83	1	-	-	+	-
+PATH	Lunar Subterrane B5			18	17	0	8	84	1	+	-	+	-
+PATH	Lunar Subterrane B5 Room		47	33	0	10	86	1	-	+	+	-
+PATH	Lunar Subterrane B5			10	9	0	8	84	1	+	-	+	-
+PATH	Lunar Subterrane B5 Room		15	14	0	10	87	1	-	-	+	-
+CHOICE	2
+OPTION	Lunar Subterrane B5 Inward Direct
+PATH	Lunar Subterrane B5			13	12	0	8	84	1	-	-	+	-
+NOOP	1
+OPTION	Lunar Subterrane B5 Inward Pink Puff Room Steps
+PATH	Lunar Subterrane B5			14	13	0	8	84	1	-	-	+	-
+PATH	Lunar Subterrane B5 Pink Puff Room	1	0	0	5	92	1	+	-	+	-
+PATH	Lunar Subterrane B5			7	6	0	8	84	1	-	-	+	-
+END
+PATH	Lunar Subterrane B6			38	37	0	8	85	1	+	-	+	-
+PATH	Lunar Subterrane B6 Room		14	13	0	10	87	1	-	-	+	-
+CHOICE	2
+OPTION	Lunar Subterrane B7 Inward Direct
+PATH	Lunar Subterrane B7			81	80	0	8	86	1	+	-	+	-
+NOOP	1
+OPTION	Lunar Subterrane B7 Inward Save Room Steps
+PATH	Lunar Subterrane B7			24	23	0	8	86	1	-	-	+	-
+PATH	Lunar Subterrane B7 Save Room		1	0	0	0	0	1	+	-	+	-
+NOOP	0
+PATH	Lunar Subterrane B7			59	58	0	8	86	1	+	-	+	-
+END
+PATH	Lunar Core B1				69	68	0	8	88	1	-	-	+	-
+PATH	Lunar Core B2				56	55	0	8	88	1	-	-	+	-
+PATH	Lunar Core B3				53	52	0	8	89	1	-	-	+	-
+PATH	Lunar Core B4				71	70	0	8	79	1	-	-	+	-

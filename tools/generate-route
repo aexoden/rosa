@@ -1,0 +1,835 @@
+#!/usr/bin/env python3
+#-------------------------------------------------------------------------------
+# Copyright (c) 2015 Jason Lynch <jason@calindora.com>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#-------------------------------------------------------------------------------
+
+import sys
+
+#-------------------------------------------------------------------------------
+# Route Definitions
+#-------------------------------------------------------------------------------
+
+class Route(object):
+	def __init__(self, key, name, pre_mist, mist_clip, tas, yes64, drain, excalbur):
+		self.key = key
+		self.name = name
+		self.pre_mist = pre_mist
+		self.mist_clip = mist_clip
+		self.tas = tas
+		self.yes64 = yes64
+		self.drain = drain
+		self.excalbur = excalbur
+
+VERSION = 2
+
+ROUTES = {
+	'premist':       ('Pre-Mist Clip', True, True, False, False, False, False),
+
+	'paladin':       ('Paladin%', False, True, False, False, False, False),
+
+	'yes64':         ('Any% Yes64', False, True, False, True, False, False),
+
+	'no64-drain':    ('Any% No64 (Edge+Drain)', False, True, False, False, True, False),
+	'no64-excalbur': ('Any% No64 (Edge+Excalbur)', False, True, False, False, False, True),
+
+	'ss-drain':      ('Any% No64 Single Segment (Edge+Drain)', True, False, False, False, True, False),
+	'ss-excalbur':   ('Any% No64 Single Segment (Edge+Excalbur)', True, False, False, False, False, True),
+
+	'tas-rosa':      ('Any% No64 TAS (Rosa)', False, True, True, False, False, False),
+	'tas-drain':     ('Any% No64 TAS (Edge+Drain)', False, True, True, False, True, False),
+	'tas-excalbur':  ('Any% No64 TAS (Edge+Excalbur)', False, True, True, False, False, True),
+}
+
+#-------------------------------------------------------------------------------
+# Functions
+#-------------------------------------------------------------------------------
+
+def tabs(text):
+	return '\t' * ((39 - len(text)) // 8)
+
+def Choice(choices):
+	output = 'CHOICE\t{}\n'.format(len(choices))
+
+	for choice in choices:
+		output += choice
+
+	output += 'END'
+
+	return output
+
+def Note(title):
+	return ('NOTE\t{}'.format(title))
+
+def Option(title, children):
+	output = 'OPTION\t{}\n'.format(title)
+
+	for index, child in enumerate(children):
+		output += '{}\n'.format(child)
+
+	return output
+
+def Path(title, tiles, required_steps, optional_steps, encounter_rate, encounter_group, transition_count, do_steps, single_step, double_step, world_map):
+	if title.find('Map') >= 0 and not world_map:
+		print('WARNING: Map item claims to not be world map.')
+	return ('PATH\t{}{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(title, tabs(title), tiles, required_steps, optional_steps, encounter_rate, encounter_group, transition_count, '+' if do_steps else '-', '+' if single_step else '-', '+' if double_step else '-', '+' if world_map else '-'))
+
+def Save(title, frames):
+	return ('SAVE\t{}{}\t{}'.format(title, tabs(title), frames))
+
+def Noop(count):
+	return ('NOOP\t{}'.format(count))
+
+def Search(title, encounter, children):
+	output = 'SEARCH\t{}{}\t{}\n'.format(title, tabs(title), encounter)
+
+	for child in children:
+		output += '{}\n'.format(child)
+
+	output += 'WAIT'
+
+	return output
+
+#-------------------------------------------------------------------------------
+# Header
+#-------------------------------------------------------------------------------
+
+# TODO:
+#  * Consider allowing Summoned Monsters to occur after Sealed Cave (affects encounter survivability)
+#  * Ensure tas save points handle the optional extra step after save properly
+#  * Potentially allow for an odd number of steps before dungeons (especially for TAS)
+#  * Find a guaranteed path for the Hummingway Cave. 16 is very high in many cases.
+
+route = Route(sys.argv[1], *ROUTES[sys.argv[1]])
+
+print('ROUTE\tFinal Fantasy IV {}'.format(route.name))
+print('VERSION\t{}'.format(VERSION))
+
+#-------------------------------------------------------------------------------
+# Pre-Mist Route
+#-------------------------------------------------------------------------------
+
+if route.pre_mist and route.mist_clip:
+	print(Path('Castle Baron', 73, 49, 0, 0, 0, 5, True, True, True, False))
+elif route.pre_mist and not route.mist_clip:
+	print(Path('Castle Baron', 45, 27, 0, 0, 0, 5, True, True, True, False))
+
+if route.pre_mist:
+	print(Path('World Map (Baron)', 18, 17, 0, 7, 0, 1, False, False, True, True))
+	print(Path('Misty Cave', 115, 111, 0, 7, 16, 1, True, True, True, False))
+	print(Path('World Map (Mist)', 13, 12, 0, 7, 1, 1, False, False, True, True))
+
+if route.pre_mist and route.mist_clip:
+	print(Path('World Map (Mist)', 1, 1, 0, 8, 1, 0, False, False, False, True))
+	sys.exit(0)
+
+#-------------------------------------------------------------------------------
+# Post-Mist Clip Step
+#-------------------------------------------------------------------------------
+
+if route.mist_clip:
+	print(Path('World Map (Mist)', 1, 1, 0, 8, 1, 0, False, False, True, True))
+
+#-------------------------------------------------------------------------------
+# Post-Mist Route
+#-------------------------------------------------------------------------------
+
+print(Path('World Map (Kaipo)', 37, 36, 0, 8, 1, 1, False, False, True, True))
+print(Note('Kaipo'))
+print(Path('World Map (Kaipo)', 33, 32, 0, 8, 1, 1, False, False, True, True))
+
+if route.mist_clip:
+	print(Path('Watery Pass-South B1F', 53, 52, 0, 7, 17, 1, False, False, True, False))
+	print(Path('Watery Pass-South B2F', 91, 90, 0, 7, 17, 1, False, False, True, False))
+else:
+	print(Path('Watery Pass-South B1F', 32, 32, 0, 7, 17, 1, False, False, True, False))
+	print(Note('Recruit Tellah'))
+	print(Search('Watery Pass Pike Hunt', 13, [
+		Path('Watery Pass-South B1F', 21, 20, 0, 7, 17, 0, False, False, True, False),
+		Path('Watery Pass-South B2F', 91, 90, 0, 7, 17, 1, False, False, True, False),
+	]))
+
+if route.tas:
+	print(Save('Watery Pass-South Save Room Save Point', 0))
+
+print(Path('Watery Pass-South Save Room', 5, 4, 0, 0, 0, 1, True, True, True, False))
+print(Path('Watery Pass-South B2F', 40, 39, 0, 7, 17, 1, False, False, True, False))
+print(Path('Watery Pass-South B3F', 35, 34, 0, 7, 18, 1, True, False, True, False))
+print(Path('Watery Pass-North B2F', 22, 21, 0, 8, 18, 1, False, False, True, False))
+print(Path('Watery Pass-North B1F', 62, 60, 0, 8, 19, 1, False, True, True, False))
+print(Path('World Map (Kaipo)', 10, 9, 0, 8, 1, 1, False, False, True, True))
+print(Path('Waterfalls B1F', 2, 1, 0, 0, 0, 1, True, False, True, False))
+print(Path('Waterfalls B2F', 46, 45, 0, 8, 20, 1, False, False, True, False))
+print(Path('Waterfalls Lake', 38, 37, 0, 8, 20, 1, False, False, True, False))
+print(Note('Battle: Octomamm'))
+print(Path('Waterfalls Lake', 2, 1, 0, 8, 20, 0, False, True, True, False))
+print(Path('World Map (Kaipo)', 11, 11, 0, 8, 1, 1, False, False, True, True))
+
+if route.tas:
+	print(Path('World Map (Damcyan)', 1, 1, 0, 8, 2, 0, False, False, True, True))
+	print(Save('Damcyan Clip', 720))
+	print(Path('World Map (Damcyan)', 5, 3, 0, 8, 2, 0, False, False, True, True))
+else:
+	print(Path('World Map (Damcyan)', 6, 4, 0, 8, 2, 0, False, False, True, True))
+
+print(Path('Damcyan', 17, 7, 1, 0, 0, 3, True, True, True, False))
+
+if route.tas:
+	print(Save('World Map (Damcyan) Before Antlion Cave', 0))
+
+#-------------------------------------------------------------------------------
+# Antlion Cave
+#-------------------------------------------------------------------------------
+
+print(Path('Antlion B1F', 39, 38, 0, 8, 21, 1, False, False, True, False))
+
+antlion_b2f_choices = [
+	Option('Antlion B2F Inward Direct', [
+		Path('Antlion B2F', 83, 80, 0, 8, 22, 1, False, True, True, False),
+		Noop(1 if not route.tas else 3),
+	]),
+	Option('Antlion B2F Inward Charm Room Steps', [
+		Path('Antlion B2F', 34, 33, 0, 8, 22, 1, False, False, True, False),
+		Path('Antlion Charm Room', 1, 0, 0, 0, 0, 1, True, False, True, False),
+		Path('Antlion B2F', 55, 52, 0, 8, 22, 1, False, True, True, False),
+		Noop(0 if not route.tas else 2),
+	]),
+]
+
+if route.tas:
+	antlion_b2f_choices.append(Option('Antlion B2F Inward Save Room', [
+		Noop(1),
+		Path('Antlion B2F', 60, 59, 0, 8, 22, 1, False, False, True, False),
+		Path('Antlion B1F', 10, 9, 0, 8, 21, 1, False, False, True, False),
+		Path('Antlion Save Room', 3, 2, 0, 0, 0, 1, False, True, True, False),
+		Save('Antlion Save Room Save Point', 0),
+		Path('Antlion Save Room', 4, 3, 0, 0, 0, 0, True, True, True, False),
+		Path('Antlion B1F', 11, 10, 0, 8, 21, 1, False, False, True, False),
+		Path('Antlion B2F', 42, 41, 0, 8, 22, 1, False, False, True, False),
+	]))
+
+	antlion_b2f_choices.append(Option('Antlion B2F Inward Charm Room/Save Room', [
+		Path('Antlion B2F', 34, 33, 0, 8, 22, 1, False, False, True, False),
+		Path('Antlion Charm Room', 1, 0, 0, 0, 0, 1, True, False, True, False),
+		Path('Antlion B2F', 32, 31, 0, 8, 22, 1, False, False, True, False),
+		Path('Antlion B1F', 10, 9, 0, 8, 21, 1, False, False, True, False),
+		Path('Antlion Save Room', 3, 2, 0, 0, 0, 1, False, True, True, False),
+		Save('Antlion Save Room Save Point', 0),
+		Path('Antlion Save Room', 4, 3, 0, 0, 0, 0, True, True, True, False),
+		Path('Antlion B1F', 11, 10, 0, 8, 21, 1, False, False, True, False),
+		Path('Antlion B2F', 42, 41, 0, 8, 22, 1, False, False, True, False),
+	]))
+
+print(Choice(antlion_b2f_choices))
+print(Path('Antlion\'s Nest', 15, 14, 0, 8, 22, 1, False, False, True, False))
+print(Note('Battle: Antlion'))
+print(Path('Antlion\'s Nest', 17, 15, 0, 8, 22, 0, False, True, True, False))
+
+antlion_b2f_choices = [
+	Option('Antlion B2F Outward Direct', [
+		Noop(1 if not route.tas else 3),
+		Path('Antlion B2F', 83, 80, 0, 8, 22, 1, False, True, True, False),
+	]),
+	Option('Antlion B2F Outward Charm Room Steps', [
+		Noop(0 if not route.tas else 2),
+		Path('Antlion B2F', 54, 51, 0, 8, 22, 1, False, True, True, False),
+		Path('Antlion Charm Room', 1, 0, 0, 0, 0, 1, True, False, True, False),
+		Path('Antlion B2F', 35, 34, 0, 8, 22, 1, False, False, True, False),
+	]),
+]
+
+if route.tas:
+	antlion_b2f_choices.append(Option('Antlion B2F Outward Save Room', [
+		Path('Antlion B2F', 42, 41, 0, 8, 22, 1, False, False, True, False),
+		Path('Antlion B1F', 10, 9, 0, 8, 21, 1, False, False, True, False),
+		Path('Antlion Save Room', 3, 2, 0, 0, 0, 1, False, True, True, False),
+		Save('Antlion Save Room Save Point', 0),
+		Path('Antlion Save Room', 4, 3, 0, 0, 0, 0, True, True, True, False),
+		Path('Antlion B1F', 11, 10, 0, 8, 21, 1, False, False, True, False),
+		Path('Antlion B2F', 60, 59, 0, 8, 22, 1, False, False, True, False),
+		Noop(1),
+	]))
+
+	antlion_b2f_choices.append(Option('Antlion B2F Outward Charm Room/Save Room', [
+		Path('Antlion B2F', 42, 41, 0, 8, 22, 1, False, False, True, False),
+		Path('Antlion B1F', 10, 9, 0, 8, 21, 1, False, False, True, False),
+		Path('Antlion Save Room', 3, 2, 0, 0, 0, 1, False, True, True, False),
+		Save('Antlion Save Room Save Point', 0),
+		Path('Antlion Save Room', 4, 3, 0, 0, 0, 0, True, True, True, False),
+		Path('Antlion B1F', 11, 10, 0, 8, 21, 1, False, False, True, False),
+		Path('Antlion B2F', 31, 30, 0, 8, 22, 1, False, False, True, False),
+		Path('Antlion Charm Room', 1, 0, 0, 0, 0, 1, True, False, True, False),
+		Path('Antlion B2F', 35, 34, 0, 8, 22, 1, False, False, True, False),
+	]))
+
+print(Choice(antlion_b2f_choices))
+print(Path('Antlion B1F', 39, 38, 0, 8, 21, 1, False, False, True, False))
+print(Note('Kaipo Revisited'))
+
+#-------------------------------------------------------------------------------
+# Mt.Hobs and Fabul
+#-------------------------------------------------------------------------------
+
+if route.tas:
+	print(Save('World Map (Damcyan) Before Mt.Hobs', 0))
+
+print(Path('Mt.Hobs-West', 41, 39, 0, 8, 23, 1, False, True, True, False))
+print(Path('Mt.Hobs Summit', 16, 15, 0, 8, 24, 1, False, False, True, False))
+print(Note('Battle: MomBomb'))
+print(Path('Mt.Hobs Summit', 7, 6, 0, 8, 24, 0, False, False, True, False))
+print(Path('Mt.Hobs-East', 55, 46, 0, 8, 25, 1, True, True, True, False))
+print(Path('World Map (Fabul)', 86, 84, 0, 10, 3, 1, False, True, True, True))
+print(Path('Fabul', 101, 60, 10, 0, 0, 10, True, True, True, False))
+print(Path('World Map (Fabul)', 9, 7, 0, 10, 3, 1, False, True, True, True))
+print(Note('Fabul Boat and Leviatan'))
+
+#-------------------------------------------------------------------------------
+# Mysidia and Mt.Ordeals
+#-------------------------------------------------------------------------------
+
+print(Path('World Map (Mysidia)', 10, 9, 0, 8, 4, 0, False, False, True, True))
+print(Note('Mysidia'))
+print(Path('World Map (Mysidia)', 10, 10, 0, 8, 4, 1, True, False, True, True))
+print(Path('World Map (Mt.Ordeals)', 95, 94, 0, 10, 4, 0, False, False, True, True))
+print(Path('Mt.Ordeals', 45, 43, 0, 8, 26, 1, False, False, True, False))
+print(Path('Mt.Ordeals-3rd station', 30, 28, 0, 8, 27, 1, False, False, True, False))
+print(Path('Mt.Ordeals-7th station', 44, 42, 0, 8, 28, 1, False, True, True, False))
+
+if route.tas:
+	print(Choice([
+		Option('Mt.Ordeals Summit Inward Direct', [
+			Noop(1),
+			Path('Mt.Ordeals Summit', 21, 17, 1, 8, 28, 1, False, True, True, False),
+		]),
+		Option('Mt.Ordeals Summit Inward Save', [
+			Path('Mt.Ordeals Summit', 18, 14, 0, 8, 28, 1, False, True, True, False),
+			Save('Mt.Ordeals Summit Save Point', 0),
+			Path('Mt.Ordeals Summit', 16, 11, 1, 8, 28, 0, False, True, True, False),
+		]),
+	]))
+else:
+	print(Path('Mt.Ordeals Summit', 21, 17, 1, 8, 28, 1, False, True, True, False))
+
+print(Note('Battle: Milon and Milon Z'))
+print(Path('Mt.Ordeals Summit', 5, 4, 0, 8, 28, 0, False, True, True, False))
+print(Note('Paladin'))
+
+if route.key == 'paladin':
+	sys.exit(0)
+
+if route.tas:
+	print(Choice([
+		Option('Mt.Ordeals Summit Outward Direct', [
+			Path('Mt.Ordeals Summit', 32, 22, 1, 8, 28, 1, False, True, True, False),
+			Noop(1),
+		]),
+		Option('Mt.Ordeals Summit Outward Save', [
+			Path('Mt.Ordeals Summit', 27, 16, 1, 8, 28, 1, False, True, True, False),
+			Save('Mt.Ordeals Summit Save Point', 0),
+			Path('Mt.Ordeals Summit', 18, 14, 0, 8, 28, 0, False, True, True, False),
+		]),
+	]))
+else:
+	print(Path('Mt.Ordeals Summit', 32, 22, 1, 8, 28, 1, False, True, True, False))
+
+print(Path('Mt.Ordeals-7th station', 44, 42, 0, 8, 28, 1, False, True, True, False))
+print(Path('Mt.Ordeals-3rd station', 32, 30, 0, 8, 27, 1, False, True, True, False))
+print(Path('Mt.Ordeals', 46, 44, 0, 8, 26, 1, True, True, True, False))
+print(Path('World Map (Mt.Ordeals)', 14, 13, 0, 10, 4, 1, False, False, True, True))
+print(Note('Take Chocobo to Mysidia'))
+print(Path('Serpent Road', 11, 4, 0, 0, 0, 1, True, True, True, False))
+
+#-------------------------------------------------------------------------------
+# Castle Baron
+#-------------------------------------------------------------------------------
+
+print(Path('Old Water-way', 91, 90, 0, 8, 30, 1, False, False, True, False))
+print(Path('Castle Baron B3F', 55, 54, 0, 8, 31, 1, False, False, True, False))
+print(Path('Castle Baron B2F', 27, 26, 0, 8, 32, 1, False, False, True, False))
+
+castle_baron_b1f_choices = [
+	Option('Castle Baron B1F Inward Direct', [
+		Noop(1 if not route.tas else 2),
+		Path('Castle Baron B1F', 22, 21, 0, 8, 32, 1, False, False, True, False),
+	]),
+	Option('Castle Baron B1F Inward Save Room Steps', [
+		Path('Castle Baron B1F', 11, 10, 0, 8, 32, 1, False, False, True, False),
+		Path('Castle Baron B1F Save Room', 1, 0, 0, 0, 0, 1, True, False, True, False),
+		Noop(0 if not route.tas else 1),
+		Path('Castle Baron B1F', 25, 24, 0, 8, 32, 1, False, False, True, False),
+	]),
+]
+
+if route.tas:
+	castle_baron_b1f_choices.append(Option('Castle Baron B1F Inward Save Room Save', [
+		Path('Castle Baron B1F', 11, 10, 0, 8, 32, 1, False, False, True, False),
+		Path('Castle Baron B1F Save Room', 5, 4, 0, 0, 0, 1, False, False, True, False),
+		Save('Castle Baron B1F Save Room Save Point', 0),
+		Path('Castle Baron B1F Save Room', 6, 5, 0, 0, 0, 1, True, True, True, False),
+		Path('Castle Baron B1F', 25, 24, 0, 8, 32, 1, False, False, True, False),
+	]))
+
+print(Choice(castle_baron_b1f_choices))
+print(Path('Castle Baron', 24, 14, 0, 0, 0, 3, True, True, True, False))
+print(Note('Battle: Kainazzo'))
+
+#-------------------------------------------------------------------------------
+# Toroia and Cave Magnes
+#-------------------------------------------------------------------------------
+
+if not route.mist_clip:
+	print(Note('Mist'))
+	print(Path('World Map (Mist)', 1, 1, 0, 7, 1, 1, True, False, True, True))
+
+print(Path('World Map (Toroia)', 2, 1, 0, 10, 5, 0, False, False, True, True))
+print(Path('Toroian Castle', 27, 11, 3, 0, 0, 2, True, True, True, False))
+print(Path('World Map (Toroia)', 39, 37, 1, 10, 5, 1, False, False, True, True))
+print(Note('Black Chocobo to Cave Magnes'))
+print(Path('World Map (Toroia)', 2, 1, 0, 10, 5, 0, False, False, True, True))
+print(Path('Cave Magnes B1F', 71, 68, 0, 8, 33, 1, False, True, True, False))
+print(Path('Cave Magnes B2F', 42, 41, 0, 8, 34, 1, False, False, True, False))
+
+cave_magnes_b3f_choices = [
+	Option('Cave Magnes B3F Inward Direct', [
+		Noop(1 if not route.tas else 2),
+		Path('Cave Magnes B3F', 72, 70, 0, 8, 35, 1, False, True, True, False),
+	]),
+	Option('Cave Magnes B3F Inward Save Room Steps', [
+		Noop(0 if not route.tas else 1),
+		Path('Cave Magnes B3F', 9, 8, 0, 8, 35, 1, False, False, True, False),
+		Path('Cave Magnes B3F Save Room', 1, 0, 0, 0, 0, 1, True, False, True, False),
+		Path('Cave Magnes B3F', 65, 63, 0, 8, 35, 1, False, True, True, False),
+	]),
+]
+
+if route.tas:
+	cave_magnes_b3f_choices.append(Option('Cave Magnes B3F Inward Save Room Save', [
+		Path('Cave Magnes B3F', 9, 8, 0, 8, 35, 1, False, False, True, False),
+		Path('Cave Magnes B3F Save Room', 4, 3, 0, 0, 0, 1, False, False, True, False),
+		Save('Cave Magnes B3F Save Room Save Point', 0),
+		Path('Cave Magnes B3F Save Room', 5, 4, 0, 0, 0, 0, True, True, True, False),
+		Path('Cave Magnes B3F', 65, 63, 0, 8, 35, 1, False, True, True, False),
+	]))
+
+print(Choice(cave_magnes_b3f_choices))
+print(Path('Cave Magnes B3F Room', 12, 11, 0, 8, 36, 1, False, False, True, False))
+
+cave_magnes_b4f_choices = [
+	Option('Cave Magnes B4F Inward Direct', [
+		Noop(1 if not route.tas else 2),
+		Path('Cave Magnes B4F', 31, 30, 0, 8, 36, 1, True, False, True, False),
+	]),
+	Option('Cave Magnes B4F Inward Save Room Steps', [
+		Path('Cave Magnes B4F', 39, 38, 0, 8, 36, 1, False, False, True, False),
+		Path('Cave Magnes B4F Save Room', 1, 0, 0, 0, 0, 1, True, False, True, False),
+		Noop(0 if not route.tas else 1),
+		Path('Cave Magnes B4F', 24, 23, 0, 8, 36, 1, True, False, True, False),
+	]),
+]
+
+if route.tas:
+	cave_magnes_b4f_choices.append(Option('Cave Magnes B4F Inward Save Room Save', [
+		Path('Cave Magnes B4F', 39, 38, 0, 8, 36, 1, False, False, True, False),
+		Path('Cave Magnes B4F Save Room', 4, 3, 0, 0, 0, 1, False, False, True, False),
+		Save('Cave Magnes B4F Save Room Save Point', 0),
+		Path('Cave Magnes B4F Save Room', 5, 4, 0, 0, 0, 0, True, True, True, False),
+		Path('Cave Magnes B4F', 24, 23, 0, 8, 36, 1, True, False, True, False),
+	]))
+
+print(Choice(cave_magnes_b4f_choices))
+print(Note('Battle: Dark Elf'))
+print(Path('World Map (Toroia)', 2, 2, 0, 10, 5, 1, False, False, True, True))
+print(Note('Black Chocobo to Toroia'))
+
+if route.yes64:
+	print(Path('World Map (Toroia)', 25, 24, 0, 10, 5, 0, False, False, True, True))
+elif route.tas:
+	print(Save('World Map (Toroia) Before Toroian Castle', 0))
+
+print(Choice([
+	Option('Toroian Castle 1F Inward Direct', [
+		Path('Toroian Castle 1F', 15, 0, 0, 0, 0, 1, False, False, False, False),
+		Noop(1),
+	]),
+	Option('Toroian Castle 1F Inward Steps', [
+		Path('Toroian Castle 1F', 19, 1, 3, 0, 0, 1, True, True, True, False),
+	]),
+]))
+print(Path('World Map (Toroia)', 3, 1, 2, 10, 5, 1, False, False, True, True))
+
+#-------------------------------------------------------------------------------
+# Tower of Zot
+#-------------------------------------------------------------------------------
+
+print(Path('Tower of Zot 1F', 39, 38, 0, 8, 37, 1, False, False, True, False))
+print(Path('Tower of Zot 2F', 70, 69, 0, 8, 38, 1, False, False, True, False))
+print(Path('Tower of Zot 3F', 87, 86, 0, 8, 39, 1, False, False, True, False))
+print(Path('Tower of Zot 4F', 61, 60, 0, 8, 40, 1, False, False, True, False))
+
+if route.tas:
+	print(Choice([
+		Option('Tower of Zot 5F Inward Direct', [
+			Path('Tower of Zot 5F', 24, 23, 0, 8, 41, 1, False, False, True, False),
+			Noop(1),
+		]),
+		Option('Tower of Zot 5F Inward Save Room Save', [
+			Path('Tower of Zot 5F', 12, 12, 0, 8, 41, 1, False, False, True, False),
+			Path('Tower of Zot 5F Save Room', 3, 0, 0, 0, 0, 1, False, False, False, False),
+			Save('Tower of Zot 5F Save Room Save Point', 0),
+			Path('Tower of Zot 5F Save Room', 4, 0, 0, 0, 0, 0, False, False, False, False),
+			Path('Tower of Zot 5F', 13, 12, 0, 8, 41, 1, False, False, True, False),
+		]),
+	]))
+else:
+	print(Path('Tower of Zot 5F', 24, 23, 0, 8, 41, 1, False, False, True, False))
+
+print(Note('Battle: Magus Sisters'))
+print(Path('Tower of Zot 5F', 2, 1, 0, 8, 41, 0, False, False, True, False))
+print(Path('Tower of Zot 6F', 15, 14, 0, 0, 0, 1, False, False, True, False))
+print(Note('Battle: Valvalis'))
+
+#-------------------------------------------------------------------------------
+# Heading to the Underworld
+#-------------------------------------------------------------------------------
+
+print(Path('Castle Baron', 34, 19, 0, 0, 0, 4, True, True, True, False))
+print(Note('Fly to Agart'))
+print(Path('World Map (Agart)', 1, 1, 0, 8, 6, 1, False, False, True, True))
+print(Path('Underworld Map (Castle of Dwarves)', 2, 1, 0, 8, 7, 0, False, False, True, True))
+
+if route.yes64:
+	sys.exit(0)
+
+print(Path('Castle of Dwarves', 218, 111, 20, 0, 0, 13, True, True, True, False))
+
+if route.tas:
+	print(Path('Underworld Map (Castle of Dwarves)', 116, 115, 0, 8, 7, 1, False, False, True, True))
+	print(Save('Dwarf Tank Clip 1', 198))
+	print(Path('Underworld Map (Castle of Dwarves)', 4, 3, 0, 8, 7, 0, False, True, True, True))
+	print(Save('Dwarf Tank Clip 2', 198))
+	print(Path('Underworld Map (Castle of Dwarves)', 4, 3, 0, 8, 7, 0, False, True, True, True))
+	print(Save('Dwarf Tank Clip 3', 198))
+	print(Path('Underworld Map (Castle of Dwarves)', 3, 2, 0, 8, 7, 0, False, True, True, True))
+else:
+	print(Path('Underworld Map (Castle of Dwarves)', 127, 123, 0, 8, 7, 1, False, True, True, True))
+
+#-------------------------------------------------------------------------------
+# Tower of Bab-il
+#-------------------------------------------------------------------------------
+
+print(Path('Tower of Bab-il 1F', 20, 18, 0, 7, 44, 1, False, True, True, False))
+print(Path('Tower of Bab-il 2F', 39, 38, 0, 7, 45, 1, False, False, True, False))
+print(Path('Tower of Bab-il 3F', 59, 58, 0, 7, 46, 1, False, True, True, False))
+
+if route.tas:
+	print(Choice([
+		Option('Tower of Bab-il 4F Inward Direct', [
+			Path('Tower of Bab-il 4F', 63, 62, 0, 7, 47, 1, False, False, True, False),
+			Noop(1),
+		]),
+		Option('Tower of Bab-il 4F Inward Save Room Save', [
+			Path('Tower of Bab-il 4F', 7, 6, 0, 7, 47, 1, False, False, True, False),
+			Path('Tower of Bab-il 4F Save Room', 2, 0, 0, 0, 0, 1, False, False, False, False),
+			Save('Tower of Bab-il 4F Save Room Save Point', 0),
+			Path('Tower of Bab-il 4F Save Room', 3, 0, 0, 0, 0, 0, False, False, False, False),
+			Path('Tower of Bab-il 4F', 62, 61, 0, 7, 47, 1, False, False, True, False),
+		]),
+	]))
+else:
+	print(Path('Tower of Bab-il 4F', 63, 62, 0, 7, 47, 1, False, False, True, False))
+
+print(Path('Tower of Bab-il 5F', 58, 57, 0, 7, 48, 1, False, False, True, False))
+print(Path('Tower of Bab-il 6F', 13, 12, 0, 7, 49, 1, False, False, True, False))
+
+if route.tas:
+	print(Choice([
+		Option('Tower of Bab-il 7F Inward Direct', [
+			Path('Tower of Bab-il 7F', 44, 43, 0, 7, 50, 1, False, False, True, False),
+			Noop(1),
+		]),
+		Option('Tower of Bab-il 7F Inward Save Room Save', [
+			Path('Tower of Bab-il 7F', 18, 17, 0, 7, 50, 1, False, False, True, False),
+			Path('Tower of Bab-il 7F Save Room', 2, 0, 0, 0, 0, 1, False, False, False, False),
+			Save('Tower of Bab-il 7F Save Room Save Point', 0),
+			Path('Tower of Bab-il 7F Save Room', 3, 0, 0, 0, 0, 0, False, False, False, False),
+			Path('Tower of Bab-il 7F', 54, 53, 0, 7, 50, 1, False, False, True, False),
+		]),
+	]))
+else:
+	print(Path('Tower of Bab-il 7F', 44, 43, 0, 7, 50, 1, False, False, True, False))
+
+print(Path('Tower of Bab-il 8F', 26, 25, 0, 7, 51, 1, False, False, True, False))
+print(Note('Battle: Dr.Lugae'))
+print(Path('Tower of Bab-il 8F', 28, 26, 0, 7, 51, 0, False, True, True, False))
+
+if route.tas:
+	print(Choice([
+		Option('Tower of Bab-il 7F Outward Direct', [
+			Path('Tower of Bab-il 7F', 45, 44, 0, 7, 50, 1, False, False, True, False),
+			Noop(1),
+		]),
+		Option('Tower of Bab-il 7F Outward Save Room Save', [
+			Path('Tower of Bab-il 7F', 54, 53, 0, 7, 50, 1, False, False, True, False),
+			Path('Tower of Bab-il 7F Save Room', 2, 0, 0, 0, 0, 1, False, False, False, False),
+			Save('Tower of Bab-il 7F Save Room Save Point', 0),
+			Path('Tower of Bab-il 7F Save Room', 3, 0, 0, 0, 0, 0, False, False, False, False),
+			Path('Tower of Bab-il 7F', 19, 18, 0, 7, 50, 1, False, False, True, False),
+		]),
+	]))
+else:
+	print(Path('Tower of Bab-il 7F', 45, 44, 0, 7, 50, 1, False, False, True, False))
+
+print(Path('Tower of Bab-il 6F', 14, 13, 0, 7, 49, 1, False, False, True, False))
+print(Path('Tower of Bab-il 5F', 43, 42, 0, 7, 48, 1, False, False, True, False))
+print(Note('Battle: Dark Imps'))
+print(Path('Tower of Bab-il 5F', 45, 44, 0, 7, 48, 1, False, False, True, False))
+
+if route.tas:
+	print(Choice([
+		Option('Tower of Bab-il 4F Outward Direct', [
+			Path('Tower of Bab-il 4F', 63, 62, 0, 7, 47, 1, False, False, True, False),
+			Noop(1),
+		]),
+		Option('Tower of Bab-il 4F Outward Save Room Save', [
+			Path('Tower of Bab-il 4F', 61, 60, 0, 7, 47, 1, False, False, True, False),
+			Path('Tower of Bab-il 4F Save Room', 2, 0, 0, 0, 0, 1, False, False, False, False),
+			Save('Tower of Bab-il 4F Save Room Save Point', 0),
+			Path('Tower of Bab-il 4F Save Room', 3, 0, 0, 0, 0, 0, False, False, False, False),
+			Path('Tower of Bab-il 4F', 8, 7, 0, 7, 47, 1, False, False, True, False),
+		]),
+	]))
+else:
+	print(Path('Tower of Bab-il 4F', 63, 62, 0, 7, 47, 1, False, False, True, False))
+
+print(Path('Tower of Bab-il 3F', 51, 50, 0, 7, 46, 1, False, False, True, False))
+print(Path('Tower of Bab-il 2F', 39, 38, 0, 7, 45, 1, False, False, True, False))
+print(Path('Tower of Bab-il 1F', 16, 15, 0, 7, 44, 1, False, False, True, False))
+
+#-------------------------------------------------------------------------------
+# Eblan and Pass to Bab-il
+#-------------------------------------------------------------------------------
+
+print(Note('Travel to Baron'))
+print(Path('Castle Baron', 20, 13, 0, 0, 0, 2, False if route.drain else True, True, True, False))
+print(Note('Airship Hook'))
+
+if route.drain:
+	if route.tas:
+		print(Save('World Map (Eblan)', 0))
+
+	print(Path('Eblan', 22, 5, 3, 0, 0, 1, True, True, True, False))
+
+print(Path('World Map (Eblan)', 1, 1, 0, 8, 6, 1, False, False, True, True))
+print(Path('Cave Eblana B1F', 43, 42, 0, 8, 42, 1, False, False, True, False))
+print(Path('Cave Eblana B2F', 67, 56, 2, 0, 0, 3, True, True, True, False))
+print(Path('Pass to Bab-il', 32, 31, 0, 8, 43, 1, False, False, True, False))
+print(Path('Pass to Bab-il 2', 34, 33, 0, 8, 29, 1, False, False, True, False))
+print(Path('Pass to Bab-il', 65, 64, 0, 8, 43, 1, False, False, True, False))
+
+pass_to_babil_2_choices = [
+	Option('Pass to Bab-il 2 Inward Direct', [
+		Path('Pass to Bab-il 2', 27, 25, 0, 8, 29, 1, False, False, True, False),
+		Noop(1 if not route.tas else 2),
+	]),
+	Option('Pass to Bab-il 2 Inward Save Room Steps', [
+		Path('Pass to Bab-il 2', 5, 4, 0, 8, 29, 1, False, False, True, False),
+		Path('Pass to Bab-il 2 Save Room', 1, 0, 0, 0, 0, 1, True, False, True, False),
+		Noop(0 if not route.tas else 1),
+		Path('Pass to Bab-il 2', 28, 26, 0, 8, 29, 1, False, False, True, False),
+	]),
+]
+
+if route.tas:
+	pass_to_babil_2_choices.append(Option('Pass to Bab-il 2 Inward Save Room Save', [
+		Path('Pass to Bab-il 2', 5, 4, 0, 8, 29, 1, False, False, True, False),
+		Path('Pass to Bab-il 2 Save Room', 5, 4, 0, 0, 0, 1, False, False, True, False),
+		Save('Pass to Bab-il 2 Save Room Save Point', 0),
+		Path('Pass to Bab-il 2 Save Room', 6, 5, 0, 0, 0, 1, True, True, True, False),
+		Path('Pass to Bab-il 2', 28, 26, 0, 8, 29, 1, False, False, True, False),
+	]))
+
+print(Choice(pass_to_babil_2_choices))
+print(Path('Tower of Bab-il 1F', 84, 82, 0, 8, 52, 1, False, False, True, False))
+print(Path('Tower of Bab-il B2F', 75, 74, 0, 8, 53, 1, False, False, True, False))
+print(Path('Tower of Bab-il B3F', 14, 13, 0, 8, 54, 1, False, False, True, False))
+print(Path('Tower of Bab-il B4F', 68, 67, 0, 8, 55, 1, False, False, True, False))
+
+if route.tas:
+	print(Choice([
+		Option('Tower of Bab-il B3F Inward Direct', [
+			Path('Tower of Bab-il B3F', 43, 42, 0, 8, 54, 1, False, False, True, False),
+			Noop(1),
+		]),
+		Option('Tower of Bab-il B3F Inward Save Room Steps', [
+			Path('Tower of Bab-il B3F', 37, 36, 0, 8, 54, 1, False, False, True, False),
+			Path('Tower of Bab-il B3F Save Room', 3, 0, 0, 0, 0, 1, False, False, False, False),
+			Save('Tower of Bab-il B3F Save Room Save Point', 0),
+			Path('Tower of Bab-il B3F Save Room', 4, 0, 0, 0, 0, 1, False, False, False, False),
+			Path('Tower of Bab-il B3F', 8, 7, 0, 8, 54, 1, False, False, True, False),
+		]),
+	]))
+else:
+	print(Path('Tower of Bab-il B3F', 43, 42, 0, 8, 54, 1, False, False, True, False))
+
+print(Path('Tower of Bab-il B4F', 4, 3, 0, 8, 55, 1, False, False, True, False))
+print(Path('Tower of Bab-il B5F', 28, 27, 0, 8, 56, 1, False, False, True, False))
+print(Note('Battle: Rubicant'))
+print(Path('Tower of Bab-il B5F', 2, 1, 0, 8, 56, 0, False, False, True, False))
+print(Path('Tower of Bab-il 8F', 17, 16, 0, 8, 59, 0, False, False, True, False))
+print(Path('Tower of Bab-il 7F', 25, 24, 0, 8, 60, 1, False, False, True, False))
+print(Path('Tower of Bab-il 6F', 51, 50, 0, 8, 61, 1, False, False, True, False))
+
+#-------------------------------------------------------------------------------
+# Finding the Big Whale
+#-------------------------------------------------------------------------------
+
+print(Note('Fly to Castle of Dwarves'))
+print(Path('Castle of Dwarves', 36, 23, 4, 0, 0, 4, True, True, True, False))
+print(Path('Underworld Map (Castle of Dwarves)', 1, 1, 0, 8, 7, 1, True if route.excalbur else False, False, True, True))
+
+if route.excalbur:
+	print(Path('Land of Monsters B1F', 37, 35, 0, 9, 67, 1, False, True, True, False))
+	print(Path('Land of Monsters B2F', 45, 44, 0, 9, 68, 1, False, False, True, False))
+	print(Choice([
+		Option('Land of Monsters B3F Inward Direct', [
+			Path('Land of Monsters B3F', 49, 48, 0, 9, 69, 1, False, False, True, False),
+		]),
+		Option('Land of Monsters B3F Inward Partial Secret Passage', [
+			Path('Land of Monsters B3F', 87, 38, 0, 9, 69, 1, False, True, True, False),
+		]),
+		Option('Land of Monsters B3F Inward Full Secret Passage', [
+			Path('Land of Monsters B3F', 87, 28, 0, 9, 69, 1, False, True, True, False),
+		]),
+	]))
+	print(Path('Underworld Map (Land of Monsters)', 1, 1, 0, 8, 8, 1, False, False, True, True))
+
+print(Path('Sealed Cave', 9, 7, 0, 0, 0, 1, True, False, True, False))
+print(Path('Underworld Map (Sealed Cave)', 1, 1, 0, 8, 8, 1, False, False, True, True))
+print(Note('Return to Castle of Dwarves'))
+print(Path('Castle of Dwarves', 2, 1, 0, 0, 0, 1, True, True, True, False))
+print(Path('Underworld Map (Castle of Dwarves)', 1, 1, 0, 8, 7, 1, False, False, True, True))
+
+if route.excalbur:
+	print(Path('World Map (Eblan)', 1, 1, 0, 8, 6, 0, True, False, True, True))
+	print(Path('World Map (Silvera)', 2, 1, 0, 10, 5, 0, False, False, True, True))
+	print(Path('Grotto Adamant', 15, 14, 0, 0, 0, 1, True, False, True, False))
+	print(Path('World Map (Silvera)', 2, 2, 0, 10, 5, 0, False, False, True, True))
+
+print(Note('Return to Mysidia'))
+
+if route.excalbur:
+	print(Path('World Map (Kokkol)', 2, 1, 0, 8, 8, 0, False, False, True, True))
+	print(Path('World Map (Mysidia)', 1, 1, 0, 8, 4, 0, False, False, True, True))
+else:
+	print(Path('World Map (Mysidia)', 3, 3, 0, 8, 4, 0, False, False, True, True))
+
+#-------------------------------------------------------------------------------
+# Initial Moon Visit and Giant of Bab-il
+#-------------------------------------------------------------------------------
+
+if not route.tas:
+	print(Path('Hummingway Cave (16 Step Minimum)', 17, 16, 0, 0, 0, 1, True, False, True, False))
+	print(Path('Lunar World Map', 1, 1, 0, 8, 9, 1, False, False, True, True))
+	print(Note('Fly to Lunar Path'))
+
+print(Path('Lunar World Map', 6, 5, 0, 8, 9, 0, False, False, True, True))
+print(Path('Lunar Path', 39, 38, 0, 8, 90, 1, False, False, True, False))
+print(Path('Lunar World Map', 36, 35, 0, 8, 9, 1, False, False, True, True))
+print(Path('Lunar Path 2', 32, 31, 0, 8, 91, 1, False, False, True, False))
+print(Path('Lunar World Map', 18, 17, 0, 8, 9, 1, False, False, True, True))
+print(Note('Recruit FuSoYa'))
+print(Path('Lunar World Map', 19, 18, 0, 8, 9, 1, False, False, True, True))
+print(Path('Lunar Path 2', 32, 31, 0, 8, 91, 1, False, False, True, False))
+print(Path('Lunar World Map', 36, 35, 0, 8, 9, 1, False, False, True, True))
+print(Path('Lunar Path', 39, 38, 0, 8, 90, 1, False, False, True, False))
+print(Path('Lunar World Map', 5, 5, 0, 8, 9, 1, True, False, True, True))
+print(Path('Giant of Bab-il Mouth', 23, 18, 1, 9, 74, 1, False, True, True, False))
+print(Path('Giant of Bab-il Neck', 3, 2, 0, 9, 74, 1, False, False, True, False))
+print(Path('Giant of Bab-il Chest', 98, 82, 0, 9, 75, 1, False, True, True, False))
+print(Path('Giant of Bab-il Stomach', 52, 49, 0, 9, 76, 1, False, True, True, False))
+print(Search('Grind Fight Search', 200, [
+	Path('Giant of Bab-il Passage', 72, 61, 0, 9, 77, 1, True, True, True, False),
+	Path('Giant of Bab-il Lung', 9, 8, 0, 9, 78, 1, False, True, True, False),
+]))
+print(Note('Battle: Elements'))
+print(Path('Giant of Bab-il Lung', 11, 7, 0, 9, 78, 0, False, True, True, False))
+print(Path('Giant of Bab-il CPU', 6, 2, 0, 0, 0, 1, True, True, True, False))
+print(Note('Return to Moon'))
+
+#-------------------------------------------------------------------------------
+# Final Dungeon
+#-------------------------------------------------------------------------------
+
+print(Path('Lunar World Map', 6, 5, 0, 8, 9, 0, False, False, True, True))
+print(Path('Lunar Path', 39, 38, 0, 8, 90, 1, False, False, True, False))
+print(Path('Lunar World Map', 36, 35, 0, 8, 9, 1, False, False, True, True))
+print(Path('Lunar Path 2', 32, 31, 0, 8, 91, 1, False, False, True, False))
+print(Path('Lunar World Map', 18, 17, 0, 8, 9, 1, False, False, True, True))
+print(Path('Lunar Subterrane B1', 34, 33, 0, 7, 80, 1, False, False, True, False))
+print(Path('Lunar Subterrane B2', 61, 29, 0, 7, 81, 1, True, True, True, False))
+print(Path('Lunar Subterrane B3', 15, 14, 0, 7, 82, 1, False, False, True, False))
+print(Path('Lunar Subterrane B4', 57, 56, 0, 8, 83, 1, True, False, True, False))
+print(Path('Lunar Subterrane B4 Room', 30, 29, 0, 10, 86, 1, False, False, True, False))
+print(Path('Lunar Subterrane B4', 16, 15, 0, 8, 83, 1, False, False, True, False))
+print(Path('Lunar Subterrane B5', 18, 17, 0, 8, 84, 1, True, False, True, False))
+print(Path('Lunar Subterrane B5 Room', 47, 33, 0, 10, 86, 1, False, True, True, False))
+print(Path('Lunar Subterrane B5', 10, 9, 0, 8, 84, 1, True, False, True, False))
+print(Path('Lunar Subterrane B5 Room', 15, 14, 0, 10, 87, 1, False, False, True, False))
+print(Choice([
+	Option('Lunar Subterrane B5 Inward Direct', [
+		Path('Lunar Subterrane B5', 13, 12, 0, 8, 84, 1, False, False, True, False),
+		Noop(1),
+	]),
+	Option('Lunar Subterrane B5 Inward Pink Puff Room Steps', [
+		Path('Lunar Subterrane B5', 14, 13, 0, 8, 84, 1, False, False, True, False),
+		Path('Lunar Subterrane B5 Pink Puff Room', 1, 0, 0, 5, 92, 1, True, False, True, False),
+		Path('Lunar Subterrane B5', 7, 6, 0, 8, 84, 1, False, False, True, False),
+	]),
+]))
+print(Path('Lunar Subterrane B6', 38, 37, 0, 8, 85, 1, True, False, True, False))
+print(Path('Lunar Subterrane B6 Room', 14, 13, 0, 10, 87, 1, False, False, True, False))
+
+lunar_subterrane_b7_choices = [
+	Option('Lunar Subterrane B7 Inward Direct', [
+		Path('Lunar Subterrane B7', 81, 80, 0, 8, 86, 1, True, False, True, False),
+		Noop(1 if not route.tas else 2),
+	]),
+	Option('Lunar Subterrane B7 Inward Save Room Steps', [
+		Path('Lunar Subterrane B7', 24, 23, 0, 8, 86, 1, False, False, True, False),
+		Path('Lunar Subterrane B7 Save Room', 1, 0, 0, 0, 0, 1, True, False, True, False),
+		Noop(0 if not route.tas else 1),
+		Path('Lunar Subterrane B7', 59, 58, 0, 8, 86, 1, True, False, True, False),
+	]),
+]
+
+if route.tas:
+	lunar_subterrane_b7_choices.append(Option('Lunar Subterrane B7 Inward Save Room Steps', [
+		Path('Lunar Subterrane B7', 24, 23, 0, 8, 86, 1, False, False, True, False),
+		Path('Lunar Subterrane B7 Save Room', 5, 3, 0, 0, 0, 1, False, False, True, False),
+		Save('Lunar Subterrane B7 Save Room', 0),
+		Path('Lunar Subterrane B7 Save Room', 6, 4, 0, 0, 0, 0, True, True, True, False),
+		Path('Lunar Subterrane B7', 59, 58, 0, 8, 86, 1, True, False, True, False),
+	]))
+
+print(Choice(lunar_subterrane_b7_choices))
+print(Path('Lunar Core B1', 69, 68, 0, 8, 88, 1, False, False, True, False))
+print(Path('Lunar Core B2', 56, 55, 0, 8, 88, 1, False, False, True, False))
+print(Path('Lunar Core B3', 53, 52, 0, 8, 89, 1, False, False, True, False))
+print(Path('Lunar Core B4', 71, 70, 0, 8, 79, 1, False, False, True, False))
