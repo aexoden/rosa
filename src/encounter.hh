@@ -52,6 +52,8 @@ class Encounters
 	public:
 		Encounters(const Glib::RefPtr<Gio::File> & file);
 
+		std::shared_ptr<const Encounter> get_encounter(int group_index, int encounter_index);
+
 	private:
 		std::vector<std::shared_ptr<const Encounter>> _encounters;
 		std::vector<std::vector<unsigned int>> _encounter_groups;

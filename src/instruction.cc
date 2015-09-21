@@ -37,62 +37,62 @@ Instruction::Instruction(const Glib::ustring & line)
 	{
 		if (tokens[0] == "CHOICE" && tokens.size() == 2)
 		{
-			_type = InstructionType::CHOICE;
-			_count = std::stoi(tokens[1]);
+			type = InstructionType::CHOICE;
+			number = std::stoi(tokens[1]);
 		}
 		else if (tokens[0] == "END" && tokens.size() == 1)
 		{
-			_type = InstructionType::END;
+			type = InstructionType::END;
 		}
 		else if (tokens[0] == "NOOP" && tokens.size() == 2)
 		{
-			_type = InstructionType::NOOP;
-			_count = std::stoi(tokens[1]);
+			type = InstructionType::NOOP;
+			number = std::stoi(tokens[1]);
 		}
 		else if (tokens[0] == "NOTE" && tokens.size() == 2)
 		{
-			_type = InstructionType::NOTE;
-			_text = tokens[1];
+			type = InstructionType::NOTE;
+			text = tokens[1];
 		}
 		else if (tokens[0] == "OPTION" && tokens.size() == 2)
 		{
-			_type = InstructionType::OPTION;
-			_text = tokens[1];
+			type = InstructionType::OPTION;
+			text = tokens[1];
 		}
 		else if (tokens[0] == "PATH" && tokens.size() == 12)
 		{
-			_type = InstructionType::PATH;
-			_text = tokens[1];
-			_tiles = std::stoi(tokens[2]);
-			_required_steps = std::stoi(tokens[3]);
-			_optional_steps = std::stoi(tokens[4]);
-			_encounter_rate = std::stoi(tokens[5]);
-			_encounter_group = std::stoi(tokens[6]);
-			_transition_count = std::stoi(tokens[7]);
-			_take_extra_steps = tokens[8] == "+";
-			_can_single_step = tokens[9] == "+";
-			_can_double_step = tokens[10] == "+";
-			_is_world_map = tokens[11] == "+";
+			type = InstructionType::PATH;
+			text = tokens[1];
+			tiles = std::stoi(tokens[2]);
+			required_steps = std::stoi(tokens[3]);
+			optional_steps = std::stoi(tokens[4]);
+			encounter_rate = std::stoi(tokens[5]);
+			encounter_group = std::stoi(tokens[6]);
+			transition_count = std::stoi(tokens[7]);
+			take_extra_steps = tokens[8] == "+";
+			can_single_step = tokens[9] == "+";
+			can_double_step = tokens[10] == "+";
+			is_world_map = tokens[11] == "+";
 		}
 		else if (tokens[0] == "ROUTE" && tokens.size() == 2)
 		{
-			_type = InstructionType::ROUTE;
-			_text = tokens[1];
+			type = InstructionType::ROUTE;
+			text = tokens[1];
 		}
 		else if (tokens[0] == "SEARCH" && tokens.size() == 3)
 		{
-			_type = InstructionType::SEARCH;
-			_text = tokens[1];
-			_count = std::stoi(tokens[2]);
+			type = InstructionType::SEARCH;
+			text = tokens[1];
+			number = std::stoi(tokens[2]);
 		}
 		else if (tokens[0] == "VERSION" && tokens.size() == 2)
 		{
-			_type = InstructionType::VERSION;
-			_text = tokens[1];
+			type = InstructionType::VERSION;
+			number = std::stoi(tokens[1]);
 		}
 		else if (tokens[0] == "WAIT" && tokens.size() == 1)
 		{
-			_type = InstructionType::WAIT;
+			type = InstructionType::WAIT;
 		}
 		else
 		{
@@ -101,15 +101,15 @@ Instruction::Instruction(const Glib::ustring & line)
 	}
 }
 
-std::vector<Instruction> read_instructions(const Glib::RefPtr<Gio::File> & file)
+std::vector<std::shared_ptr<const Instruction>> read_instructions(const Glib::RefPtr<Gio::File> & file)
 {
-	std::vector<Instruction> instructions;
+	std::vector<std::shared_ptr<const Instruction>> instructions;
 	Glib::RefPtr<Gio::DataInputStream> file_stream = Gio::DataInputStream::create(file->read());
 	std::string line;
 
 	while (file_stream->read_line(line))
 	{
-		instructions.push_back(Instruction{line});
+		instructions.push_back(std::make_shared<const Instruction>(line));
 	}
 
 	return instructions;

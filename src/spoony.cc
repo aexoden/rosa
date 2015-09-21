@@ -31,6 +31,7 @@
 #include <glibmm/optiongroup.h>
 
 #include "encounter.hh"
+#include "engine.hh"
 #include "instruction.hh"
 
 Glib::OptionEntry create_option_entry(const Glib::ustring & long_name, const gchar & short_name, const Glib::ustring & description)
@@ -52,6 +53,7 @@ int main (int argc, char ** argv)
 	Gio::init();
 
 	Glib::ustring route;
+	int seed;
 
 	int maximum_steps;
 
@@ -59,7 +61,10 @@ int main (int argc, char ** argv)
 	Glib::OptionEntry route_entry = create_option_entry("route", 'r', "Route to process");
 	option_group.add_entry(route_entry, route);
 
-	Glib::OptionEntry maximum_steps_entry = create_option_entry("maximum-steps", 's', "Maximum number of extra steps per area");
+	Glib::OptionEntry seed_entry = create_option_entry("seed", 's', "Seed to process");
+	option_group.add_entry(seed_entry, seed);
+
+	Glib::OptionEntry maximum_steps_entry = create_option_entry("maximum-steps", 'm', "Maximum number of extra steps per area");
 	option_group.add_entry(maximum_steps_entry, maximum_steps);
 
 	Glib::OptionContext option_context;
@@ -77,6 +82,13 @@ int main (int argc, char ** argv)
 	}
 
 	auto instructions = read_instructions(route_file);
+
+	auto randomizer = std::make_shared<Randomizer>(false);
+
+	Engine engine{Parameters{seed, maximum_steps, randomizer}, instructions, encounters};
+	engine.run();
+
+	std::cout << engine.format_output(engine);
 
 	return 0;
 }

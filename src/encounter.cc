@@ -91,3 +91,8 @@ Encounters::Encounters(const Glib::RefPtr<Gio::File> & file) :
 		}
 	}
 }
+
+std::shared_ptr<const Encounter> Encounters::get_encounter(int group_index, int encounter_index)
+{
+	return _encounters[_encounter_groups[group_index][encounter_index]];
+}

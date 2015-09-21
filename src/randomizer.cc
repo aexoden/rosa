@@ -20,51 +20,40 @@
  * SOFTWARE.
  */
 
-#ifndef SPOONY_INSTRUCTION_HH
-#define SPOONY_INSTRUCTION_HH
+#include "randomizer.hh"
 
-#include <glibmm/ustring.h>
+Randomizer::Randomizer(bool random) :
+	_random(random)
+{ }
 
-enum class InstructionType
+void Randomizer::reset()
 {
-	NOOP,
-	CHOICE,
-	END,
-	NOTE,
-	OPTION,
-	PATH,
-	ROUTE,
-	SEARCH,
-	VERSION,
-	WAIT
-};
+	_index = 0;
+}
 
-class Instruction
+int Randomizer::get_index()
 {
-	public:
-		Instruction(const Glib::ustring & line);
+	return _index;
+}
 
-		InstructionType type = InstructionType::NOOP;
-		Glib::ustring text;
+int Randomizer::get_int(int min_value, int max_value)
+{
+	return (_next() % (max_value + 1 - min_value)) + min_value;
+}
 
-		int number = 0;
+int Randomizer::_next()
+{
+	if (_index == data.size())
+	{
+		if (_random)
+		{
+			// TODO: Add a random value.
+		}
+		else
+		{
+			data.push_back(0);
+		}
+	}
 
-		int tiles = 0;
-
-		int required_steps = 0;
-		int optional_steps = 0;
-
-		int encounter_rate = 0;
-		int encounter_group = 0;
-
-		int transition_count = 0;
-
-		bool take_extra_steps = false;
-		bool can_single_step = false;
-		bool can_double_step = false;
-		bool is_world_map = false;
-};
-
-std::vector<std::shared_ptr<const Instruction>> read_instructions(const Glib::RefPtr<Gio::File> & file);
-
-#endif // SPOONY_INSTRUCTION_HH
+	return data[_index++];
+}
