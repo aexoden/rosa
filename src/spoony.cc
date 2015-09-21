@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+#include <ctime>
 #include <iomanip>
 #include <iostream>
 
@@ -120,8 +121,8 @@ int main (int argc, char ** argv)
 						randomizer->data[i] = i_value;
 						randomizer->data[j] = j_value;
 
-						std::cout << "\r(" << std::right << std::setw(2) << i << "," << std::setw(2) << j << ") -> (" << std::setw(3) << i_value << "," << std::setw(3) << j_value << ")";
-						std::cout << "   Variables: (" << std::setw(2) << min_variables << "," << max_variables << ")";
+						std::cout << "\r(" << std::right << std::setw(2) << i << ", " << std::setw(2) << j << ") -> (" << std::setw(3) << i_value << ", " << std::setw(3) << j_value << ")";
+						std::cout << "   Variables: (" << std::setw(2) << min_variables << ", " << max_variables << ")";
 						std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(true_best_frames);
 						std::cout << "   Previous: " << std::setw(10) << Engine::frames_to_seconds(round_best_frames);
 						std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
@@ -132,7 +133,8 @@ int main (int argc, char ** argv)
 						if (engine.get_frames() < true_best_frames)
 						{
 							std::cout << "\r                                                                                                            ";
-							std::cout << "\rTIME: " << std::left << std::setw(40) << base_engine.get_title() << std::right << std::setw(4) << seed;
+							std::cout << "\r" << Glib::DateTime::create_now_local().format("%Y-%m-%d %H:%M:%S") << ": ";
+							std::cout << std::left << std::setw(40) << base_engine.get_title() << std::right << std::setw(4) << seed;
 							std::cout << std::setw(11) << Engine::frames_to_seconds(true_best_frames) << " -> " << std::left << std::setw(11) << Engine::frames_to_seconds(engine.get_frames());
 							std::cout << std::setw(8) << Engine::frames_to_seconds(true_best_frames - engine.get_frames()) << std::endl;
 							true_best_frames = engine.get_frames();

@@ -83,7 +83,7 @@ Glib::ustring Engine::format_output(const Engine & base_engine)
 	output.append(Glib::ustring::compose("SPOONY\t%1\n", SPOONY_VERSION));
 	output.append(Glib::ustring::compose("SEED\t%1\n", _parameters.seed));
 	output.append(Glib::ustring::compose("MAXSTEP\t%1\n", _parameters.maximum_extra_steps));
-	output.append(Glib::ustring::compose("FRAMES\t%1\n", _frames));
+	output.append(Glib::ustring::compose("FRAMES\t%1\n", Glib::ustring::format(std::setprecision(8), _frames)));
 	output.append("\n");
 
 	for (auto & entry : _log)
@@ -171,13 +171,53 @@ void Engine::_cycle()
 	switch (instruction->type)
 	{
 		case InstructionType::CHOICE:
+		{
+			int choice = _parameters.randomizer->get_int(0, instruction->number - 1);
+
+			if (_parameters.maximum_extra_steps == 0)
+			{
+				choice = 0;
+			}
+
+			while (true)
+			{
+				while (_instructions[_instruction_index]->type != InstructionType::OPTION)
+				{
+					_instruction_index++;
+				}
+
+				if (choice == 0)
+				{
+					break;
+				}
+
+				_instruction_index++;
+				choice--;
+			}
+
+			_transition(_instructions[_instruction_index]);
+			_indent++;
+
 			break;
+		}
 		case InstructionType::NOOP:
+			for (int i = 0; i < instruction->number; i++)
+			{
+				_parameters.randomizer->get_int(0, 1);
+			}
+
 			break;
 		case InstructionType::NOTE:
+			_transition(instruction);
 			break;
 		case InstructionType::OPTION:
 		case InstructionType::END:
+			while (_instructions[_instruction_index]->type != InstructionType::END)
+			{
+				_instruction_index++;
+			}
+
+			_indent--;
 			break;
 		case InstructionType::PATH:
 			_transition(instruction);
@@ -232,11 +272,22 @@ void Engine::_cycle()
 			_title = instruction->text;
 			break;
 		case InstructionType::SEARCH:
+			_encounter_search = _encounters.get_encounter(instruction->number);
+
+			_transition(instruction);
+			_indent++;
 			break;
 		case InstructionType::VERSION:
 			_version = instruction->number;
 			break;
 		case InstructionType::WAIT:
+			while (_encounter_search)
+			{
+				_step(2, 2);
+			}
+
+			_indent += 1;
+
 			break;
 	}
 
@@ -283,7 +334,7 @@ std::shared_ptr<const Encounter> Engine::_get_encounter()
 			i = 7;
 		}
 
-		return _encounters.get_encounter(_encounter_group, i);
+		return _encounters.get_encounter_from_group(_encounter_group, i);
 	}
 
 	return nullptr;
