@@ -38,7 +38,7 @@ int Randomizer::get_index()
 
 int Randomizer::get_int(int min_value, int max_value)
 {
-	return (_next() % (max_value + 1 - min_value)) + min_value;
+	return std::min(_next() + min_value, max_value);
 }
 
 int Randomizer::_next()

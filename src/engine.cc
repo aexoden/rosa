@@ -68,7 +68,7 @@ Glib::ustring format_label(const Glib::ustring & label)
 
 Glib::ustring format_time(double frames)
 {
-	return Glib::ustring::format(std::fixed, std::setprecision(3), frames / 60.0988);
+	return Glib::ustring::format(std::fixed, std::setprecision(3), Engine::frames_to_seconds(frames));
 }
 
 Glib::ustring Engine::format_output(const Engine & base_engine)
@@ -144,22 +144,20 @@ Glib::ustring Engine::format_output(const Engine & base_engine)
 	return output;
 }
 
-/*
-		output += '\n'
-		output += '{:18} {:.3f}s\n'.format('Encounter Time:', frames_to_seconds(self._encounter_frames))
-		output += '{:18} {:.3f}s\n'.format('Other Time:', frames_to_seconds(self._frames - self._encounter_frames))
-		output += '{:18} {:.3f}s\n'.format('Total Time:', frames_to_seconds(self._frames))
-		output += '\n'
-		output += '{:18} {:.3f}s\n'.format('Base Total Time:', frames_to_seconds(base_engine._frames))
-		output += '{:18} {:.3f}s\n'.format('Time Saved:', frames_to_seconds(base_engine._frames - self._frames))
-		output += '\n'
-		output += '{:18} {}\n'.format('Optional Steps:', total_optional_steps)
-		output += '{:18} {}\n'.format('Extra Steps:', total_extra_steps)
-		output += '{:18} {}\n'.format('Encounters:', self._encounter_count)
-		output += '\n'
-		output += '{:18} {}\n'.format('Base Encounters:', base_engine._encounter_count)
-		output += '{:18} {}\n'.format('Encounters Saved:', base_engine._encounter_count - self._encounter_count)
-*/
+double Engine::get_frames()
+{
+	return _frames;
+}
+
+Glib::ustring Engine::get_title()
+{
+	return _title;
+}
+
+double Engine::frames_to_seconds(double frames)
+{
+	return frames / 60.0988;
+}
 
 void Engine::_cycle()
 {
@@ -189,6 +187,13 @@ void Engine::_cycle()
 
 			if (instruction->optional_steps > 0 || (instruction->take_extra_steps && (instruction->can_single_step || instruction->can_double_step)))
 			{
+				int maximum_extra_steps = _parameters.maximum_extra_steps;
+
+				if (!instruction->take_extra_steps)
+				{
+					maximum_extra_steps = std::min(maximum_extra_steps, instruction->optional_steps);
+				}
+
 				int steps = _parameters.randomizer->get_int(0, _parameters.maximum_extra_steps);
 				int optional_steps = std::min(instruction->optional_steps, steps);
 				int extra_steps = steps - optional_steps;

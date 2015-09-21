@@ -51,6 +51,10 @@ class Engine
 		void run();
 
 		Glib::ustring format_output(const Engine & base_engine);
+		double get_frames();
+		Glib::ustring get_title();
+
+		static double frames_to_seconds(double frames);
 
 	private:
 		void _cycle();

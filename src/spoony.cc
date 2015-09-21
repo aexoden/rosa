@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+#include <iomanip>
 #include <iostream>
 
 #include <giomm/init.h>
@@ -52,10 +53,12 @@ int main (int argc, char ** argv)
 	Glib::init();
 	Gio::init();
 
+	std::cout << std::fixed << std::setprecision(3);
+
 	Glib::ustring route;
 	int seed;
 
-	int maximum_steps;
+	int maximum_steps = 0;
 
 	Glib::OptionGroup option_group{"options", "Options", "Options to configure program"};
 	Glib::OptionEntry route_entry = create_option_entry("route", 'r', "Route to process");
@@ -82,13 +85,100 @@ int main (int argc, char ** argv)
 	}
 
 	auto instructions = read_instructions(route_file);
-
 	auto randomizer = std::make_shared<Randomizer>(false);
 
+	Engine base_engine{Parameters{seed, 0, randomizer}, instructions, encounters};
+	base_engine.run();
+
+	double true_best_frames = base_engine.get_frames();
+	double round_best_frames = base_engine.get_frames();
+	double best_frames = base_engine.get_frames();
+
+	int min_variables = randomizer->get_index();
+	int max_variables = randomizer->get_index();
+
+	while (true)
+	{
+		int best_i = -1;
+		int best_j = -1;
+		int best_i_value = 0;
+		int best_j_value = 0;
+
+		for (decltype(randomizer->data)::size_type i = 0; i < randomizer->data.size(); i++)
+		{
+			int original_i_value = randomizer->data[i];
+
+			for (decltype(randomizer->data)::size_type j = i + 1; j < randomizer->data.size(); j++)
+			{
+				int original_j_value = randomizer->data[j];
+
+				for (int i_value = 0; i_value <= maximum_steps; i_value++)
+				{
+					for (int j_value = 0; j_value <= maximum_steps; j_value++)
+					{
+						randomizer->reset();
+						randomizer->data[i] = i_value;
+						randomizer->data[j] = j_value;
+
+						std::cout << "\r(" << std::right << std::setw(2) << i << "," << std::setw(2) << j << ") -> (" << std::setw(3) << i_value << "," << std::setw(3) << j_value << ")";
+						std::cout << "   Variables: (" << std::setw(2) << min_variables << "," << max_variables << ")";
+						std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(true_best_frames);
+						std::cout << "   Previous: " << std::setw(10) << Engine::frames_to_seconds(round_best_frames);
+						std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
+
+						Engine engine{Parameters{seed, maximum_steps, randomizer}, instructions, encounters};
+						engine.run();
+
+						if (engine.get_frames() < true_best_frames)
+						{
+							std::cout << "\r                                                                                                            ";
+							std::cout << "\rTIME: " << std::left << std::setw(40) << base_engine.get_title() << std::right << std::setw(4) << seed;
+							std::cout << std::setw(11) << Engine::frames_to_seconds(true_best_frames) << " -> " << std::left << std::setw(11) << Engine::frames_to_seconds(engine.get_frames());
+							std::cout << std::setw(8) << Engine::frames_to_seconds(true_best_frames - engine.get_frames()) << std::endl;
+							true_best_frames = engine.get_frames();
+						}
+
+						if (engine.get_frames() < best_frames)
+						{
+							best_frames = engine.get_frames();
+							best_i = i;
+							best_j = j;
+							best_i_value = i_value;
+							best_j_value = j_value;
+						}
+
+						int variables = randomizer->get_index();
+
+						min_variables = std::min(min_variables, variables);
+						max_variables = std::max(max_variables, variables);
+					}
+				}
+
+				randomizer->data[j] = original_j_value;
+			}
+
+			randomizer->data[i] = original_i_value;
+		}
+
+		if (best_i < 0)
+		{
+			std::cout << std::endl;
+			break;
+		}
+
+		std::cout << std::endl << "Updating (" << best_i << ", " << best_j << ") to (" << best_i_value << ", " << best_j_value << ") (" << (best_frames / 60.0988) << "s)" << std::endl;
+
+		randomizer->data[best_i] = best_i_value;
+		randomizer->data[best_j] = best_j_value;
+
+		round_best_frames = best_frames;
+	}
+
+	randomizer->reset();
 	Engine engine{Parameters{seed, maximum_steps, randomizer}, instructions, encounters};
 	engine.run();
 
-	std::cout << engine.format_output(engine);
+	std::cout << engine.format_output(base_engine);
 
 	return 0;
 }
