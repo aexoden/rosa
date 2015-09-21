@@ -24,13 +24,14 @@
 #include <iomanip>
 #include <iostream>
 
+#include <giomm/datainputstream.h>
 #include <giomm/init.h>
-#include <glibmm/keyfile.h>
 #include <glibmm/init.h>
 #include <glibmm/miscutils.h>
 #include <glibmm/optioncontext.h>
 #include <glibmm/optionentry.h>
 #include <glibmm/optiongroup.h>
+#include <glibmm/regex.h>
 
 #include "encounter.hh"
 #include "engine.hh"
@@ -47,6 +48,12 @@ Glib::OptionEntry create_option_entry(const Glib::ustring & long_name, const gch
 	return entry;
 }
 
+void write_route(const Glib::RefPtr<Gio::File> & file, const Engine & engine, const Engine & base_engine)
+{
+	auto output_stream = file->replace();
+	output_stream->write(engine.format_output(base_engine));
+}
+
 int main (int argc, char ** argv)
 {
 	setlocale(LC_ALL, "");
@@ -56,12 +63,17 @@ int main (int argc, char ** argv)
 
 	std::cout << std::fixed << std::setprecision(3);
 
+	Glib::ustring output_directory = "output/routes";
+
 	Glib::ustring route;
 	int seed;
 
 	int maximum_steps = 0;
 
 	Glib::OptionGroup option_group{"options", "Options", "Options to configure program"};
+	Glib::OptionEntry output_directory_entry = create_option_entry("output-directory", 'o', "Directory to output routes to");
+	option_group.add_entry(output_directory_entry, output_directory);
+
 	Glib::OptionEntry route_entry = create_option_entry("route", 'r', "Route to process");
 	option_group.add_entry(route_entry, route);
 
@@ -95,6 +107,47 @@ int main (int argc, char ** argv)
 	double round_best_frames = base_engine.get_frames();
 	double best_frames = base_engine.get_frames();
 
+	auto route_output_directory = Gio::File::create_for_path(Glib::build_filename(output_directory, route));
+	auto route_output_file = Gio::File::create_for_path(Glib::build_filename(output_directory, route, Glib::ustring::format(std::setfill(L'0'), std::setw(3), seed, ".txt")));
+
+	if (!route_output_directory->query_exists())
+	{
+		route_output_directory->make_directory_with_parents();
+	}
+
+	if (route_output_file->query_exists())
+	{
+		auto file_stream = Gio::DataInputStream::create(route_output_file->read());
+		std::string line;
+
+		auto split_regex = Glib::Regex::create("\t+");
+
+		int version = -1;
+		double frames = 0;
+
+		while (file_stream->read_line(line))
+		{
+			std::vector<Glib::ustring> tokens = split_regex->split(line);
+
+			if (!tokens.empty())
+			{
+				if (tokens[0] == "VERSION" && tokens.size() == 2)
+				{
+					version = std::stoi(tokens[1]);
+				}
+				else if (tokens[0] == "FRAMES" && tokens.size() == 2)
+				{
+					frames = std::stod(tokens[1]);
+				}
+			}
+		}
+
+		if (version >= base_engine.get_version())
+		{
+			true_best_frames = frames;
+		}
+	}
+
 	int min_variables = randomizer->get_index();
 	int max_variables = randomizer->get_index();
 
@@ -113,16 +166,17 @@ int main (int argc, char ** argv)
 
 			for (decltype(randomizer->data)::size_type j = i + 1; j < randomizer->data.size(); j++)
 			{
+				std::cout << "\rScanning: (" << std::right << std::setw(3) << i << ", " << std::setw(3) << j << ")";
+				std::cout << "   Variables: (" << std::setw(2) << min_variables << ", " << max_variables << ")";
+				std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(true_best_frames);
+				std::cout << "   Previous: " << std::setw(10) << Engine::frames_to_seconds(round_best_frames);
+				std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
+				std::cout << std::flush;
+
 				int original_j_value = randomizer->data[j];
 
 				for (int i_value = 0; i_value <= maximum_steps; i_value++)
 				{
-					std::cout << "\rScanning: (" << std::right << std::setw(3) << i << ", " << std::setw(3) << j << ")";
-					std::cout << "   Variables: (" << std::setw(2) << min_variables << ", " << max_variables << ")";
-					std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(true_best_frames);
-					std::cout << "   Previous: " << std::setw(10) << Engine::frames_to_seconds(round_best_frames);
-					std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
-
 					for (int j_value = 0; j_value <= maximum_steps; j_value++)
 					{
 						randomizer->reset();
@@ -139,6 +193,9 @@ int main (int argc, char ** argv)
 							std::cout << std::left << std::setw(40) << base_engine.get_title() << std::right << std::setw(4) << seed;
 							std::cout << std::setw(11) << Engine::frames_to_seconds(true_best_frames) << " -> " << std::left << std::setw(11) << Engine::frames_to_seconds(engine.get_frames());
 							std::cout << std::setw(8) << Engine::frames_to_seconds(true_best_frames - engine.get_frames()) << std::endl;
+
+							write_route(route_output_file, engine, base_engine);
+
 							true_best_frames = engine.get_frames();
 						}
 
@@ -183,7 +240,10 @@ int main (int argc, char ** argv)
 	engine.reset();
 	engine.run();
 
-	std::cout << engine.format_output(base_engine);
+	if (!route_output_file->query_exists())
+	{
+		write_route(route_output_file, engine, base_engine);
+	}
 
 	return 0;
 }

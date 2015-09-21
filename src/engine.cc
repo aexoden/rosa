@@ -88,7 +88,7 @@ Glib::ustring format_time(double frames)
 	return Glib::ustring::format(std::fixed, std::setprecision(3), Engine::frames_to_seconds(frames));
 }
 
-Glib::ustring Engine::format_output(const Engine & base_engine)
+Glib::ustring Engine::format_output(const Engine & base_engine) const
 {
 	Glib::ustring output;
 
@@ -100,7 +100,7 @@ Glib::ustring Engine::format_output(const Engine & base_engine)
 	output.append(Glib::ustring::compose("SPOONY\t%1\n", SPOONY_VERSION));
 	output.append(Glib::ustring::compose("SEED\t%1\n", _parameters.seed));
 	output.append(Glib::ustring::compose("MAXSTEP\t%1\n", _parameters.maximum_extra_steps));
-	output.append(Glib::ustring::compose("FRAMES\t%1\n", Glib::ustring::format(std::setprecision(8), _frames)));
+	output.append(Glib::ustring::compose("FRAMES\t%1\n", Glib::ustring::format(std::setprecision(20), _frames)));
 	output.append("\n");
 
 	for (auto & entry : _log)
@@ -161,14 +161,19 @@ Glib::ustring Engine::format_output(const Engine & base_engine)
 	return output;
 }
 
-double Engine::get_frames()
+double Engine::get_frames() const
 {
 	return _frames;
 }
 
-Glib::ustring Engine::get_title()
+Glib::ustring Engine::get_title() const
 {
 	return _title;
+}
+
+int Engine::get_version() const
+{
+	return _version;
 }
 
 double Engine::frames_to_seconds(double frames)
