@@ -115,17 +115,17 @@ int main (int argc, char ** argv)
 
 				for (int i_value = 0; i_value <= maximum_steps; i_value++)
 				{
+					std::cout << "\rScanning: (" << std::right << std::setw(3) << i << ", " << std::setw(3) << j << ")";
+					std::cout << "   Variables: (" << std::setw(2) << min_variables << ", " << max_variables << ")";
+					std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(true_best_frames);
+					std::cout << "   Previous: " << std::setw(10) << Engine::frames_to_seconds(round_best_frames);
+					std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
+
 					for (int j_value = 0; j_value <= maximum_steps; j_value++)
 					{
 						randomizer->reset();
 						randomizer->data[i] = i_value;
 						randomizer->data[j] = j_value;
-
-						std::cout << "\r(" << std::right << std::setw(2) << i << ", " << std::setw(2) << j << ") -> (" << std::setw(3) << i_value << ", " << std::setw(3) << j_value << ")";
-						std::cout << "   Variables: (" << std::setw(2) << min_variables << ", " << max_variables << ")";
-						std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(true_best_frames);
-						std::cout << "   Previous: " << std::setw(10) << Engine::frames_to_seconds(round_best_frames);
-						std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
 
 						Engine engine{Parameters{seed, maximum_steps, randomizer}, instructions, encounters};
 						engine.run();
