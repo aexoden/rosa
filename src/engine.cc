@@ -375,12 +375,19 @@ void Engine::_step(int tiles, int steps)
 
 	for (int i = 0; i < steps; i++)
 	{
-		_step_index = (_step_index + 1) % 256;
 		_log.back().steps++;
 
-		if (_step_index == 0)
+		_step_index++;
+
+		if (_step_index == 256)
 		{
-			_step_seed = (_step_seed + 17) % 256;
+			_step_index = 0;
+			_step_seed += 17;
+
+			if (_step_seed > 255)
+			{
+				_step_seed -= 256;
+			}
 		}
 
 		auto encounter = _get_encounter();
