@@ -20,7 +20,63 @@
  * SOFTWARE.
  */
 
+#include <iostream>
+
+#include <giomm/init.h>
+#include <glibmm/keyfile.h>
+#include <glibmm/init.h>
+#include <glibmm/miscutils.h>
+#include <glibmm/optioncontext.h>
+#include <glibmm/optionentry.h>
+#include <glibmm/optiongroup.h>
+
+#include "encounter.hh"
+#include "instruction.hh"
+
+Glib::OptionEntry create_option_entry(const Glib::ustring & long_name, const gchar & short_name, const Glib::ustring & description)
+{
+	Glib::OptionEntry entry;
+
+	entry.set_long_name(long_name);
+	entry.set_short_name(short_name);
+	entry.set_description(description);
+
+	return entry;
+}
+
 int main (int argc, char ** argv)
 {
+	setlocale(LC_ALL, "");
+
+	Glib::init();
+	Gio::init();
+
+	Glib::ustring route;
+
+	int maximum_steps;
+
+	Glib::OptionGroup option_group{"options", "Options", "Options to configure program"};
+	Glib::OptionEntry route_entry = create_option_entry("route", 'r', "Route to process");
+	option_group.add_entry(route_entry, route);
+
+	Glib::OptionEntry maximum_steps_entry = create_option_entry("maximum-steps", 's', "Maximum number of extra steps per area");
+	option_group.add_entry(maximum_steps_entry, maximum_steps);
+
+	Glib::OptionContext option_context;
+	option_context.set_main_group(option_group);
+	option_context.parse(argc, argv);
+
+	Encounters encounters{Gio::File::create_for_path("data/encounters/ff2us.txt")};
+
+	auto route_file = Gio::File::create_for_path(Glib::build_filename("data", "routes", Glib::ustring::compose("%1.txt", route)));
+
+	if (!route_file->query_exists())
+	{
+		std::cerr << "Route " << route << " does not exist." << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	auto instructions = read_instructions(route_file);
+
 	return 0;
 }
