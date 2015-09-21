@@ -48,6 +48,7 @@ class Engine
 	public:
 		Engine(const Parameters & parameters, const std::vector<std::shared_ptr<const Instruction>> & instructions, const Encounters & encounters);
 
+		void reset();
 		void run();
 
 		Glib::ustring format_output(const Engine & base_engine);

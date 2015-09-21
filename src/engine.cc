@@ -53,6 +53,23 @@ Engine::Engine(const Parameters & parameters, const std::vector<std::shared_ptr<
 	_reset(_parameters.seed);
 }
 
+void Engine::reset()
+{
+	_instruction_index = 0;
+
+	_frames = 0;
+	_encounter_frames = 0;
+
+	_encounter_count = 0;
+
+	_encounter_search = nullptr;
+
+	_indent = 0;
+
+	_log.clear();
+	_reset(_parameters.seed);
+}
+
 void Engine::run()
 {
 	while (_instruction_index < _instructions.size())

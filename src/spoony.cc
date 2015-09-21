@@ -98,6 +98,8 @@ int main (int argc, char ** argv)
 	int min_variables = randomizer->get_index();
 	int max_variables = randomizer->get_index();
 
+	Engine engine{Parameters{seed, maximum_steps, randomizer}, instructions, encounters};
+
 	while (true)
 	{
 		int best_i = -1;
@@ -127,7 +129,7 @@ int main (int argc, char ** argv)
 						randomizer->data[i] = i_value;
 						randomizer->data[j] = j_value;
 
-						Engine engine{Parameters{seed, maximum_steps, randomizer}, instructions, encounters};
+						engine.reset();
 						engine.run();
 
 						if (engine.get_frames() < true_best_frames)
@@ -177,7 +179,8 @@ int main (int argc, char ** argv)
 	}
 
 	randomizer->reset();
-	Engine engine{Parameters{seed, maximum_steps, randomizer}, instructions, encounters};
+
+	engine.reset();
 	engine.run();
 
 	std::cout << engine.format_output(base_engine);
