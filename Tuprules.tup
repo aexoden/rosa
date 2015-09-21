@@ -1,7 +1,8 @@
-CXXFLAGS += -O2 -march=native -ggdb
+CXXFLAGS += -O2 -flto -march=native -ggdb
 CXXFLAGS += -pedantic -Wall -Wextra -Wwrite-strings -std=gnu++14
 CXXFLAGS += `pkg-config --cflags glibmm-2.4 giomm-2.4`
 
+LDFLAGS += -O2 -flto
 LDFLAGS += `pkg-config --libs glibmm-2.4 giomm-2.4`
 
 !cxx = |> g++ $(CXXFLAGS) -c %f -o %o |> %B.o
