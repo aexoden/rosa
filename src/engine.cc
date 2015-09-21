@@ -308,7 +308,7 @@ void Engine::_cycle()
 				_step(2, 2);
 			}
 
-			_indent += 1;
+			_indent -= 1;
 
 			break;
 	}
