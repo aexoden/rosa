@@ -176,6 +176,11 @@ int Engine::get_version() const
 	return _version;
 }
 
+int Engine::get_initial_seed() const
+{
+	return _parameters.seed;
+}
+
 double Engine::frames_to_seconds(double frames)
 {
 	return frames / 60.0988;

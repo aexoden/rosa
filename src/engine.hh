@@ -53,6 +53,7 @@ class Engine
 
 		Glib::ustring format_output(const Engine & base_engine) const;
 		double get_frames() const;
+		int get_initial_seed() const;
 		Glib::ustring get_title() const;
 		int get_version() const;
 
