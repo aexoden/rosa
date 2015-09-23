@@ -52,6 +52,8 @@ class Options
 
 		Glib::ustring algorithm = "pair";
 
+		Glib::ustring variables = "";
+
 		int seed = 43;
 		int maximum_steps = 0;
 };
@@ -126,7 +128,7 @@ void write_best_route(const Glib::RefPtr<Gio::File> & file, double best_frames, 
  * Optimization Functions
  */
 
-void optimize_pair(double best_frames, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
+void optimize_pair(int start_index, double best_frames, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
 	double search_best_frames = base_engine.get_frames();
 	double round_best_frames = base_engine.get_frames();
@@ -142,7 +144,7 @@ void optimize_pair(double best_frames, const Options & options, const std::share
 		int best_i_value = 0;
 		int best_j_value = 0;
 
-		for (decltype(randomizer->data)::size_type i = 0; i < randomizer->data.size(); i++)
+		for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++)
 		{
 			int original_i_value = randomizer->data[i];
 
@@ -243,6 +245,7 @@ int main (int argc, char ** argv)
 	option_group.add_entry(create_option_entry("algorithm", 'a', "Optimization algorithm"), options.algorithm);
 	option_group.add_entry(create_option_entry("seed", 's', "Seed to process"), options.seed);
 	option_group.add_entry(create_option_entry("maximum-steps", 'm', "Maximum number of extra steps per area"), options.maximum_steps);
+	option_group.add_entry(create_option_entry("variables", 'v', "Explicitly set variables in the form index:value"), options.variables);
 
 	Glib::OptionContext option_context;
 	option_context.set_main_group(option_group);
@@ -277,6 +280,30 @@ int main (int argc, char ** argv)
 	}
 
 	/*
+	 * Variable Processing
+	 */
+
+	decltype(randomizer->data)::size_type optimization_index = 0;
+
+	for (const auto & variable : Glib::Regex::split_simple(" ", options.variables))
+	{
+		std::vector<Glib::ustring> tokens = Glib::Regex::split_simple(":", variable);
+
+		decltype(randomizer->data)::size_type index = std::stoi(tokens[0]);
+		int value = std::stoi(tokens[1]);
+
+		if (index < randomizer->data.size())
+		{
+			if (index + 1 > optimization_index)
+			{
+				optimization_index = index + 1;
+			}
+
+			randomizer->data[index] = value;
+		}
+	}
+
+	/*
 	 * Optimization
 	 */
 
@@ -286,7 +313,7 @@ int main (int argc, char ** argv)
 
 	if (options.algorithm == "pair")
 	{
-		optimize_pair(best_frames, options, randomizer, engine, base_engine, route_output_file);
+		optimize_pair(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
 	}
 	else if (options.algorithm == "none")
 	{
