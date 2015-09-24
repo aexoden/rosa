@@ -334,7 +334,7 @@ int main (int argc, char ** argv)
 	engine.reset();
 	engine.run();
 
-	if (!route_output_file->query_exists())
+	if (!route_output_file->query_exists() || engine.get_frames() < base_engine.get_frames())
 	{
 		write_best_route(route_output_file, best_frames, engine, base_engine);
 	}
