@@ -99,6 +99,7 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 	output.append(Glib::ustring::compose("VERSION\t%1\n", _version));
 	output.append(Glib::ustring::compose("SPOONY\t%1\n", SPOONY_VERSION));
 	output.append(Glib::ustring::compose("SEED\t%1\n", _parameters.seed));
+	output.append(Glib::ustring::compose("ALGO\t%1\n", _parameters.algorithm));
 	output.append(Glib::ustring::compose("MAXSTEP\t%1\n", _parameters.maximum_extra_steps));
 	output.append(Glib::ustring::compose("FRAMES\t%1\n", Glib::ustring::format(std::setprecision(20), _frames)));
 	output.append("\n");
@@ -254,14 +255,14 @@ void Engine::_cycle()
 
 			if (instruction->optional_steps > 0 || (instruction->take_extra_steps && (instruction->can_single_step || instruction->can_double_step)))
 			{
-				int maximum_extra_steps = _parameters.maximum_extra_steps;
+				int maximum_extra_steps = 65535;
 
 				if (!instruction->take_extra_steps)
 				{
-					maximum_extra_steps = std::min(maximum_extra_steps, instruction->optional_steps);
+					maximum_extra_steps = instruction->optional_steps;
 				}
 
-				int steps = _parameters.randomizer->get_int(0, _parameters.maximum_extra_steps);
+				int steps = _parameters.randomizer->get_int(0, maximum_extra_steps);
 				int optional_steps = std::min(instruction->optional_steps, steps);
 				int extra_steps = steps - optional_steps;
 				int tiles = 0;

@@ -25,15 +25,19 @@
 
 #include <memory>
 
+#include <glibmm/ustring.h>
+
 #include "randomizer.hh"
 
 class Parameters
 {
 	public:
-		Parameters(int seed, int maximum_extra_steps, const std::shared_ptr<Randomizer> & randomizer);
+		Parameters(int seed, int maximum_extra_steps, const Glib::ustring & algorithm, const std::shared_ptr<Randomizer> & randomizer);
 
 		const int seed;
 		const int maximum_extra_steps;
+
+		Glib::ustring algorithm;
 
 		const std::shared_ptr<Randomizer> randomizer;
 };

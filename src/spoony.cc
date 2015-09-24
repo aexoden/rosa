@@ -268,7 +268,7 @@ int main (int argc, char ** argv)
 	auto instructions = read_instructions(route_source_file);
 	auto randomizer = std::make_shared<Randomizer>(false);
 
-	Engine base_engine{Parameters{options.seed, 0, randomizer}, instructions, encounters};
+	Engine base_engine{Parameters{options.seed, 0, "none", randomizer}, instructions, encounters};
 	base_engine.run();
 
 	auto route_output_directory = Gio::File::create_for_path(Glib::build_filename(options.output_directory, options.route));
@@ -309,7 +309,7 @@ int main (int argc, char ** argv)
 
 	double best_frames = get_best_frames(route_output_file, base_engine);
 
-	Engine engine{Parameters{options.seed, options.maximum_steps, randomizer}, instructions, encounters};
+	Engine engine{Parameters{options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters};
 
 	if (options.algorithm == "pair")
 	{

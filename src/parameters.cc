@@ -22,8 +22,9 @@
 
 #include "parameters.hh"
 
-Parameters::Parameters(int seed, int maximum_extra_steps, const std::shared_ptr<Randomizer> & randomizer) :
+Parameters::Parameters(int seed, int maximum_extra_steps, const Glib::ustring & algorithm, const std::shared_ptr<Randomizer> & randomizer) :
 	seed(seed),
 	maximum_extra_steps(maximum_extra_steps),
+	algorithm(algorithm),
 	randomizer(randomizer)
 { }
