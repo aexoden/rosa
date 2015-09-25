@@ -744,22 +744,34 @@ else:
 # Initial Moon Visit and Giant of Bab-il
 #-------------------------------------------------------------------------------
 
-if not route.tas:
-	print(Path('Hummingway Cave (16 Step Minimum)', 17, 16, 0, 0, 0, 1, True, False, True, False))
-	print(Path('Lunar World Map', 1, 1, 0, 8, 9, 1, False, False, True, True))
-	print(Note('Fly to Lunar Path'))
+lunar_walk = [
+	Note('Fly to Lunar Path'),
+	Path('Lunar World Map', 6, 5, 0, 8, 9, 0, False, False, True, True),
+	Path('Lunar Path', 39, 38, 0, 8, 90, 1, False, False, True, False),
+	Path('Lunar World Map', 36, 35, 0, 8, 9, 1, False, False, True, True),
+	Path('Lunar Path 2', 32, 31, 0, 8, 91, 1, False, False, True, False),
+	Path('Lunar World Map', 18, 17, 0, 8, 9, 1, False, False, True, True),
+	Note('Recruit FuSoYa'),
+	Path('Lunar World Map', 19, 18, 0, 8, 9, 1, False, False, True, True),
+	Path('Lunar Path 2', 32, 31, 0, 8, 91, 1, False, False, True, False),
+	Path('Lunar World Map', 36, 35, 0, 8, 9, 1, False, False, True, True),
+	Path('Lunar Path', 39, 38, 0, 8, 90, 1, False, False, True, False),
+]
 
-print(Path('Lunar World Map', 6, 5, 0, 8, 9, 0, False, False, True, True))
-print(Path('Lunar Path', 39, 38, 0, 8, 90, 1, False, False, True, False))
-print(Path('Lunar World Map', 36, 35, 0, 8, 9, 1, False, False, True, True))
-print(Path('Lunar Path 2', 32, 31, 0, 8, 91, 1, False, False, True, False))
-print(Path('Lunar World Map', 18, 17, 0, 8, 9, 1, False, False, True, True))
-print(Note('Recruit FuSoYa'))
-print(Path('Lunar World Map', 19, 18, 0, 8, 9, 1, False, False, True, True))
-print(Path('Lunar Path 2', 32, 31, 0, 8, 91, 1, False, False, True, False))
-print(Path('Lunar World Map', 36, 35, 0, 8, 9, 1, False, False, True, True))
-print(Path('Lunar Path', 39, 38, 0, 8, 90, 1, False, False, True, False))
-print(Path('Lunar World Map', 5, 5, 0, 8, 9, 1, True, False, True, True))
+hummingway_walk = [
+	Path('Hummingway Cave (16 Step Minimum)', 17, 16, 0, 0, 0, 1, True, False, True, False),
+	Path('Lunar World Map', 1, 1, 0, 8, 9, 1, False, False, True, True),
+]
+
+if route.tas:
+	for item in lunar_walk:
+		print(item)
+else:
+	print(Choice([
+		Option('Visit Hummingway First', hummingway_walk + lunar_walk + [Path('Lunar World Map', 5, 5, 0, 8, 9, 1, True, False, True, True)]),
+		Option('Recruit FuSoYa First', lunar_walk + [Path('Lunar World Map', 5, 5, 0, 8, 9, 1, False, False, True, True), Noop(1)] + hummingway_walk),
+	]))
+
 print(Path('Giant of Bab-il Mouth', 23, 18, 1, 9, 74, 1, False, True, True, False))
 print(Path('Giant of Bab-il Neck', 3, 2, 0, 9, 74, 1, False, False, True, False))
 print(Path('Giant of Bab-il Chest', 98, 82, 0, 9, 75, 1, False, True, True, False))
@@ -808,8 +820,8 @@ print(Path('Lunar Subterrane B6 Room', 14, 13, 0, 10, 87, 1, False, False, True,
 
 lunar_subterrane_b7_choices = [
 	Option('Lunar Subterrane B7 Inward Direct', [
-		Path('Lunar Subterrane B7', 81, 80, 0, 8, 86, 1, True, False, True, False),
 		Noop(1 if not route.tas else 2),
+		Path('Lunar Subterrane B7', 81, 80, 0, 8, 86, 1, True, False, True, False),
 	]),
 	Option('Lunar Subterrane B7 Inward Save Room Steps', [
 		Path('Lunar Subterrane B7', 24, 23, 0, 8, 86, 1, False, False, True, False),
