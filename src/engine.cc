@@ -108,11 +108,15 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 
 	output.append("VARS\t");
 
+	bool output_var = false;
+
 	for (decltype(_parameters.randomizer->data)::size_type i = 0; i < _parameters.randomizer->data.size(); i++)
 	{
 		if (_parameters.randomizer->data[i] > 0)
 		{
-			output.append(Glib::ustring::compose("%1:%2%3", i, _parameters.randomizer->data[i], (i == _parameters.randomizer->data.size() - 1 ? "" : " ")));
+			output.append(Glib::ustring::compose("%1%2:%3", (output_var ? " " : ""), i, _parameters.randomizer->data[i]));
+
+			output_var = true;
 		}
 	}
 
