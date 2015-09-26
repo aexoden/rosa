@@ -769,7 +769,7 @@ if route.tas:
 else:
 	print(Choice([
 		Option('Visit Hummingway First', hummingway_walk + lunar_walk + [Path('Lunar World Map', 5, 5, 0, 8, 9, 1, True, False, True, True)]),
-		Option('Recruit FuSoYa First', lunar_walk + [Path('Lunar World Map', 5, 5, 0, 8, 9, 1, False, False, True, True), Noop(1)] + hummingway_walk),
+		Option('Recruit FuSoYa First', lunar_walk + [Path('Lunar World Map', 5, 5, 0, 8, 9, 1, False, False, True, True)] + hummingway_walk + [Noop(1)]),
 	]))
 
 print(Path('Giant of Bab-il Mouth', 23, 18, 1, 9, 74, 1, False, True, True, False))
