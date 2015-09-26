@@ -105,7 +105,18 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 	output.append(Glib::ustring::compose("METHOD\t%1\n", _parameters.algorithm));
 	output.append(Glib::ustring::compose("MAXSTEP\t%1\n", _parameters.maximum_extra_steps));
 	output.append(Glib::ustring::compose("FRAMES\t%1\n", Glib::ustring::format(std::setprecision(20), _frames)));
-	output.append("\n");
+
+	output.append("VARS\t");
+
+	for (decltype(_parameters.randomizer->data)::size_type i = 0; i < _parameters.randomizer->data.size(); i++)
+	{
+		if (_parameters.randomizer->data[i] > 0)
+		{
+			output.append(Glib::ustring::compose("%1:%2%3", i, _parameters.randomizer->data[i], (i == _parameters.randomizer->data.size() - 1 ? "" : " ")));
+		}
+	}
+
+	output.append("\n\n");
 
 	for (auto & entry : _log)
 	{
