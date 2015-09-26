@@ -59,12 +59,15 @@ void Engine::reset()
 
 	_frames = 0;
 	_encounter_frames = 0;
+	_minimum_frames = 0;
 
 	_encounter_count = 0;
 
 	_encounter_search = nullptr;
 
 	_indent = 0;
+
+	_full_minimum = true;
 
 	_log.clear();
 	_reset(_parameters.seed);
@@ -167,6 +170,11 @@ double Engine::get_frames() const
 	return _frames;
 }
 
+double Engine::get_minimum_frames() const
+{
+	return _minimum_frames;
+}
+
 Glib::ustring Engine::get_title() const
 {
 	return _title;
@@ -200,6 +208,11 @@ void Engine::_cycle()
 	{
 		case InstructionType::CHOICE:
 		{
+			if (_parameters.randomizer->is_implicit())
+			{
+				_full_minimum = false;
+			}
+
 			int choice = _parameters.randomizer->get_int(0, instruction->number - 1);
 
 			if (_parameters.maximum_extra_steps == 0)
@@ -260,6 +273,11 @@ void Engine::_cycle()
 				if (!instruction->take_extra_steps)
 				{
 					maximum_extra_steps = instruction->optional_steps;
+				}
+
+				if (_parameters.randomizer->is_implicit())
+				{
+					_full_minimum = false;
 				}
 
 				int steps = _parameters.randomizer->get_int(0, maximum_extra_steps);
@@ -383,6 +401,7 @@ void Engine::_reset(int seed)
 void Engine::_step(int tiles, int steps)
 {
 	_frames += tiles * 16;
+	_minimum_frames += tiles * 16;
 
 	for (int i = 0; i < steps; i++)
 	{
@@ -415,6 +434,11 @@ void Engine::_step(int tiles, int steps)
 			_encounter_frames += encounter->get_average_duration();
 			_encounter_count++;
 
+			if (_full_minimum)
+			{
+				_minimum_frames += encounter->get_average_duration();
+			}
+
 			_encounter_index = (_encounter_index + 1) % 256;
 
 			if (_encounter_index == 0)
@@ -428,6 +452,7 @@ void Engine::_step(int tiles, int steps)
 void Engine::_transition(const std::shared_ptr<const Instruction> & instruction)
 {
 	_frames += instruction->transition_count * 82;
+	_minimum_frames += instruction->transition_count * 82;
 	_log.push_back(LogEntry{instruction, _indent});
 }
 

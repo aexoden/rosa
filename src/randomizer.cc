@@ -41,6 +41,16 @@ int Randomizer::get_int(int min_value, int max_value)
 	return std::min(_next() + min_value, max_value);
 }
 
+void Randomizer::set_implicit_index(int index)
+{
+	_implicit_index = index;
+}
+
+bool Randomizer::is_implicit() const
+{
+	return _index >= _implicit_index;
+}
+
 int Randomizer::_next()
 {
 	if (_index == data.size())

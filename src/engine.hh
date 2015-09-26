@@ -53,6 +53,7 @@ class Engine
 
 		Glib::ustring format_output(const Engine & base_engine) const;
 		double get_frames() const;
+		double get_minimum_frames() const;
 		int get_initial_seed() const;
 		Glib::ustring get_title() const;
 		int get_version() const;
@@ -82,6 +83,7 @@ class Engine
 
 		double _frames = 0;
 		double _encounter_frames = 0;
+		double _minimum_frames = 0;
 
 		Encounters _encounters;
 
@@ -95,6 +97,8 @@ class Engine
 		int _version;
 
 		int _indent = 0;
+
+		bool _full_minimum;
 };
 
 #endif // SPOONY_ENGINE_HH

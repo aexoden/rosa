@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+#include <cmath>
 #include <ctime>
 #include <iomanip>
 #include <iostream>
@@ -127,6 +128,88 @@ void write_best_route(const Glib::RefPtr<Gio::File> & file, double best_frames, 
 /*
  * Optimization Functions
  */
+
+void optimize_bb(int start_index, double best_frames, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
+{
+	double search_best_frames = base_engine.get_frames();
+	std::vector<int> best_data;
+
+	int index = start_index;
+
+	int min_variables = randomizer->get_index();
+	int max_variables = randomizer->get_index();
+
+	int iterations = 0;
+
+	while (true)
+	{
+		if (iterations % 1009 == 0)
+		{
+			std::cout << "\rAlgorithm: " << std::left << std::setw(15) << "Branch and Bound";
+			std::cout << "   Index: " << std::right << std::setw(2) << index;
+			std::cout << "   Iterations: " << std::setw(20) << iterations;
+			std::cout << "   Variables: (" << std::setw(2) << min_variables << ", " << max_variables << ")";
+			std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
+			std::cout << "   Search Best: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames);
+			std::cout << std::flush;
+		}
+
+		randomizer->reset();
+		randomizer->set_implicit_index(index);
+
+		engine.reset();
+		engine.run();
+
+		iterations++;
+
+		if (engine.get_frames() < best_frames)
+		{
+			write_best_route(output_file, best_frames, engine, base_engine);
+			best_frames = engine.get_frames();
+		}
+
+		if (engine.get_frames() < search_best_frames)
+		{
+			best_data = randomizer->data;
+			search_best_frames = engine.get_frames();
+		}
+
+		int variables = randomizer->get_index();
+
+		min_variables = std::min(min_variables, variables);
+		max_variables = std::max(max_variables, variables);
+
+		if (randomizer->data[index] == options.maximum_steps || engine.get_minimum_frames() > best_frames)
+		{
+			randomizer->data[index] = 0;
+			index--;
+
+			if (index >= 0)
+			{
+				randomizer->data[index]++;
+			}
+		}
+		else
+		{
+			if (index + 1 < randomizer->get_index())
+			{
+				index++;
+			}
+			else
+			{
+				randomizer->data[index]++;
+			}
+		}
+
+		if (index == start_index - 1)
+		{
+			randomizer->data = best_data;
+			return;
+		}
+	}
+
+	std::cout << std::endl;
+}
 
 void optimize_pair(int start_index, double best_frames, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
@@ -315,6 +398,10 @@ int main (int argc, char ** argv)
 	{
 		optimize_pair(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
 	}
+	else if (options.algorithm == "bb")
+	{
+		optimize_bb(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
+	}
 	else if (options.algorithm == "none")
 	{
 
@@ -334,7 +421,7 @@ int main (int argc, char ** argv)
 	engine.reset();
 	engine.run();
 
-	if (!route_output_file->query_exists() || engine.get_frames() < base_engine.get_frames())
+	if (!route_output_file->query_exists() || engine.get_frames() < best_frames)
 	{
 		write_best_route(route_output_file, best_frames, engine, base_engine);
 	}

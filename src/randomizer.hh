@@ -35,6 +35,9 @@ class Randomizer
 		int get_index();
 		int get_int(int min_value, int max_value);
 
+		void set_implicit_index(int index);
+		bool is_implicit() const;
+
 		std::vector<int> data;
 
 	private:
@@ -43,6 +46,8 @@ class Randomizer
 		std::vector<int>::size_type _index = 0;
 
 		bool _random;
+
+		std::vector<int>::size_type _implicit_index = 0;
 };
 
 #endif // SPOONY_RANDOMIZER_HH
