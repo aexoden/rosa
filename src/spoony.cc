@@ -58,6 +58,7 @@ class Options
 
 		int seed = 43;
 		int maximum_steps = 0;
+		int maximum_iterations = 1000;
 };
 
 Glib::OptionEntry create_option_entry(const Glib::ustring & long_name, const gchar & short_name, const Glib::ustring & description)
@@ -115,7 +116,7 @@ double get_best_frames(const Glib::RefPtr<Gio::File> & file, const Engine & base
 
 void write_best_route(const Glib::RefPtr<Gio::File> & file, double best_frames, const Engine & engine, const Engine & base_engine)
 {
-	std::cout << "\r                                                                                                                                                ";
+	std::cout << "\r                                                                                                                                                         ";
 	std::cout << "\r" << Glib::DateTime::create_now_local().format("%Y-%m-%d %H:%M:%S") << ": ";
 	std::cout << std::left << std::setw(40) << base_engine.get_title() << std::right << std::setw(4) << engine.get_initial_seed();
 	std::cout << std::setw(11) << Engine::frames_to_seconds(best_frames) << " -> " << std::left << std::setw(11) << Engine::frames_to_seconds(engine.get_frames());
@@ -292,22 +293,37 @@ void optimize_ils(int start_index, double best_frames, const Options & options, 
 		best_frames = search_best_frames;
 	}
 
+	int iterations = 0;
+
 	while (true)
 	{
-		std::cout << "\r\t\t\t\t\t\t\t\t\t\t\t\t\tSearch Best: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames);
+		std::cout << "\r\t\t\t\t\t\t\t\t\t\t\t\t\tSearch Best: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames) << "    Iterations: " << std::setw(10) << iterations;
 		std::cout << std::flush;
 
 		std::vector<int> current_data{randomizer->data};
 
 		std::uniform_int_distribution<int> index_dist{0, static_cast<int>(randomizer->data.size()) - 1};
-		std::uniform_int_distribution<int> step_dist{0, options.maximum_steps};
 
-		for (int i = 0; i < 3; i++)
+		int total = std::uniform_int_distribution<int>{-16, 16}(random_engine);
+		int max = std::min(static_cast<int>(randomizer->data.size()) / 2, 5);
+
+		max = randomizer->data.size();
+
+		for (int i = 0; i < max; i++)
 		{
 			int index = index_dist(random_engine);
-			int value = step_dist(random_engine);
+			total += randomizer->data[index];
+
+			int value = std::uniform_int_distribution<int>{0, std::max(0, total * 2)}(random_engine);
+			value = std::max(0, std::min(value, options.maximum_steps));
+
+			if (i == max - 1)
+			{
+				value = std::max(0, std::min(total, options.maximum_steps));
+			}
 
 			randomizer->data[index] = value;
+			total -= value;
 		}
 
 		optimize_localsearch(start_index, best_frames, options, randomizer, engine, base_engine, output_file);
@@ -320,12 +336,24 @@ void optimize_ils(int start_index, double best_frames, const Options & options, 
 		if (engine.get_frames() < search_best_frames)
 		{
 			search_best_frames = engine.get_frames();
+			iterations = 0;
 		}
 		else
 		{
 			randomizer->data = current_data;
+			iterations++;
+
+			if (iterations >= options.maximum_iterations)
+			{
+				break;
+			}
 		}
 	}
+
+	randomizer->reset();
+
+	engine.reset();
+	engine.run();
 
 	std::cout << std::endl;
 }
@@ -447,6 +475,7 @@ int main (int argc, char ** argv)
 	option_group.add_entry(create_option_entry("algorithm", 'a', "Optimization algorithm"), options.algorithm);
 	option_group.add_entry(create_option_entry("seed", 's', "Seed to process"), options.seed);
 	option_group.add_entry(create_option_entry("maximum-steps", 'm', "Maximum number of extra steps per area"), options.maximum_steps);
+	option_group.add_entry(create_option_entry("maximum-iterations", 'i', "Maximum number of iterations to attempt without improvement"), options.maximum_iterations);
 	option_group.add_entry(create_option_entry("variables", 'v', "Explicitly set variables in the form index:value"), options.variables);
 
 	Glib::OptionContext option_context;
