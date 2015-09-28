@@ -554,6 +554,11 @@ int main (int argc, char ** argv)
 	{
 		optimize_ils(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
 	}
+	else if (options.algorithm == "ils+pair")
+	{
+		optimize_ils(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
+		optimize_pair(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
+	}
 	else if (options.algorithm == "none")
 	{
 
