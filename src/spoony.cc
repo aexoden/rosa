@@ -60,6 +60,7 @@ class Options
 		int maximum_steps = 0;
 		int maximum_iterations = 1000;
 		int perturbation_strength = 3;
+		int perturbation_wobble = 0;
 };
 
 Glib::OptionEntry create_option_entry(const Glib::ustring & long_name, const gchar & short_name, const Glib::ustring & description)
@@ -305,8 +306,8 @@ void optimize_ils(int start_index, double best_frames, const Options & options, 
 
 		std::uniform_int_distribution<int> index_dist{start_index, static_cast<int>(randomizer->data.size()) - 1};
 
-		int total = std::uniform_int_distribution<int>{-64, 64}(random_engine);
-		int max = std::min(static_cast<int>(randomizer->data.size()), options.perturbation_strength);
+		int total = std::uniform_int_distribution<int>{-options.perturbation_wobble, options.perturbation_wobble}(random_engine);
+		int max = options.perturbation_strength;
 
 		for (int i = 0; i < max; i++)
 		{
@@ -476,6 +477,7 @@ int main (int argc, char ** argv)
 	option_group.add_entry(create_option_entry("maximum-steps", 'm', "Maximum number of extra steps per area"), options.maximum_steps);
 	option_group.add_entry(create_option_entry("maximum-iterations", 'i', "Maximum number of iterations to attempt without improvement"), options.maximum_iterations);
 	option_group.add_entry(create_option_entry("perturbation-strength", 'p', "Strength of perturbations for ILS"), options.perturbation_strength);
+	option_group.add_entry(create_option_entry("perturbation-wobble", 'w', "Initial wobble range added to the perturbation for ILS"), options.perturbation_wobble);
 	option_group.add_entry(create_option_entry("variables", 'v', "Explicitly set variables in the form index:value"), options.variables);
 
 	Glib::OptionContext option_context;
