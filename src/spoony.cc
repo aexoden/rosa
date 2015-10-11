@@ -544,31 +544,29 @@ int main (int argc, char ** argv)
 
 	Engine engine{Parameters{options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters};
 
-	if (options.algorithm == "pair")
+	for (const auto & algorithm : Glib::Regex::split_simple("\\+", options.algorithm))
 	{
-		optimize_pair(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
-	}
-	else if (options.algorithm == "bb")
-	{
-		optimize_bb(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
-	}
-	else if (options.algorithm == "ils")
-	{
-		optimize_ils(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
-	}
-	else if (options.algorithm == "ils+pair")
-	{
-		optimize_ils(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
-		optimize_pair(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
-	}
-	else if (options.algorithm == "none")
-	{
+		std::cout << algorithm << std::endl;
+		if (algorithm == "bb")
+		{
+			optimize_bb(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
+		}
+		else if (algorithm == "ils")
+		{
+			optimize_ils(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
+		}
+		else if (algorithm == "pair")
+		{
+			optimize_pair(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
+		}
+		else if (algorithm == "none")
+		{
 
-	}
-	else
-	{
-		std::cerr << "Algorithm \"" << options.algorithm << "\" is unknown" << std::endl;
-		exit(EXIT_FAILURE);
+		}
+		else
+		{
+			std::cerr << "Algorithm \"" << options.algorithm << "\" is unknown" << std::endl;
+		}
 	}
 
 	/*
