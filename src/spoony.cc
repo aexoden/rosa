@@ -435,7 +435,7 @@ void optimize_pair(int start_index, double best_frames, const Options & options,
 			break;
 		}
 
-		std::cout << std::endl << "Updating (" << best_i << ", " << best_j << ") to (" << best_i_value << ", " << best_j_value << ") (" << (search_best_frames / 60.0988) << "s)" << std::endl;
+		std::cout << std::endl << "Updating (" << best_i << ", " << best_j << ") from (" << randomizer->data[best_i] << ", " << randomizer->data[best_j] << ") to (" << best_i_value << ", " << best_j_value << ") (" << (search_best_frames / 60.0988) << "s)" << std::endl;
 
 		randomizer->data[best_i] = best_i_value;
 		randomizer->data[best_j] = best_j_value;
