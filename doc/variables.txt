@@ -1,0 +1,162 @@
+Paladin
+-------
+0		Watery Pass-South Save Room
+1		Watery Pass-South B3F
+2		Waterfalls B1F
+3		Damcyan
+4		Antlion B2F Inward Charm Room Choice
+5		Antlion B2F Inward Charm Room Steps
+6		Antlion B2F Outward Charm Room Choice
+7		Antlion B2F Outward Charm Room Steps
+8		Mt.Hobs-East
+9		Fabul
+10		World Map (Mysidia) before 8->10 transition
+11		Mt.Ordeals Summit
+
+Yes64
+-----
+0		Watery Pass-South Save Room
+1		Watery Pass-South B3F
+2		Waterfalls B1F
+3		Damcyan
+4		Antlion B2F Inward Charm Room Choice
+5		Antlion B2F Inward Charm Room Steps
+6		Antlion B2F Outward Charm Room Choice
+7		Antlion B2F Outward Charm Room Steps
+8		Mt.Hobs-East
+9		Fabul
+10		World Map (Mysidia)
+11		Mt.Ordeals Summit
+12		Mt.Ordeals Summit
+13		Mt.Ordeals (before exiting)
+14		Serpent Road
+15		Castle Baron B1F Inward Save Room Choice
+16		Castle Baron B1F Inward Save Room Steps
+17		Castle Baron (Kainazzo)
+18		Toroian Castle
+19		World Map (Toroia) heading to chocobo
+20		Cave Magnes B3F Inward Save Room Choice
+21		Cave Magnes B3F Inward Save Room Steps
+22		Cave Magnes B4F Inward Save Room Choice
+23		Cave Magnes B4F Inward Save Room Steps
+24		Cave Magnes B4F
+25		Toroian Castle 1F Inward Choice
+26		Toroian Castle 1F Inward Steps
+27		World Map (Toroia) heading to Zot
+28		Castle Baron (after Valvalis)
+
+No64-Drain
+----------
+0		Watery Pass-South Save Room
+1		Watery Pass-South B3F
+2		Waterfalls B1F
+3		Damcyan
+4		Antlion B2F Inward Charm Room Choice
+5		Antlion B2F Inward Charm Room Steps
+6		Antlion B2F Outward Charm Room Choice
+7		Antlion B2F Outward Charm Room Steps
+8		Mt.Hobs-East
+9		Fabul
+10		World Map (Mysidia)
+11		Mt.Ordeals Summit
+12		Mt.Ordeals Summit
+13		Mt.Ordeals (before exiting)
+14		Serpent Road
+15		Castle Baron B1F Inward Save Room Choice
+16		Castle Baron B1F Inward Save Room Steps
+17		Castle Baron (Kainazzo)
+18		Toroian Castle
+19		World Map (Toroia) heading to chocobo
+20		Cave Magnes B3F Inward Save Room Choice
+21		Cave Magnes B3F Inward Save Room Steps
+22		Cave Magnes B4F Inward Save Room Choice
+23		Cave Magnes B4F Inward Save Room Steps
+24		Cave Magnes B4F
+25		Toroian Castle 1F Inward Choice
+26		Toroian Castle 1F Inward Steps
+27		World Map (Toroia) heading to Zot
+28		Castle Baron (after Valvalis)
+29		Castle of Dwarves
+30		Eblan Castle
+31		Cave Eblana B2F
+32		Pass to Bab-il 2 Inward Save Room Choice
+33		Pass to Bab-il 2 Inward Save Room Steps
+34		Castle of Dwarves/Cid Room
+35		Sealed Cave
+36		Castle of Dwarves/King's Room
+37		Hummingway/FuSoYa Choice
+38		Hummingway Cave
+39		Lunar World Map (before Giant)
+40		Giant of Bab-il Mouth
+41		Giant of Bab-il Passage
+42		Giant of Bab-il CPU
+43		Lunar Subterrane B2
+44		Lunar Subterrane B4
+45		Lunar Subterrane B5
+46		Lunar Subterrane B5 (after room)
+47		Lunar Subterrane B5 Inward Pink Puff Room Choice
+48		Lunar Subterrane B5 Inward Pink Puff Room Steps
+49		Lunar Subterrane B6
+50		Lunar Subterrane B7 Inward Save Room Choice
+51		Lunar Subterrane B7 Inward Save Room Steps
+52		Lunar Subterrane B7
+
+No64-Excalbur
+-------------
+0		Watery Pass-South Save Room
+1		Watery Pass-South B3F
+2		Waterfalls B1F
+3		Damcyan
+4		Antlion B2F Inward Charm Room Choice
+5		Antlion B2F Inward Charm Room Steps
+6		Antlion B2F Outward Charm Room Choice
+7		Antlion B2F Outward Charm Room Steps
+8		Mt.Hobs-East
+9		Fabul
+10		World Map (Mysidia)
+11		Mt.Ordeals Summit
+12		Mt.Ordeals Summit
+13		Mt.Ordeals (before exiting)
+14		Serpent Road
+15		Castle Baron B1F Inward Save Room Choice
+16		Castle Baron B1F Inward Save Room Steps
+17		Castle Baron (Kainazzo)
+18		Toroian Castle
+19		World Map (Toroia) heading to chocobo
+20		Cave Magnes B3F Inward Save Room Choice
+21		Cave Magnes B3F Inward Save Room Steps
+22		Cave Magnes B4F Inward Save Room Choice
+23		Cave Magnes B4F Inward Save Room Steps
+24		Cave Magnes B4F
+25		Toroian Castle 1F Inward Choice
+26		Toroian Castle 1F Inward Steps
+27		World Map (Toroia) heading to Zot
+28		Castle Baron (after Valvalis)
+29		Castle of Dwarves
+30		Castle Baron (airship hook)
+31		Cave Eblana B2F
+32		Pass to Bab-il 2 Inward Save Room Choice
+33		Pass to Bab-il 2 Inward Save Room Steps
+34		Castle of Dwarves/Cid Room
+35		Underworld Map (before summon cave)
+36		Land of Monsters B3F Inward Choice
+37		Sealed Cave
+38		Castle of Dwarves/King's Room
+39		World Map (Eblan)
+40		Grotto Adamant
+41		Hummingway/FuSoYa Choice
+42		Hummingway Cave (if Hummingway first)
+43		Lunar World Map (before Giant)
+44		Giant of Bab-il Mouth
+45		Giant of Bab-il Passage
+46		Giant of Bab-il CPU
+47		Lunar Subterrane B2
+48		Lunar Subterrane B4
+49		Lunar Subterrane B5
+50		Lunar Subterrane B5 (after room)
+51		Lunar Subterrane B5 Inward Pink Puff Room Choice
+52		Lunar Subterrane B5 Inward Pink Puff Room Steps
+53		Lunar Subterrane B6
+54		Lunar Subterrane B7 Inward Save Room Choice
+55		Lunar Subterrane B7 Inward Save Room Steps
+56		Lunar Subterrane B7
