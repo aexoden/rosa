@@ -272,6 +272,59 @@ void optimize_bb(int start_index, double best_frames, const Options & options, c
 	std::cout << std::endl;
 }
 
+void optimize_sequential(int start_index, double best_frames, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
+{
+	double search_best_frames = base_engine.get_frames();
+
+	int min_variables = randomizer->get_index();
+	int max_variables = randomizer->get_index();
+
+	for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++)
+	{
+		std::cout << "\rAlgorithm: " << std::left << std::setw(15) << "Sequential";
+		std::cout << "   Index: " << std::right << std::setw(2) << i;
+		std::cout << "   Variables: (" << std::setw(2) << min_variables << ", " << max_variables << ")";
+		std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
+		std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames);
+		std::cout << std::flush;
+
+		int best_value = randomizer->data[i];
+
+		for (int value = 0; value <= options.maximum_steps; value++)
+		{
+			randomizer->reset();
+			randomizer->data[i] = value;
+
+			engine.reset();
+			engine.run();
+
+			if (engine.get_frames() < best_frames)
+			{
+				write_best_route(output_file, best_frames, engine, base_engine);
+				best_frames = engine.get_frames();
+			}
+
+			if (engine.get_frames() < search_best_frames)
+			{
+				search_best_frames = engine.get_frames();
+				best_value = value;
+			}
+
+			int variables = randomizer->get_index();
+
+			min_variables = std::min(min_variables, variables);
+			max_variables = std::max(max_variables, variables);
+		}
+
+		randomizer->data[i] = best_value;
+	}
+
+	randomizer->reset();
+
+	engine.reset();
+	engine.run();
+}
+
 void optimize_localsearch(int start_index, double best_frames, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
 	double search_best_frames = base_engine.get_frames();
@@ -617,6 +670,10 @@ int main (int argc, char ** argv)
 		else if (algorithm == "pair")
 		{
 			optimize_pair(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
+		}
+		else if (algorithm == "sequential")
+		{
+			optimize_sequential(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
 		}
 		else if (algorithm == "none")
 		{
