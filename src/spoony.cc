@@ -48,6 +48,7 @@ class RouteOutputData
 {
 	public:
 		Glib::ustring spoony_version = "";
+		Glib::ustring variable_data;
 
 		int maximum_steps = 0;
 
@@ -72,6 +73,7 @@ class Options
 		Glib::ustring variables = "";
 
 		bool full_optimization = false;
+		bool load_existing_variables = false;
 
 		int seed = 43;
 
@@ -113,7 +115,6 @@ const RouteOutputData get_route_output_data(const Glib::RefPtr<Gio::File> & file
 
 		int version = -1;
 		double frames = std::numeric_limits<double>::max();
-		Glib::ustring spoony_version{""};
 
 		while (file_stream->read_line(line))
 		{
@@ -136,6 +137,10 @@ const RouteOutputData get_route_output_data(const Glib::RefPtr<Gio::File> & file
 				else if (tokens[0] == "MAXSTEP")
 				{
 					data.maximum_steps = std::stoi(tokens[1]);
+				}
+				else if (tokens[0] == "VARS")
+				{
+					data.variable_data = tokens[1];
 				}
 			}
 		}
@@ -587,6 +592,7 @@ int main (int argc, char ** argv)
 	option_group.add_entry(create_option_entry("route", 'r', "Route to process"), options.route);
 	option_group.add_entry(create_option_entry("algorithm", 'a', "Optimization algorithm"), options.algorithm);
 	option_group.add_entry(create_option_entry("full-optimization", 'f', "Optimize all variables instead of only variables after input data"), options.full_optimization);
+	option_group.add_entry(create_option_entry("load-existing-variables", 'l', "Use the existing variable data in the best route as seed data"), options.load_existing_variables);
 	option_group.add_entry(create_option_entry("seed", 's', "Seed to process"), options.seed);
 	option_group.add_entry(create_option_entry("maximum-steps", 'm', "Maximum number of extra steps per area"), options.maximum_steps);
 	option_group.add_entry(create_option_entry("maximum-iterations", 'i', "Maximum number of iterations to attempt"), options.maximum_iterations);
@@ -630,9 +636,11 @@ int main (int argc, char ** argv)
 	 * Variable Processing
 	 */
 
+	RouteOutputData route_output_data = get_route_output_data(route_output_file, base_engine);
+
 	decltype(randomizer->data)::size_type optimization_index = 0;
 
-	for (const auto & variable : Glib::Regex::split_simple(" ", options.variables))
+	for (const auto & variable : Glib::Regex::split_simple(" ", (options.load_existing_variables ? route_output_data.variable_data : options.variables)))
 	{
 		std::vector<Glib::ustring> tokens = Glib::Regex::split_simple(":", variable);
 
@@ -653,8 +661,6 @@ int main (int argc, char ** argv)
 	/*
 	 * Optimization
 	 */
-
-	RouteOutputData route_output_data = get_route_output_data(route_output_file, base_engine);
 
 	double best_frames = route_output_data.frames;
 
