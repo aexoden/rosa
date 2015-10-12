@@ -241,9 +241,9 @@ PATH	Lunar Path 2				32	31	0	8	91	1	-	-	+	-
 PATH	Lunar World Map				36	35	0	8	9	1	-	-	+	+
 PATH	Lunar Path				39	38	0	8	90	1	-	-	+	-
 PATH	Lunar World Map				5	5	0	8	9	1	-	-	+	+
-NOOP	1
 PATH	Hummingway Cave (16 Step Minimum)	17	16	0	0	0	1	+	-	+	-
 PATH	Lunar World Map				1	1	0	8	9	1	-	-	+	+
+NOOP	1
 END
 PATH	Giant of Bab-il Mouth			23	18	1	9	74	1	-	+	+	-
 PATH	Giant of Bab-il Neck			3	2	0	9	74	1	-	-	+	-
