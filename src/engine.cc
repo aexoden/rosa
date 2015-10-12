@@ -64,6 +64,7 @@ void Engine::reset()
 	_encounter_count = 0;
 
 	_encounter_search = nullptr;
+	_encounter_search_area = false;
 
 	_indent = 0;
 
@@ -158,6 +159,14 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 		for (auto & pair : entry.encounters)
 		{
 			output.append(Glib::ustring::compose("%1  Step %2: %3 (%4s)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second->get_description(), format_time(pair.second->get_average_duration())));
+		}
+
+		for (auto & pair : entry.potential_encounters)
+		{
+			if (entry.encounters.count(pair.first) == 0)
+			{
+				output.append(Glib::ustring::compose("%1 (Step %2: %3)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second->get_description(), format_time(pair.second->get_average_duration())));
+			}
 		}
 	}
 
@@ -279,7 +288,7 @@ void Engine::_cycle()
 			_transition(instruction);
 			_encounter_rate = instruction->encounter_rate;
 			_encounter_group = instruction->encounter_group;
-			_step(instruction->tiles, instruction->required_steps);
+			_step(instruction->tiles, instruction->required_steps, false);
 
 			if (instruction->optional_steps > 0 || (instruction->take_extra_steps && (instruction->can_single_step || instruction->can_double_step)))
 			{
@@ -325,7 +334,7 @@ void Engine::_cycle()
 					tiles++;
 				}
 
-				_step(tiles, optional_steps + extra_steps);
+				_step(tiles, optional_steps + extra_steps, false);
 			}
 
 			break;
@@ -334,6 +343,7 @@ void Engine::_cycle()
 			break;
 		case InstructionType::SEARCH:
 			_encounter_search = _encounters.get_encounter(instruction->number);
+			_encounter_search_area = true;
 
 			_transition(instruction);
 			_indent++;
@@ -344,8 +354,10 @@ void Engine::_cycle()
 		case InstructionType::WAIT:
 			while (_encounter_search)
 			{
-				_step(2, 2);
+				_step(2, 2, false);
 			}
+
+			_encounter_search_area = false;
 
 			_indent -= 1;
 
@@ -413,10 +425,23 @@ void Engine::_reset(int seed)
 	_encounter_group = 0;
 }
 
-void Engine::_step(int tiles, int steps)
+
+
+void Engine::_step(int tiles, int steps, bool simulate)
 {
-	_frames += tiles * 16;
-	_minimum_frames += tiles * 16;
+	if (!simulate)
+	{
+		_frames += tiles * 16;
+		_minimum_frames += tiles * 16;
+	}
+
+	int log_steps = _log.back().steps;
+
+	int step_index = _step_index;
+	int step_seed = _step_seed;
+
+	int encounter_index = _encounter_index;
+	int encounter_seed = _encounter_seed;
 
 	for (int i = 0; i < steps; i++)
 	{
@@ -437,19 +462,30 @@ void Engine::_step(int tiles, int steps)
 
 		auto encounter = _get_encounter();
 
-		if (encounter && _encounter_search && encounter->get_id() == _encounter_search->get_id())
+		if (!simulate && encounter && _encounter_search && encounter->get_id() == _encounter_search->get_id())
 		{
 			_encounter_search = nullptr;
 		}
 
 		if (encounter)
 		{
-			_log.back().encounters[_log.back().steps] = encounter;
-			_frames += encounter->get_average_duration();
-			_encounter_frames += encounter->get_average_duration();
-			_encounter_count++;
+			if (simulate)
+			{
+				_log.back().potential_encounters[_log.back().steps] = encounter;
+			}
+			else
+			{
+				_log.back().encounters[_log.back().steps] = encounter;
+			}
 
-			if (_full_minimum)
+			if (!simulate)
+			{
+				_frames += encounter->get_average_duration();
+				_encounter_frames += encounter->get_average_duration();
+				_encounter_count++;
+			}
+
+			if (!simulate && _full_minimum)
 			{
 				_minimum_frames += encounter->get_average_duration();
 			}
@@ -462,6 +498,17 @@ void Engine::_step(int tiles, int steps)
 			}
 		}
 	}
+
+	if (simulate)
+	{
+		_log.back().steps = log_steps;
+
+		_step_index = step_index;
+		_step_seed = step_seed;
+
+		_encounter_index = encounter_index;
+		_encounter_seed = encounter_seed;
+	}
 }
 
 void Engine::_transition(const std::shared_ptr<const Instruction> & instruction)
@@ -469,6 +516,11 @@ void Engine::_transition(const std::shared_ptr<const Instruction> & instruction)
 	_frames += instruction->transition_count * 82;
 	_minimum_frames += instruction->transition_count * 82;
 	_log.push_back(LogEntry{instruction, _indent});
+
+	if (_encounter_search_area && instruction->type == InstructionType::PATH)
+	{
+		_step(256, 256, true);
+	}
 }
 
 LogEntry::LogEntry(const std::shared_ptr<const Instruction> & instruction, int indent) :

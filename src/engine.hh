@@ -41,6 +41,7 @@ class LogEntry
 		int steps = 0;
 
 		std::map<int, std::shared_ptr<const Encounter>> encounters;
+		std::map<int, std::shared_ptr<const Encounter>> potential_encounters;
 };
 
 class Engine
@@ -64,7 +65,7 @@ class Engine
 		void _cycle();
 		std::shared_ptr<const Encounter> _get_encounter();
 		void _reset(int seed);
-		void _step(int tiles, int steps);
+		void _step(int tiles, int steps, bool simulate);
 		void _transition(const std::shared_ptr<const Instruction> & instruction);
 
 		Parameters _parameters;
@@ -90,6 +91,7 @@ class Engine
 		int _encounter_count = 0;
 
 		std::shared_ptr<const Encounter> _encounter_search;
+		bool _encounter_search_area;
 
 		std::vector<LogEntry> _log;
 
