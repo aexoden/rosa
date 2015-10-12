@@ -546,7 +546,6 @@ int main (int argc, char ** argv)
 
 	for (const auto & algorithm : Glib::Regex::split_simple("\\+", options.algorithm))
 	{
-		std::cout << algorithm << std::endl;
 		if (algorithm == "bb")
 		{
 			optimize_bb(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
