@@ -9,7 +9,7 @@ NOTE	Kaipo
 PATH	World Map (Kaipo)			33	32	0	8	1	1	-	-	+	+
 PATH	Watery Pass-South B1F			32	32	0	7	17	1	-	-	+	-
 NOTE	Recruit Tellah
-SEARCH	Watery Pass Pike Hunt			13
+SEARCH	Watery Pass Pike Hunt			13+15
 PATH	Watery Pass-South B1F			21	20	0	7	17	0	-	-	+	-
 PATH	Watery Pass-South B2F			91	90	0	7	17	1	-	-	+	-
 WAIT

@@ -83,7 +83,11 @@ Instruction::Instruction(const Glib::ustring & line)
 		{
 			type = InstructionType::SEARCH;
 			text = tokens[1];
-			number = std::stoi(tokens[2]);
+
+			for (const auto & number : Glib::Regex::split_simple("\\+", tokens[2]))
+			{
+				numbers.insert(std::stoi(number));
+			}
 		}
 		else if (tokens[0] == "VERSION" && tokens.size() == 2)
 		{

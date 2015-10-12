@@ -23,6 +23,8 @@
 #ifndef SPOONY_INSTRUCTION_HH
 #define SPOONY_INSTRUCTION_HH
 
+#include <set>
+
 #include <glibmm/ustring.h>
 
 enum class InstructionType
@@ -46,6 +48,8 @@ class Instruction
 
 		InstructionType type = InstructionType::NOOP;
 		Glib::ustring text;
+
+		std::set<int> numbers;
 
 		int number = 0;
 

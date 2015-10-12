@@ -63,7 +63,7 @@ void Engine::reset()
 
 	_encounter_count = 0;
 
-	_encounter_search = nullptr;
+	_encounter_search.clear();
 	_encounter_search_area = false;
 
 	_indent = 0;
@@ -342,7 +342,7 @@ void Engine::_cycle()
 			_title = instruction->text;
 			break;
 		case InstructionType::SEARCH:
-			_encounter_search = _encounters.get_encounter(instruction->number);
+			_encounter_search = instruction->numbers;
 			_encounter_search_area = true;
 
 			_transition(instruction);
@@ -352,7 +352,7 @@ void Engine::_cycle()
 			_version = instruction->number;
 			break;
 		case InstructionType::WAIT:
-			while (_encounter_search)
+			while (_encounter_search.size() > 0)
 			{
 				_step(2, 2, false);
 			}
@@ -462,9 +462,9 @@ void Engine::_step(int tiles, int steps, bool simulate)
 
 		auto encounter = _get_encounter();
 
-		if (!simulate && encounter && _encounter_search && encounter->get_id() == _encounter_search->get_id())
+		if (!simulate && encounter && _encounter_search.size() > 0 && _encounter_search.count(encounter->get_id()) > 0)
 		{
-			_encounter_search = nullptr;
+			_encounter_search.clear();
 		}
 
 		if (encounter)

@@ -90,7 +90,7 @@ class Engine
 
 		int _encounter_count = 0;
 
-		std::shared_ptr<const Encounter> _encounter_search;
+		std::set<int> _encounter_search;
 		bool _encounter_search_area;
 
 		std::vector<LogEntry> _log;
