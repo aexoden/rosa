@@ -163,6 +163,33 @@ void write_best_route(const Glib::RefPtr<Gio::File> & file, double best_frames, 
  * Optimization Functions
  */
 
+void normalize(const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine)
+{
+	randomizer->reset();
+
+	engine.reset();
+	engine.run();
+
+	double frames = engine.get_frames();
+
+	for (decltype(randomizer->data)::size_type i = 0; i < randomizer->data.size(); i++)
+	{
+		for (int value = 0; value <= options.maximum_steps; value++)
+		{
+			randomizer->reset();
+			randomizer->data[i] = value;
+
+			engine.reset();
+			engine.run();
+
+			if (engine.get_frames() == frames)
+			{
+				break;
+			}
+		}
+	}
+}
+
 void optimize_bb(int start_index, double best_frames, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
 	double search_best_frames = base_engine.get_frames();
@@ -600,6 +627,8 @@ int main (int argc, char ** argv)
 			std::cerr << "Algorithm \"" << options.algorithm << "\" is unknown" << std::endl;
 		}
 	}
+
+	normalize(options, randomizer, engine);
 
 	/*
 	 * Output
