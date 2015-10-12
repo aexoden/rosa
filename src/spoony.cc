@@ -71,6 +71,8 @@ class Options
 
 		Glib::ustring variables = "";
 
+		bool full_optimization = false;
+
 		int seed = 43;
 		int maximum_steps = 0;
 		int maximum_iterations = 1000;
@@ -501,6 +503,7 @@ int main (int argc, char ** argv)
 	option_group.add_entry(create_option_entry("output-result", 'd', "Print the result to the standard output."), options.output_result);
 	option_group.add_entry(create_option_entry("route", 'r', "Route to process"), options.route);
 	option_group.add_entry(create_option_entry("algorithm", 'a', "Optimization algorithm"), options.algorithm);
+	option_group.add_entry(create_option_entry("full-optimization", 'f', "Optimize all variables instead of only variables after input data"), options.full_optimization);
 	option_group.add_entry(create_option_entry("seed", 's', "Seed to process"), options.seed);
 	option_group.add_entry(create_option_entry("maximum-steps", 'm', "Maximum number of extra steps per area"), options.maximum_steps);
 	option_group.add_entry(create_option_entry("maximum-iterations", 'i', "Maximum number of iterations to attempt without improvement"), options.maximum_iterations);
@@ -555,7 +558,7 @@ int main (int argc, char ** argv)
 
 		if (index < randomizer->data.size())
 		{
-			if (index + 1 > optimization_index)
+			if (!options.full_optimization && index + 1 > optimization_index)
 			{
 				optimization_index = index + 1;
 			}
