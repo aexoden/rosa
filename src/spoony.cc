@@ -38,6 +38,21 @@
 #include "encounter.hh"
 #include "engine.hh"
 #include "instruction.hh"
+#include "version.hh"
+
+/*
+ * Existing Route Output Data
+ */
+
+class RouteOutputData
+{
+	public:
+		Glib::ustring spoony_version = "";
+
+		int maximum_steps = 0;
+
+		double frames = 0.0;
+};
 
 /*
  * Option Handling Functions
@@ -78,8 +93,12 @@ Glib::OptionEntry create_option_entry(const Glib::ustring & long_name, const gch
  * Utility Functions
  */
 
-double get_best_frames(const Glib::RefPtr<Gio::File> & file, const Engine & base_engine)
+const RouteOutputData get_route_output_data(const Glib::RefPtr<Gio::File> & file, const Engine & base_engine)
 {
+	RouteOutputData data;
+
+	data.frames = base_engine.get_frames();
+
 	if (file->query_exists())
 	{
 		auto file_stream = Gio::DataInputStream::create(file->read());
@@ -89,6 +108,7 @@ double get_best_frames(const Glib::RefPtr<Gio::File> & file, const Engine & base
 
 		int version = -1;
 		double frames = std::numeric_limits<double>::max();
+		Glib::ustring spoony_version{""};
 
 		while (file_stream->read_line(line))
 		{
@@ -104,16 +124,24 @@ double get_best_frames(const Glib::RefPtr<Gio::File> & file, const Engine & base
 				{
 					frames = std::stod(tokens[1]);
 				}
+				else if (tokens[0] == "SPOONY" && tokens.size() == 2)
+				{
+					data.spoony_version = tokens[1];
+				}
+				else if (tokens[0] == "MAXSTEP")
+				{
+					data.maximum_steps = std::stoi(tokens[1]);
+				}
 			}
 		}
 
 		if (version >= base_engine.get_version())
 		{
-			return frames;
+			data.frames = frames;
 		}
 	}
 
-	return base_engine.get_frames();
+	return data;
 }
 
 void write_best_route(const Glib::RefPtr<Gio::File> & file, double best_frames, const Engine & engine, const Engine & base_engine)
@@ -540,7 +568,9 @@ int main (int argc, char ** argv)
 	 * Optimization
 	 */
 
-	double best_frames = get_best_frames(route_output_file, base_engine);
+	RouteOutputData route_output_data = get_route_output_data(route_output_file, base_engine);
+
+	double best_frames = route_output_data.frames;
 
 	Engine engine{Parameters{options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters};
 
@@ -577,7 +607,14 @@ int main (int argc, char ** argv)
 	engine.reset();
 	engine.run();
 
-	if (!route_output_file->query_exists() || engine.get_frames() < best_frames)
+	bool rewrite_if_equal = false;
+
+	if (SPOONY_VERSION != route_output_data.spoony_version || options.maximum_steps > route_output_data.maximum_steps)
+	{
+		rewrite_if_equal = true;
+	}
+
+	if (!route_output_file->query_exists() || engine.get_frames() < best_frames || (engine.get_frames() == best_frames && rewrite_if_equal))
 	{
 		write_best_route(route_output_file, best_frames, engine, base_engine);
 	}
