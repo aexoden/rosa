@@ -74,8 +74,11 @@ class Options
 		bool full_optimization = false;
 
 		int seed = 43;
+
 		int maximum_steps = 0;
+
 		int maximum_iterations = 1000;
+
 		int perturbation_strength = 3;
 		int perturbation_wobble = 0;
 };
@@ -446,17 +449,17 @@ void optimize_ils(int start_index, double best_frames, const Options & options, 
 		if (engine.get_frames() < search_best_frames)
 		{
 			search_best_frames = engine.get_frames();
-			iterations = 0;
 		}
 		else
 		{
 			randomizer->data = current_data;
-			iterations++;
+		}
 
-			if (iterations >= options.maximum_iterations)
-			{
-				break;
-			}
+		iterations++;
+
+		if (iterations >= options.maximum_iterations)
+		{
+			break;
 		}
 	}
 
@@ -586,7 +589,7 @@ int main (int argc, char ** argv)
 	option_group.add_entry(create_option_entry("full-optimization", 'f', "Optimize all variables instead of only variables after input data"), options.full_optimization);
 	option_group.add_entry(create_option_entry("seed", 's', "Seed to process"), options.seed);
 	option_group.add_entry(create_option_entry("maximum-steps", 'm', "Maximum number of extra steps per area"), options.maximum_steps);
-	option_group.add_entry(create_option_entry("maximum-iterations", 'i', "Maximum number of iterations to attempt without improvement"), options.maximum_iterations);
+	option_group.add_entry(create_option_entry("maximum-iterations", 'i', "Maximum number of iterations to attempt"), options.maximum_iterations);
 	option_group.add_entry(create_option_entry("perturbation-strength", 'p', "Strength of perturbations for ILS"), options.perturbation_strength);
 	option_group.add_entry(create_option_entry("perturbation-wobble", 'w', "Initial wobble range added to the perturbation for ILS"), options.perturbation_wobble);
 	option_group.add_entry(create_option_entry("variables", 'v', "Explicitly set variables in the form index:value"), options.variables);
