@@ -638,6 +638,13 @@ int main (int argc, char ** argv)
 
 	RouteOutputData route_output_data = get_route_output_data(route_output_file, base_engine);
 
+	bool rewrite_if_equal = false;
+
+	if (SPOONY_VERSION != route_output_data.spoony_version || options.maximum_steps > route_output_data.maximum_steps)
+	{
+		rewrite_if_equal = true;
+	}
+
 	decltype(randomizer->data)::size_type optimization_index = 0;
 
 	for (const auto & variable : Glib::Regex::split_simple(" ", (options.load_existing_variables ? route_output_data.variable_data : options.variables)))
@@ -704,13 +711,6 @@ int main (int argc, char ** argv)
 
 	engine.reset();
 	engine.run();
-
-	bool rewrite_if_equal = false;
-
-	if (SPOONY_VERSION != route_output_data.spoony_version || options.maximum_steps > route_output_data.maximum_steps)
-	{
-		rewrite_if_equal = true;
-	}
 
 	if (!route_output_file->query_exists() || engine.get_frames() < best_frames || (engine.get_frames() == best_frames && rewrite_if_equal))
 	{
