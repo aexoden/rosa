@@ -20,6 +20,24 @@
  * SOFTWARE.
  */
 
+/*
+ * Known TODO:
+ *   - Single extra steps at save points are slightly more costly.
+ *   - You can take three extra steps in Cecil's room with only a two tile penalty.
+ *
+ * Code Improvements:
+ *   - Calculate encounter counts without forcing the grind fight and see if some seeds could benefit from a save/reset cycle. Given the uncertainty they'd have to be pretty bad.
+ *   - Fix whether or not -l should imply -f.
+ *
+ * Route Improvements:
+ *   - Variable optimization (combine Ordeals into one variable, improve Toroia, remove dependent variables with choices)
+ *   - Do something about indistinguishable seeds (41/42)
+ *
+ * Web Improvements:
+ *   - Improve the route summary in various areas.
+ *   - Set up a place on web site to dump dynamic routes for use during runs.
+ */
+
 #include <cmath>
 #include <ctime>
 #include <iomanip>
