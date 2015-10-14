@@ -285,9 +285,9 @@ void Engine::_cycle()
 			_indent--;
 			break;
 		case InstructionType::PATH:
-			_transition(instruction);
 			_encounter_rate = instruction->encounter_rate;
 			_encounter_group = instruction->encounter_group;
+			_transition(instruction);
 			_step(instruction->tiles, instruction->required_steps, false);
 
 			if (instruction->optional_steps > 0 || (instruction->take_extra_steps && (instruction->can_single_step || instruction->can_double_step)))
