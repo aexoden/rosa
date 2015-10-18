@@ -209,6 +209,16 @@ int Engine::get_version() const
 	return _version;
 }
 
+int Engine::get_maximum_steps() const
+{
+	return _parameters.maximum_extra_steps;
+}
+
+int Engine::get_variable_count() const
+{
+	return _parameters.randomizer->get_set_variable_count();
+}
+
 int Engine::get_initial_seed() const
 {
 	return _parameters.seed;

@@ -20,77 +20,42 @@
  * SOFTWARE.
  */
 
-#include "algorithm"
+#include <vector>
 
-#include "randomizer.hh"
+#include <giomm/file.h>
+#include <glibmm/regex.h>
+#include <glibmm/ustring.h>
 
-Randomizer::Randomizer(bool random) :
-	_random(random)
-{ }
+class Engine;
+class Randomizer;
 
-void Randomizer::reset()
+class RouteOutput
 {
-	if (static_cast<int>(_index) < _minimum_variables)
-	{
-		_minimum_variables = _index;
-	}
+	public:
+		RouteOutput(const Glib::RefPtr<Gio::File> & file);
 
-	if (static_cast<int>(_index) > _maximum_variables)
-	{
-		_maximum_variables = _index;
-	}
+		bool is_valid(int current_version) const;
 
-	_index = 0;
-}
+		Glib::ustring get_spoony_version() const;
+		std::vector<std::pair<std::vector<int>::size_type, int>> get_variables() const;
 
-int Randomizer::get_index()
-{
-	return _index;
-}
+		int get_maximum_steps() const;
 
-int Randomizer::get_int(int min_value, int max_value)
-{
-	return std::min(_next() + min_value, max_value);
-}
+		double get_frames() const;
+		int get_variable_count() const;
 
-int Randomizer::get_set_variable_count() const
-{
-	return std::count_if(data.begin(), data.end(), [](int i) { return i > 0; });
-}
+		static std::vector<std::pair<std::vector<int>::size_type, int>> parse_variable_data(const Glib::ustring & variable_data);
+		static bool write_route(const Glib::RefPtr<Gio::File> & file, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, bool normalize);
 
-int Randomizer::get_minimum_variables() const
-{
-	return _minimum_variables;
-}
+	private:
+		int _version = 0;
 
-int Randomizer::get_maximum_variables() const
-{
-	return _maximum_variables;
-}
+		Glib::ustring _spoony_version = "";
+		std::vector<std::pair<std::vector<int>::size_type, int>> _variables;
 
-void Randomizer::set_implicit_index(int index)
-{
-	_implicit_index = index;
-}
+		bool _valid = false;
 
-bool Randomizer::is_implicit() const
-{
-	return _index >= _implicit_index;
-}
+		int _maximum_steps = 0;
 
-int Randomizer::_next()
-{
-	if (_index == data.size())
-	{
-		if (_random)
-		{
-			// TODO: Add a random value.
-		}
-		else
-		{
-			data.push_back(0);
-		}
-	}
-
-	return data[_index++];
-}
+		double _frames = std::numeric_limits<double>::max();
+};

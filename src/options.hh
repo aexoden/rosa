@@ -20,77 +20,39 @@
  * SOFTWARE.
  */
 
-#include "algorithm"
+#ifndef SPOONY_OPTIONS_HH
+#define SPOONY_OPTIONS_HH
 
-#include "randomizer.hh"
+#include <glibmm/optioncontext.h>
+#include <glibmm/optionentry.h>
+#include <glibmm/optiongroup.h>
 
-Randomizer::Randomizer(bool random) :
-	_random(random)
-{ }
-
-void Randomizer::reset()
+class Options
 {
-	if (static_cast<int>(_index) < _minimum_variables)
-	{
-		_minimum_variables = _index;
-	}
+	public:
+		static Glib::OptionEntry create_option_entry(const Glib::ustring & long_name, const gchar & short_name, const Glib::ustring & description);
 
-	if (static_cast<int>(_index) > _maximum_variables)
-	{
-		_maximum_variables = _index;
-	}
+		Glib::ustring output_directory = "output/routes";
 
-	_index = 0;
-}
+		bool output_result = false;
 
-int Randomizer::get_index()
-{
-	return _index;
-}
+		Glib::ustring route = "paladin";
 
-int Randomizer::get_int(int min_value, int max_value)
-{
-	return std::min(_next() + min_value, max_value);
-}
+		Glib::ustring algorithm = "pair";
 
-int Randomizer::get_set_variable_count() const
-{
-	return std::count_if(data.begin(), data.end(), [](int i) { return i > 0; });
-}
+		Glib::ustring variables = "";
 
-int Randomizer::get_minimum_variables() const
-{
-	return _minimum_variables;
-}
+		bool full_optimization = false;
+		bool load_existing_variables = false;
 
-int Randomizer::get_maximum_variables() const
-{
-	return _maximum_variables;
-}
+		int seed = 43;
 
-void Randomizer::set_implicit_index(int index)
-{
-	_implicit_index = index;
-}
+		int maximum_steps = 0;
 
-bool Randomizer::is_implicit() const
-{
-	return _index >= _implicit_index;
-}
+		int maximum_iterations = 1000;
 
-int Randomizer::_next()
-{
-	if (_index == data.size())
-	{
-		if (_random)
-		{
-			// TODO: Add a random value.
-		}
-		else
-		{
-			data.push_back(0);
-		}
-	}
+		int perturbation_strength = 3;
+		int perturbation_wobble = 0;
+};
 
-	return data[_index++];
-}
+#endif

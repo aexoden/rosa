@@ -58,6 +58,9 @@ class Engine
 		int get_initial_seed() const;
 		Glib::ustring get_title() const;
 		int get_version() const;
+		int get_maximum_steps() const;
+
+		int get_variable_count() const;
 
 		static double frames_to_seconds(double frames);
 

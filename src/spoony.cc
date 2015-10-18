@@ -28,6 +28,9 @@
  * Code Improvements:
  *   - Calculate encounter counts without forcing the grind fight and see if some seeds could benefit from a save/reset cycle. Given the uncertainty they'd have to be pretty bad.
  *   - Fix whether or not -l should imply -f.
+ *   - Consider resquencing so odd numbers of steps are ignored rather than incremented if single steps aren't possible.
+ *   - Add encounter numbers
+ *   - Fix performance when checking same output
  *
  * Route Improvements:
  *   - Variable optimization (combine Ordeals into one variable, improve Toroia, remove dependent variables with choices)
@@ -38,547 +41,22 @@
  *   - Set up a place on web site to dump dynamic routes for use during runs.
  */
 
-#include <cmath>
-#include <ctime>
 #include <iomanip>
 #include <iostream>
-#include <random>
 
-#include <giomm/datainputstream.h>
+#include <giomm/file.h>
 #include <giomm/init.h>
 #include <glibmm/init.h>
 #include <glibmm/miscutils.h>
-#include <glibmm/optioncontext.h>
-#include <glibmm/optionentry.h>
-#include <glibmm/optiongroup.h>
 #include <glibmm/regex.h>
+#include <glibmm/ustring.h>
 
 #include "encounter.hh"
 #include "engine.hh"
 #include "instruction.hh"
-#include "version.hh"
-
-/*
- * Existing Route Output Data
- */
-
-class RouteOutputData
-{
-	public:
-		Glib::ustring spoony_version = "";
-		Glib::ustring variable_data;
-
-		int maximum_steps = 0;
-
-		double frames = 0.0;
-};
-
-/*
- * Option Handling Functions
- */
-
-class Options
-{
-	public:
-		Glib::ustring output_directory = "output/routes";
-
-		bool output_result = false;
-
-		Glib::ustring route = "paladin";
-
-		Glib::ustring algorithm = "pair";
-
-		Glib::ustring variables = "";
-
-		bool full_optimization = false;
-		bool load_existing_variables = false;
-
-		int seed = 43;
-
-		int maximum_steps = 0;
-
-		int maximum_iterations = 1000;
-
-		int perturbation_strength = 3;
-		int perturbation_wobble = 0;
-};
-
-Glib::OptionEntry create_option_entry(const Glib::ustring & long_name, const gchar & short_name, const Glib::ustring & description)
-{
-	Glib::OptionEntry entry;
-
-	entry.set_long_name(long_name);
-	entry.set_short_name(short_name);
-	entry.set_description(description);
-
-	return entry;
-}
-
-/*
- * Utility Functions
- */
-
-const RouteOutputData get_route_output_data(const Glib::RefPtr<Gio::File> & file, const Engine & base_engine)
-{
-	RouteOutputData data;
-
-	data.frames = base_engine.get_frames();
-
-	if (file->query_exists())
-	{
-		auto file_stream = Gio::DataInputStream::create(file->read());
-		std::string line;
-
-		auto split_regex = Glib::Regex::create("\t+");
-
-		int version = -1;
-		double frames = std::numeric_limits<double>::max();
-
-		while (file_stream->read_line(line))
-		{
-			std::vector<Glib::ustring> tokens = split_regex->split(line);
-
-			if (!tokens.empty())
-			{
-				if (tokens[0] == "VERSION" && tokens.size() == 2)
-				{
-					version = std::stoi(tokens[1]);
-				}
-				else if (tokens[0] == "FRAMES" && tokens.size() == 2)
-				{
-					frames = std::stod(tokens[1]);
-				}
-				else if (tokens[0] == "SPOONY" && tokens.size() == 2)
-				{
-					data.spoony_version = tokens[1];
-				}
-				else if (tokens[0] == "MAXSTEP")
-				{
-					data.maximum_steps = std::stoi(tokens[1]);
-				}
-				else if (tokens[0] == "VARS")
-				{
-					data.variable_data = tokens[1];
-				}
-			}
-		}
-
-		if (version >= base_engine.get_version())
-		{
-			data.frames = frames;
-		}
-	}
-
-	return data;
-}
-
-void write_best_route(const Glib::RefPtr<Gio::File> & file, double best_frames, const Engine & engine, const Engine & base_engine)
-{
-	std::cout << "\r                                                                                                                                                         ";
-	std::cout << "\r" << Glib::DateTime::create_now_local().format("%Y-%m-%d %H:%M:%S") << ": ";
-	std::cout << std::left << std::setw(40) << base_engine.get_title() << std::right << std::setw(4) << engine.get_initial_seed();
-	std::cout << std::setw(11) << Engine::frames_to_seconds(best_frames) << " -> " << std::left << std::setw(11) << Engine::frames_to_seconds(engine.get_frames());
-	std::cout << std::setw(8) << Engine::frames_to_seconds(best_frames - engine.get_frames()) << std::endl;
-
-	auto output_stream = file->replace();
-
-	output_stream->write(engine.format_output(base_engine));
-}
-
-/*
- * Optimization Functions
- */
-
-void normalize(const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine)
-{
-	randomizer->reset();
-
-	engine.reset();
-	engine.run();
-
-	double frames = engine.get_frames();
-
-	for (decltype(randomizer->data)::size_type i = 0; i < randomizer->data.size(); i++)
-	{
-		for (int value = 0; value <= options.maximum_steps; value++)
-		{
-			randomizer->reset();
-			randomizer->data[i] = value;
-
-			engine.reset();
-			engine.run();
-
-			if (engine.get_frames() == frames)
-			{
-				break;
-			}
-		}
-	}
-}
-
-void optimize_bb(int start_index, double best_frames, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
-{
-	double search_best_frames = base_engine.get_frames();
-	std::vector<int> best_data;
-
-	int index = start_index;
-
-	int min_variables = randomizer->get_index();
-	int max_variables = randomizer->get_index();
-
-	int iterations = 0;
-
-	while (true)
-	{
-		if (iterations % 1009 == 0)
-		{
-			std::cout << "\rAlgorithm: " << std::left << std::setw(15) << "Branch and Bound";
-			std::cout << "   Index: " << std::right << std::setw(2) << index;
-			std::cout << "   Iterations: " << std::setw(20) << iterations;
-			std::cout << "   Variables: (" << std::setw(2) << min_variables << ", " << max_variables << ")";
-			std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
-			std::cout << "   Search Best: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames);
-			std::cout << std::flush;
-		}
-
-		randomizer->reset();
-		randomizer->set_implicit_index(index);
-
-		engine.reset();
-		engine.run();
-
-		iterations++;
-
-		if (engine.get_frames() < best_frames)
-		{
-			write_best_route(output_file, best_frames, engine, base_engine);
-			best_frames = engine.get_frames();
-		}
-
-		if (engine.get_frames() < search_best_frames)
-		{
-			best_data = randomizer->data;
-			search_best_frames = engine.get_frames();
-		}
-
-		int variables = randomizer->get_index();
-
-		min_variables = std::min(min_variables, variables);
-		max_variables = std::max(max_variables, variables);
-
-		if (randomizer->data[index] == options.maximum_steps || engine.get_minimum_frames() > best_frames)
-		{
-			randomizer->data[index] = 0;
-			index--;
-
-			if (index >= 0)
-			{
-				randomizer->data[index]++;
-			}
-		}
-		else
-		{
-			if (index + 1 < randomizer->get_index())
-			{
-				index++;
-			}
-			else
-			{
-				randomizer->data[index]++;
-			}
-		}
-
-		if (index == start_index - 1)
-		{
-			randomizer->data = best_data;
-			return;
-		}
-	}
-
-	std::cout << std::endl;
-}
-
-void optimize_sequential(int start_index, double best_frames, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
-{
-	double search_best_frames = base_engine.get_frames();
-
-	int min_variables = randomizer->get_index();
-	int max_variables = randomizer->get_index();
-
-	for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++)
-	{
-		std::cout << "\rAlgorithm: " << std::left << std::setw(15) << "Sequential";
-		std::cout << "   Index: " << std::right << std::setw(2) << i;
-		std::cout << "   Variables: (" << std::setw(2) << min_variables << ", " << max_variables << ")";
-		std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
-		std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames);
-		std::cout << std::flush;
-
-		int best_value = randomizer->data[i];
-
-		for (int value = 0; value <= options.maximum_steps; value++)
-		{
-			randomizer->reset();
-			randomizer->data[i] = value;
-
-			engine.reset();
-			engine.run();
-
-			if (engine.get_frames() < best_frames)
-			{
-				write_best_route(output_file, best_frames, engine, base_engine);
-				best_frames = engine.get_frames();
-			}
-
-			if (engine.get_frames() < search_best_frames)
-			{
-				search_best_frames = engine.get_frames();
-				best_value = value;
-			}
-
-			int variables = randomizer->get_index();
-
-			min_variables = std::min(min_variables, variables);
-			max_variables = std::max(max_variables, variables);
-		}
-
-		randomizer->data[i] = best_value;
-	}
-
-	randomizer->reset();
-
-	engine.reset();
-	engine.run();
-}
-
-void optimize_localsearch(int start_index, double best_frames, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
-{
-	double search_best_frames = base_engine.get_frames();
-
-	int min_variables = randomizer->get_index();
-	int max_variables = randomizer->get_index();
-
-	while (true)
-	{
-		int best_index = -1;
-		int best_value = 0;
-
-		for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++)
-		{
-			int original_value = randomizer->data[i];
-
-			std::cout << "\rAlgorithm: " << std::left << std::setw(15) << "Local Search";
-			std::cout << "   Index: " << std::right << std::setw(2) << i;
-			std::cout << "   Variables: (" << std::setw(2) << min_variables << ", " << max_variables << ")";
-			std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
-			std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames);
-			std::cout << std::flush;
-
-			for (int value = 0; value <= options.maximum_steps; value++)
-			{
-				randomizer->reset();
-				randomizer->data[i] = value;
-
-				engine.reset();
-				engine.run();
-
-				if (engine.get_frames() < best_frames)
-				{
-					write_best_route(output_file, best_frames, engine, base_engine);
-					best_frames = engine.get_frames();
-				}
-
-				if (engine.get_frames() < search_best_frames)
-				{
-					search_best_frames = engine.get_frames();
-					best_index = i;
-					best_value = value;
-				}
-
-				int variables = randomizer->get_index();
-
-				min_variables = std::min(min_variables, variables);
-				max_variables = std::max(max_variables, variables);
-			}
-
-			randomizer->data[i] = original_value;
-		}
-
-		if (best_index < 0)
-		{
-			break;
-		}
-
-		randomizer->data[best_index] = best_value;
-	}
-
-	randomizer->reset();
-	engine.reset();
-	engine.run();
-}
-
-void optimize_ils(int start_index, double best_frames, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
-{
-	std::random_device rd;
-	std::default_random_engine random_engine{rd()};
-
-	optimize_localsearch(start_index, best_frames, options, randomizer, engine, base_engine, output_file);
-
-	double search_best_frames = engine.get_frames();
-
-	if (search_best_frames < best_frames)
-	{
-		best_frames = search_best_frames;
-	}
-
-	int iterations = 0;
-
-	while (true)
-	{
-		std::cout << "\r\t\t\t\t\t\t\t\t\t\t\t\t\tSearch Best: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames) << "    Iterations: " << std::setw(10) << iterations;
-		std::cout << std::flush;
-
-		std::vector<int> current_data{randomizer->data};
-
-		std::uniform_int_distribution<int> index_dist{start_index, static_cast<int>(randomizer->data.size()) - 1};
-
-		int total = std::uniform_int_distribution<int>{-options.perturbation_wobble, options.perturbation_wobble}(random_engine);
-		int max = options.perturbation_strength;
-
-		for (int i = 0; i < max; i++)
-		{
-			int index = index_dist(random_engine);
-			total += randomizer->data[index];
-
-			int value = std::uniform_int_distribution<int>{0, std::max(0, total * 2)}(random_engine);
-			value = std::max(0, std::min(value, options.maximum_steps));
-
-			if (i == max - 1)
-			{
-				value = std::max(0, std::min(total, options.maximum_steps));
-			}
-
-			randomizer->data[index] = value;
-			total -= value;
-		}
-
-		optimize_localsearch(start_index, best_frames, options, randomizer, engine, base_engine, output_file);
-
-		if (engine.get_frames() < best_frames)
-		{
-			best_frames = engine.get_frames();
-		}
-
-		if (engine.get_frames() < search_best_frames)
-		{
-			search_best_frames = engine.get_frames();
-		}
-		else
-		{
-			randomizer->data = current_data;
-		}
-
-		iterations++;
-
-		if (iterations >= options.maximum_iterations)
-		{
-			break;
-		}
-	}
-
-	randomizer->reset();
-
-	engine.reset();
-	engine.run();
-
-	std::cout << std::endl;
-}
-
-void optimize_pair(int start_index, double best_frames, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
-{
-	double search_best_frames = base_engine.get_frames();
-	double round_best_frames = base_engine.get_frames();
-
-	int min_variables = randomizer->get_index();
-	int max_variables = randomizer->get_index();
-
-	while (true)
-	{
-		int best_i = -1;
-		int best_j = -1;
-
-		int best_i_value = 0;
-		int best_j_value = 0;
-
-		for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++)
-		{
-			int original_i_value = randomizer->data[i];
-
-			for (decltype(randomizer->data)::size_type j = i + 1; j < randomizer->data.size(); j++)
-			{
-				int original_j_value = randomizer->data[j];
-
-				std::cout << "\rAlgorithm: " << std::left << std::setw(15) << "Pairwise";
-				std::cout << "   Current Indexes: (" << std::right << std::setw(3) << i << ", " << std::setw(3) << j << ")";
-				std::cout << "   Variables: (" << std::setw(2) << min_variables << ", " << max_variables << ")";
-				std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
-				std::cout << "   Previous: " << std::setw(10) << Engine::frames_to_seconds(round_best_frames);
-				std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames);
-				std::cout << std::flush;
-
-				for (int i_value = 0; i_value <= options.maximum_steps; i_value++)
-				{
-					for (int j_value = 0; j_value <= options.maximum_steps; j_value++)
-					{
-						randomizer->reset();
-						randomizer->data[i] = i_value;
-						randomizer->data[j] = j_value;
-
-						engine.reset();
-						engine.run();
-
-						if (engine.get_frames() < best_frames)
-						{
-							write_best_route(output_file, best_frames, engine, base_engine);
-							best_frames = engine.get_frames();
-						}
-
-						if (engine.get_frames() < search_best_frames)
-						{
-							search_best_frames = engine.get_frames();
-							best_i = i;
-							best_j = j;
-							best_i_value = i_value;
-							best_j_value = j_value;
-						}
-
-						int variables = randomizer->get_index();
-
-						min_variables = std::min(min_variables, variables);
-						max_variables = std::max(max_variables, variables);
-					}
-				}
-
-				randomizer->data[j] = original_j_value;
-			}
-
-			randomizer->data[i] = original_i_value;
-		}
-
-		if (best_i < 0)
-		{
-			std::cout << std::endl;
-			break;
-		}
-
-		std::cout << std::endl << "Updating (" << best_i << ", " << best_j << ") from (" << randomizer->data[best_i] << ", " << randomizer->data[best_j] << ") to (" << best_i_value << ", " << best_j_value << ") (" << (search_best_frames / 60.0988) << "s)" << std::endl;
-
-		randomizer->data[best_i] = best_i_value;
-		randomizer->data[best_j] = best_j_value;
-
-		round_best_frames = search_best_frames;
-	}
-}
+#include "optimizer.hh"
+#include "options.hh"
+#include "route_output.hh"
 
 /*
  * Main Function
@@ -605,18 +83,18 @@ int main (int argc, char ** argv)
 
 	Glib::OptionGroup option_group{"options", "Options", "Options to control program"};
 
-	option_group.add_entry(create_option_entry("output-directory", 'o', "Directory to output routes to"), options.output_directory);
-	option_group.add_entry(create_option_entry("output-result", 'd', "Print the result to the standard output."), options.output_result);
-	option_group.add_entry(create_option_entry("route", 'r', "Route to process"), options.route);
-	option_group.add_entry(create_option_entry("algorithm", 'a', "Optimization algorithm"), options.algorithm);
-	option_group.add_entry(create_option_entry("full-optimization", 'f', "Optimize all variables instead of only variables after input data"), options.full_optimization);
-	option_group.add_entry(create_option_entry("load-existing-variables", 'l', "Use the existing variable data in the best route as seed data"), options.load_existing_variables);
-	option_group.add_entry(create_option_entry("seed", 's', "Seed to process"), options.seed);
-	option_group.add_entry(create_option_entry("maximum-steps", 'm', "Maximum number of extra steps per area"), options.maximum_steps);
-	option_group.add_entry(create_option_entry("maximum-iterations", 'i', "Maximum number of iterations to attempt"), options.maximum_iterations);
-	option_group.add_entry(create_option_entry("perturbation-strength", 'p', "Strength of perturbations for ILS"), options.perturbation_strength);
-	option_group.add_entry(create_option_entry("perturbation-wobble", 'w', "Initial wobble range added to the perturbation for ILS"), options.perturbation_wobble);
-	option_group.add_entry(create_option_entry("variables", 'v', "Explicitly set variables in the form index:value"), options.variables);
+	option_group.add_entry(Options::create_option_entry("output-directory", 'o', "Directory to output routes to"), options.output_directory);
+	option_group.add_entry(Options::create_option_entry("output-result", 'd', "Print the result to the standard output."), options.output_result);
+	option_group.add_entry(Options::create_option_entry("route", 'r', "Route to process"), options.route);
+	option_group.add_entry(Options::create_option_entry("algorithm", 'a', "Optimization algorithm"), options.algorithm);
+	option_group.add_entry(Options::create_option_entry("full-optimization", 'f', "Optimize all variables instead of only variables after input data"), options.full_optimization);
+	option_group.add_entry(Options::create_option_entry("load-existing-variables", 'l', "Use the existing variable data in the best route as seed data"), options.load_existing_variables);
+	option_group.add_entry(Options::create_option_entry("seed", 's', "Seed to process"), options.seed);
+	option_group.add_entry(Options::create_option_entry("maximum-steps", 'm', "Maximum number of extra steps per area"), options.maximum_steps);
+	option_group.add_entry(Options::create_option_entry("maximum-iterations", 'i', "Maximum number of iterations to attempt"), options.maximum_iterations);
+	option_group.add_entry(Options::create_option_entry("perturbation-strength", 'p', "Strength of perturbations for ILS"), options.perturbation_strength);
+	option_group.add_entry(Options::create_option_entry("perturbation-wobble", 'w', "Initial wobble range added to the perturbation for ILS"), options.perturbation_wobble);
+	option_group.add_entry(Options::create_option_entry("variables", 'v', "Explicitly set variables in the form index:value"), options.variables);
 
 	Glib::OptionContext option_context;
 	option_context.set_main_group(option_group);
@@ -654,32 +132,27 @@ int main (int argc, char ** argv)
 	 * Variable Processing
 	 */
 
-	RouteOutputData route_output_data = get_route_output_data(route_output_file, base_engine);
-
-	bool rewrite_if_equal = false;
-
-	if (SPOONY_VERSION != route_output_data.spoony_version || options.maximum_steps > route_output_data.maximum_steps)
-	{
-		rewrite_if_equal = true;
-	}
-
 	decltype(randomizer->data)::size_type optimization_index = 0;
 
-	for (const auto & variable : Glib::Regex::split_simple(" ", (options.load_existing_variables ? route_output_data.variable_data : options.variables)))
+	auto variables = RouteOutput::parse_variable_data(options.variables);
+
+	RouteOutput route_output_data{route_output_file};
+
+	if (route_output_data.is_valid(base_engine.get_version()) && options.load_existing_variables)
 	{
-		std::vector<Glib::ustring> tokens = Glib::Regex::split_simple(":", variable);
+		variables = route_output_data.get_variables();
+	}
 
-		decltype(randomizer->data)::size_type index = std::stoi(tokens[0]);
-		int value = std::stoi(tokens[1]);
-
-		if (index < randomizer->data.size())
+	for (const auto & pair : variables)
+	{
+		if (pair.first < randomizer->data.size())
 		{
-			if (!options.full_optimization && index + 1 > optimization_index)
+			if (!options.full_optimization && pair.first + 1 > optimization_index)
 			{
-				optimization_index = index + 1;
+				optimization_index = pair.first + 1;
 			}
 
-			randomizer->data[index] = value;
+			randomizer->data[pair.first] = pair.second;
 		}
 	}
 
@@ -687,7 +160,7 @@ int main (int argc, char ** argv)
 	 * Optimization
 	 */
 
-	double best_frames = route_output_data.frames;
+	double best_frames = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_frames() : base_engine.get_frames();
 
 	Engine engine{Parameters{options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters};
 
@@ -701,9 +174,13 @@ int main (int argc, char ** argv)
 		{
 			optimize_ils(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
 		}
+		else if (algorithm == "local")
+		{
+			optimize_local(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file, true);
+		}
 		else if (algorithm == "pair")
 		{
-			optimize_pair(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
+			optimize_local_pair(optimization_index, best_frames, options, randomizer, engine, base_engine, route_output_file);
 		}
 		else if (algorithm == "sequential")
 		{
@@ -715,11 +192,9 @@ int main (int argc, char ** argv)
 		}
 		else
 		{
-			std::cerr << "Algorithm \"" << options.algorithm << "\" is unknown" << std::endl;
+			std::cerr << "Algorithm \"" << algorithm << "\" is unknown" << std::endl;
 		}
 	}
-
-	normalize(options, randomizer, engine);
 
 	/*
 	 * Output
@@ -730,19 +205,11 @@ int main (int argc, char ** argv)
 	engine.reset();
 	engine.run();
 
-	if (!route_output_file->query_exists() || engine.get_frames() < best_frames || (engine.get_frames() == best_frames && rewrite_if_equal))
-	{
-		write_best_route(route_output_file, best_frames, engine, base_engine);
-	}
+	RouteOutput::write_route(route_output_file, randomizer, engine, base_engine, true);
 
 	if (options.output_result)
 	{
-		if (options.algorithm != "none")
-		{
-			std::cout << std::endl;
-		}
-
-		std::cout << engine.format_output(base_engine) << std::endl;
+		std::cout << engine.format_output(base_engine);
 	}
 
 	return 0;
