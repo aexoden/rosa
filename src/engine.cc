@@ -327,7 +327,7 @@ void Engine::_cycle()
 
 				if (extra_steps % 2 == 1 && !instruction->can_single_step)
 				{
-					extra_steps++;
+					extra_steps--;
 				}
 
 				if (instruction->can_double_step)
