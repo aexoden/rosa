@@ -29,7 +29,6 @@
  *   - Calculate encounter counts without forcing the grind fight and see if some seeds could benefit from a save/reset cycle. Given the uncertainty they'd have to be pretty bad.
  *   - Fix whether or not -l should imply -f.
  *   - Consider resquencing so odd numbers of steps are ignored rather than incremented if single steps aren't possible.
- *   - Add encounter numbers
  *
  * Route Improvements:
  *   - Variable optimization (combine Ordeals into one variable, improve Toroia, remove dependent variables with choices)

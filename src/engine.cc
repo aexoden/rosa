@@ -158,14 +158,14 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 
 		for (auto & pair : entry.encounters)
 		{
-			output.append(Glib::ustring::compose("%1  Step %2: %3 (%4s)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second->get_description(), format_time(pair.second->get_average_duration())));
+			output.append(Glib::ustring::compose("%1  Step %2: %3 / %4 (%5s)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_average_duration())));
 		}
 
 		for (auto & pair : entry.potential_encounters)
 		{
 			if (entry.encounters.count(pair.first) == 0)
 			{
-				output.append(Glib::ustring::compose("%1 (Step %2: %3)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second->get_description(), format_time(pair.second->get_average_duration())));
+				output.append(Glib::ustring::compose("%1 (Step %2: %3 / %4)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_average_duration())));
 			}
 		}
 	}
@@ -481,11 +481,11 @@ void Engine::_step(int tiles, int steps, bool simulate)
 		{
 			if (simulate)
 			{
-				_log.back().potential_encounters[_log.back().steps] = encounter;
+				_log.back().potential_encounters[_log.back().steps] = std::make_pair(_encounter_index + 1, encounter);
 			}
 			else
 			{
-				_log.back().encounters[_log.back().steps] = encounter;
+				_log.back().encounters[_log.back().steps] = std::make_pair(_encounter_index + 1, encounter);
 			}
 
 			if (!simulate)
