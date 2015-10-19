@@ -174,7 +174,7 @@ bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::s
 
 	normalize_route(randomizer, engine);
 
-	std::cout << "\r                                                                                                                                                         ";
+	std::cout << "\r                                                                                                                                                                      ";
 	std::cout << "\r" << Glib::DateTime::create_now_local().format("%Y-%m-%d %H:%M:%S") << ": ";
 	std::cout << std::left << std::setw(40) << engine.get_title() << std::right << std::setw(4) << engine.get_initial_seed();
 

@@ -136,7 +136,8 @@ void optimize_ils(int start_index, double & best_frames, int & best_variable_cou
 		std::cout << "   Variables: (" << std::setw(2) << randomizer->get_minimum_variables() << ", " << randomizer->get_maximum_variables() << ")";
 		std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
 		std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames);
-		std::cout << "   ILS Iterations: " << std::setw(10) << (i + 1);
+		std::cout << "   Search Best: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames);
+		std::cout << "   Iteration: " << std::setw(10) << (i + 1);
 		std::cout << std::flush;
 
 		std::vector<int> current_data{randomizer->data};
@@ -263,6 +264,7 @@ void optimize_local_pair(int start_index, double & best_frames, int & best_varia
 	engine.run();
 
 	double search_best_frames = engine.get_frames();
+	double previous_search_best_frames = engine.get_frames();
 	int search_best_variable_count = randomizer->get_set_variable_count();
 
 	while (true)
@@ -284,6 +286,7 @@ void optimize_local_pair(int start_index, double & best_frames, int & best_varia
 				std::cout << "   Current Indexes: (" << std::right << std::setw(3) << i << ", " << std::setw(3) << j << ")";
 				std::cout << "   Variables: (" << std::setw(2) << randomizer->get_minimum_variables() << ", " << randomizer->get_maximum_variables() << ")";
 				std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
+				std::cout << "   Previous: " << std::setw(10) << Engine::frames_to_seconds(previous_search_best_frames);
 				std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames);
 				std::cout << std::flush;
 
@@ -329,7 +332,8 @@ void optimize_local_pair(int start_index, double & best_frames, int & best_varia
 			break;
 		}
 
-		std::cout << std::endl << "Updating (" << best_i << ", " << best_j << ") from (" << randomizer->data[best_i] << ", " << randomizer->data[best_j] << ") to (" << best_i_value << ", " << best_j_value << ") (" << (search_best_frames / 60.0988) << "s)" << std::endl;
+		std::cout << std::endl << "Updating (" << best_i << ", " << best_j << ") from (" << randomizer->data[best_i] << ", " << randomizer->data[best_j] << ") to (" << best_i_value << ", " << best_j_value << ") (" << Engine::frames_to_seconds(previous_search_best_frames) << "s -> " << Engine::frames_to_seconds(search_best_frames) << "s)" << std::endl;
+		previous_search_best_frames = search_best_frames;
 
 		randomizer->data[best_i] = best_i_value;
 		randomizer->data[best_j] = best_j_value;

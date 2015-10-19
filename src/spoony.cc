@@ -27,6 +27,7 @@
  *
  * Code Improvements:
  *   - Calculate encounter counts without forcing the grind fight and see if some seeds could benefit from a save/reset cycle. Given the uncertainty they'd have to be pretty bad.
+ *   - Output variable counts when outputting during writes.
  *
  * Route Improvements:
  *   - Variable optimization (combine Ordeals into one variable, improve Toroia, remove dependent variables with choices)
