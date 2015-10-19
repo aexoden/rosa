@@ -27,15 +27,10 @@
  *
  * Code Improvements:
  *   - Calculate encounter counts without forcing the grind fight and see if some seeds could benefit from a save/reset cycle. Given the uncertainty they'd have to be pretty bad.
- *   - Fix whether or not -l should imply -f.
  *
  * Route Improvements:
  *   - Variable optimization (combine Ordeals into one variable, improve Toroia, remove dependent variables with choices)
  *   - Do something about indistinguishable seeds (41/42)
- *
- * Web Improvements:
- *   - Improve the route summary in various areas.
- *   - Set up a place on web site to dump dynamic routes for use during runs.
  */
 
 #include <iomanip>
@@ -96,6 +91,11 @@ int main (int argc, char ** argv)
 	Glib::OptionContext option_context;
 	option_context.set_main_group(option_group);
 	option_context.parse(argc, argv);
+
+	if (options.load_existing_variables)
+	{
+		options.full_optimization = true;
+	}
 
 	/*
 	 * Base Data
