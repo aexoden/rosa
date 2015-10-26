@@ -3,25 +3,52 @@ VERSION	2
 PATH	World Map (Mist)			1	1	0	8	1	0	-	-	+	+
 PATH	World Map (Kaipo)			37	36	0	8	1	1	-	-	+	+
 NOTE	Kaipo
+CHOICE	2
+OPTION	World Map (Kaipo) No Save
+PATH	World Map (Kaipo)			33	32	0	8	1	1	-	-	+	+
+NOOP	1
+OPTION	World Map (Kaipo) Save
+PATH	World Map (Kaipo)			32	31	0	8	1	1	-	-	+	+
+SAVE	World Map (Kaipo)			0
+END
 PATH	World Map (Kaipo)			33	32	0	8	1	1	-	-	+	+
 PATH	Watery Pass-South B1F			53	52	0	7	17	1	-	-	+	-
 PATH	Watery Pass-South B2F			91	90	0	7	17	1	-	-	+	-
-SAVE	Watery Pass-South Save Room Save Point	0
+CHOICE	2
+OPTION	Watery Pass-South Save Room No Save
+NOOP	1
 PATH	Watery Pass-South Save Room		5	4	0	0	0	1	+	+	+	-
+OPTION	Watery Pass-South Save Room Save
+SAVE	Watery Pass-South Save Room Save Point	0
+PATH	Watery Pass-South Save Room		4	3	0	0	0	1	+	+	+	-
+END
 PATH	Watery Pass-South B2F			40	39	0	7	17	1	-	-	+	-
 PATH	Watery Pass-South B3F			35	34	0	7	18	1	+	-	+	-
 PATH	Watery Pass-North B2F			22	21	0	8	18	1	-	-	+	-
 PATH	Watery Pass-North B1F			62	60	0	8	19	1	-	+	+	-
+CHOICE	2
+OPTION	World Map (Kaipo) No Save
 PATH	World Map (Kaipo)			10	9	0	8	1	1	-	-	+	+
+NOOP	1
+OPTION	World Map (Kaipo) Save
+PATH	World Map (Kaipo)			9	8	0	8	1	1	-	-	+	+
+SAVE	World Map (Kaipo) Save			0
+END
 PATH	Waterfalls B1F				2	1	0	0	0	1	+	-	+	-
 PATH	Waterfalls B2F				46	45	0	8	20	1	-	-	+	-
 PATH	Waterfalls Lake				38	37	0	8	20	1	-	-	+	-
 NOTE	Battle: Octomamm
 PATH	Waterfalls Lake				2	1	0	8	20	0	-	+	+	-
 PATH	World Map (Kaipo)			11	11	0	8	1	1	-	-	+	+
+CHOICE	2
+OPTION	No Damcyan Clip
+PATH	World Map (Damcyan)			6	4	0	8	2	0	-	-	+	+
+NOOP	1
+OPTION	Damcyan Clip
 PATH	World Map (Damcyan)			1	1	0	8	2	0	-	-	+	+
 SAVE	Damcyan Clip				720
 PATH	World Map (Damcyan)			5	3	0	8	2	0	-	-	+	+
+END
 PATH	Damcyan					17	7	1	0	0	3	+	+	+	-
 SAVE	World Map (Damcyan) Before Antlion Cave	0
 PATH	Antlion B1F				39	38	0	8	21	1	-	-	+	-

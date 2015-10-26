@@ -365,21 +365,16 @@ void Engine::_cycle()
 				_full_minimum = false;
 			}
 
-			int value = _parameters.randomizer->get_int(0, 256);
+			int seed = _parameters.randomizer->get_int(0, 255);
+			int frames = 697 - instruction->number;
 
-			if (value > 0)
-			{
-				int seed = value - 1;
-				int frames = 697 - instruction->number;
+			_reset(seed);
 
-				_reset(seed);
+			_frames += frames;
+			_minimum_frames += frames;
 
-				_frames += frames;
-				_minimum_frames += frames;
-
-				_log.back().save_reset = true;
-				_log.back().new_seed = seed;
-			}
+			_log.back().save_reset = true;
+			_log.back().new_seed = seed;
 
 			break;
 		}
