@@ -44,6 +44,7 @@ class Options
 
 		bool full_optimization = false;
 		bool load_existing_variables = false;
+		bool tas_mode = false;
 
 		int seed = 43;
 

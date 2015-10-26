@@ -32,7 +32,9 @@
 class Parameters
 {
 	public:
-		Parameters(int seed, int maximum_extra_steps, const Glib::ustring & algorithm, const std::shared_ptr<Randomizer> & randomizer);
+		Parameters(bool tas_mode, int seed, int maximum_extra_steps, const Glib::ustring & algorithm, const std::shared_ptr<Randomizer> & randomizer);
+
+		const bool tas_mode;
 
 		const int seed;
 		const int maximum_extra_steps;

@@ -87,6 +87,7 @@ int main (int argc, char ** argv)
 	option_group.add_entry(Options::create_option_entry("maximum-iterations", 'i', "Maximum number of iterations to attempt"), options.maximum_iterations);
 	option_group.add_entry(Options::create_option_entry("perturbation-strength", 'p', "Strength of perturbations for ILS"), options.perturbation_strength);
 	option_group.add_entry(Options::create_option_entry("perturbation-wobble", 'w', "Initial wobble range added to the perturbation for ILS"), options.perturbation_wobble);
+	option_group.add_entry(Options::create_option_entry("tas-mode", 't', "Use options appropriate for TAS routing"), options.tas_mode);
 	option_group.add_entry(Options::create_option_entry("variables", 'v', "Explicitly set variables in the form index:value"), options.variables);
 
 	Glib::OptionContext option_context;
@@ -115,7 +116,7 @@ int main (int argc, char ** argv)
 	auto instructions = read_instructions(route_source_file);
 	auto randomizer = std::make_shared<Randomizer>(false);
 
-	Engine base_engine{Parameters{options.seed, 0, "none", randomizer}, instructions, encounters};
+	Engine base_engine{Parameters{options.tas_mode, options.seed, 0, "none", randomizer}, instructions, encounters};
 	base_engine.run();
 
 	auto route_output_directory = Gio::File::create_for_path(Glib::build_filename(options.output_directory, options.route));
@@ -161,7 +162,7 @@ int main (int argc, char ** argv)
 	double best_frames = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_frames() : base_engine.get_frames();
 	int best_variable_count = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_variable_count() : 0;
 
-	Engine engine{Parameters{options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters};
+	Engine engine{Parameters{options.tas_mode, options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters};
 
 	for (const auto & algorithm : Glib::Regex::split_simple("\\+", options.algorithm))
 	{

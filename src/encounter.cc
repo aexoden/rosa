@@ -54,6 +54,18 @@ double Encounter::get_minimum_duration() const
 	return _minimum_duration;
 }
 
+double Encounter::get_duration(bool minimum) const
+{
+	if (minimum)
+	{
+		return get_minimum_duration();
+	}
+	else
+	{
+		return get_average_duration();
+	}
+}
+
 Encounters::Encounters(const Glib::RefPtr<Gio::File> & file) :
 	_encounters{512},
 	_encounter_groups{512}

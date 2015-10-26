@@ -38,6 +38,8 @@ class Encounter
 		double get_average_duration() const;
 		double get_minimum_duration() const;
 
+		double get_duration(bool minimum) const;
+
 	private:
 		const unsigned int _id;
 
