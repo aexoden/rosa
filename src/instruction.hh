@@ -36,6 +36,7 @@ enum class InstructionType
 	OPTION,
 	PATH,
 	ROUTE,
+	SAVE,
 	SEARCH,
 	VERSION,
 	WAIT

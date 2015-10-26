@@ -40,6 +40,9 @@ class LogEntry
 
 		int steps = 0;
 
+		bool save_reset = false;
+		int new_seed = 0;
+
 		std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> encounters;
 		std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> potential_encounters;
 };

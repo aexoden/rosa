@@ -156,6 +156,11 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 			output.append(Glib::ustring::compose("%1  Extra Steps: %2\n", indent, extra_steps));
 		}
 
+		if (entry.save_reset)
+		{
+			output.append(Glib::ustring::compose("%1  Save and reset to seed %2\n", indent, entry.new_seed));
+		}
+
 		for (auto & pair : entry.encounters)
 		{
 			output.append(Glib::ustring::compose("%1  Step %2: %3 / %4 (%5s)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_average_duration())));
@@ -351,6 +356,33 @@ void Engine::_cycle()
 		case InstructionType::ROUTE:
 			_title = instruction->text;
 			break;
+		case InstructionType::SAVE:
+		{
+			_transition(instruction);
+
+			if (_parameters.randomizer->is_implicit())
+			{
+				_full_minimum = false;
+			}
+
+			int value = _parameters.randomizer->get_int(0, 256);
+
+			if (value > 0)
+			{
+				int seed = value - 1;
+				int frames = 697 - instruction->number;
+
+				_reset(seed);
+
+				_frames += frames;
+				_minimum_frames += frames;
+
+				_log.back().save_reset = true;
+				_log.back().new_seed = seed;
+			}
+
+			break;
+		}
 		case InstructionType::SEARCH:
 			_encounter_search = instruction->numbers;
 			_encounter_search_area = true;

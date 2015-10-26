@@ -79,6 +79,12 @@ Instruction::Instruction(const Glib::ustring & line)
 			type = InstructionType::ROUTE;
 			text = tokens[1];
 		}
+		else if (tokens[0] == "SAVE" && tokens.size() == 3)
+		{
+			type = InstructionType::SAVE;
+			text = tokens[1];
+			number = std::stoi(tokens[2]);
+		}
 		else if (tokens[0] == "SEARCH" && tokens.size() == 3)
 		{
 			type = InstructionType::SEARCH;
