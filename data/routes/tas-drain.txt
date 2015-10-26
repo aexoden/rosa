@@ -330,7 +330,7 @@ CHOICE	2
 OPTION	Tower of Bab-il B3F Inward Direct
 PATH	Tower of Bab-il B3F			43	42	0	8	54	1	-	-	+	-
 NOOP	1
-OPTION	Tower of Bab-il B3F Inward Save Room Steps
+OPTION	Tower of Bab-il B3F Inward Save Room Save
 PATH	Tower of Bab-il B3F			37	36	0	8	54	1	-	-	+	-
 PATH	Tower of Bab-il B3F Save Room		3	0	0	0	0	1	-	-	-	-
 SAVE	Tower of Bab-il B3F Save Room Save Point	0
@@ -412,7 +412,7 @@ PATH	Lunar Subterrane B7			24	23	0	8	86	1	-	-	+	-
 PATH	Lunar Subterrane B7 Save Room		1	0	0	0	0	1	+	-	+	-
 NOOP	1
 PATH	Lunar Subterrane B7			59	58	0	8	86	1	+	-	+	-
-OPTION	Lunar Subterrane B7 Inward Save Room Steps
+OPTION	Lunar Subterrane B7 Inward Save Room Save
 PATH	Lunar Subterrane B7			24	23	0	8	86	1	-	-	+	-
 PATH	Lunar Subterrane B7 Save Room		5	3	0	0	0	1	-	-	+	-
 SAVE	Lunar Subterrane B7 Save Room		0

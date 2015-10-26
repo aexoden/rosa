@@ -677,7 +677,7 @@ if route.tas:
 			Path('Tower of Bab-il B3F', 43, 42, 0, 8, 54, 1, False, False, True, False),
 			Noop(1),
 		]),
-		Option('Tower of Bab-il B3F Inward Save Room Steps', [
+		Option('Tower of Bab-il B3F Inward Save Room Save', [
 			Path('Tower of Bab-il B3F', 37, 36, 0, 8, 54, 1, False, False, True, False),
 			Path('Tower of Bab-il B3F Save Room', 3, 0, 0, 0, 0, 1, False, False, False, False),
 			Save('Tower of Bab-il B3F Save Room Save Point', 0),
@@ -832,7 +832,7 @@ lunar_subterrane_b7_choices = [
 ]
 
 if route.tas:
-	lunar_subterrane_b7_choices.append(Option('Lunar Subterrane B7 Inward Save Room Steps', [
+	lunar_subterrane_b7_choices.append(Option('Lunar Subterrane B7 Inward Save Room Save', [
 		Path('Lunar Subterrane B7', 24, 23, 0, 8, 86, 1, False, False, True, False),
 		Path('Lunar Subterrane B7 Save Room', 5, 3, 0, 0, 0, 1, False, False, True, False),
 		Save('Lunar Subterrane B7 Save Room', 0),
