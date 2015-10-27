@@ -1,5 +1,8 @@
 *.o
 *.swp
 /.tup
+/output
 /src/spoony
+/src/spoony-*
 /src/version.hh
+/web
