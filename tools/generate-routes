@@ -10,5 +10,3 @@ tools/generate-route ss-excalbur > data/routes/ss-excalbur.txt
 tools/generate-route tas-rosa > data/routes/tas-rosa.txt
 tools/generate-route tas-drain > data/routes/tas-drain.txt
 tools/generate-route tas-excalbur > data/routes/tas-excalbur.txt
-
-
