@@ -137,7 +137,7 @@ int main (int argc, char ** argv)
 
 	RouteOutput route_output_data{route_output_file};
 
-	if (route_output_data.is_valid(base_engine.get_version()) && options.load_existing_variables)
+	if (options.load_existing_variables)
 	{
 		variables = route_output_data.get_variables();
 	}
