@@ -332,7 +332,7 @@ OPTION	Tower of Bab-il B3F Inward Save Room Save
 PATH	Tower of Bab-il B3F			37	36	0	8	54	1	-	-	+	-
 PATH	Tower of Bab-il B3F Save Room		3	0	0	0	0	1	-	-	-	-
 SAVE	Tower of Bab-il B3F Save Room Save Point	0
-PATH	Tower of Bab-il B3F Save Room		4	0	0	0	0	1	-	-	-	-
+PATH	Tower of Bab-il B3F Save Room		4	0	0	0	0	0	-	-	-	-
 PATH	Tower of Bab-il B3F			8	7	0	8	54	1	-	-	+	-
 END
 PATH	Tower of Bab-il B4F			4	3	0	8	55	1	-	-	+	-

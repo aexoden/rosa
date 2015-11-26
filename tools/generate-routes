@@ -7,6 +7,8 @@ tools/generate-route no64-drain > data/routes/no64-drain.txt
 tools/generate-route no64-excalbur > data/routes/no64-excalbur.txt
 tools/generate-route ss-drain > data/routes/ss-drain.txt
 tools/generate-route ss-excalbur > data/routes/ss-excalbur.txt
+tools/generate-route marathon-no64-drain > data/routes/marathon-no64-drain.txt
+tools/generate-route marathon-no64-excalbur > data/routes/marathon-no64-excalbur.txt
 tools/generate-route tas-rosa > data/routes/tas-rosa.txt
 tools/generate-route tas-drain > data/routes/tas-drain.txt
 tools/generate-route tas-excalbur > data/routes/tas-excalbur.txt

@@ -32,6 +32,7 @@
  * Route Improvements:
  *   - Variable optimization (combine Ordeals into one variable, improve Toroia, remove dependent variables with choices)
  *   - Do something about indistinguishable seeds (41/42)
+ *   - Figure out Damcyan reset seeds.
  */
 
 #include <iomanip>

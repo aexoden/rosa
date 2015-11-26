@@ -29,7 +29,7 @@ import sys
 #-------------------------------------------------------------------------------
 
 class Route(object):
-    def __init__(self, key, name, pre_mist, mist_clip, tas, yes64, drain, excalbur):
+    def __init__(self, key, name, pre_mist, mist_clip, tas, yes64, drain, excalbur, marathon):
         self.key = key
         self.name = name
         self.pre_mist = pre_mist
@@ -38,25 +38,29 @@ class Route(object):
         self.yes64 = yes64
         self.drain = drain
         self.excalbur = excalbur
+        self.marathon = marathon
 
 VERSION = 3
 
 ROUTES = {
-    'premist': ('Pre-Mist Clip', True, True, False, False, False, False),
+    'premist': ('Pre-Mist Clip', True, True, False, False, False, False, False),
 
-    'paladin': ('Paladin%', False, True, False, False, False, False),
+    'paladin': ('Paladin%', False, True, False, False, False, False, False),
 
-    'yes64': ('Any% Yes64', False, True, False, True, False, False),
+    'yes64': ('Any% Yes64', False, True, False, True, False, False, False),
 
-    'no64-drain': ('Any% No64 (Edge+Drain)', False, True, False, False, True, False),
-    'no64-excalbur': ('Any% No64 (Edge+Excalbur)', False, True, False, False, False, True),
+    'no64-drain': ('Any% No64 (Edge+Drain)', False, True, False, False, True, False, False),
+    'no64-excalbur': ('Any% No64 (Edge+Excalbur)', False, True, False, False, False, True, False),
 
-    'ss-drain': ('Any% No64 Single Segment (Edge+Drain)', True, False, False, False, True, False),
-    'ss-excalbur': ('Any% No64 Single Segment (Edge+Excalbur)', True, False, False, False, False, True),
+    'ss-drain': ('Any% No64 Single Segment (Edge+Drain)', True, False, False, False, True, False, False),
+    'ss-excalbur': ('Any% No64 Single Segment (Edge+Excalbur)', True, False, False, False, False, True, False),
 
-    'tas-rosa': ('Any% No64 TAS (Rosa)', False, True, True, False, False, False),
-    'tas-drain': ('Any% No64 TAS (Edge+Drain)', False, True, True, False, True, False),
-    'tas-excalbur': ('Any% No64 TAS (Edge+Excalbur)', False, True, True, False, False, True),
+    'marathon-no64-drain': ('Any% No64 (Edge+Drain) Marathon Safe', False, True, False, False, True, False, True),
+    'marathon-no64-excalbur': ('Any% No64 (Edge+Excalbur) Marathon Safe', False, True, False, False, False, True, True),
+
+    'tas-rosa': ('Any% No64 TAS (Rosa)', False, True, True, False, False, False, False),
+    'tas-drain': ('Any% No64 TAS (Edge+Drain)', False, True, True, False, True, False, False),
+    'tas-excalbur': ('Any% No64 TAS (Edge+Excalbur)', False, True, True, False, False, True, False),
 }
 
 
@@ -506,6 +510,10 @@ if route.tas:
             Path('Tower of Zot 5F', 13, 12, 0, 8, 41, 1, False, False, True, False),
         ]),
     ]))
+elif route.marathon:
+    print(Path('Tower of Zot 5F', 12, 12, 0, 8, 41, 1, False, False, True, False))
+    print(Path('Tower of Zot 5F Save Room', 7, 0, 0, 0, 0, 1, False, False, False, False))
+    print(Path('Tower of Zot 5F', 13, 12, 0, 8, 41, 1, False, False, True, False))
 else:
     print(Path('Tower of Zot 5F', 24, 23, 0, 8, 41, 1, False, False, True, False))
 
@@ -581,6 +589,10 @@ if route.tas:
             Path('Tower of Bab-il 7F', 54, 53, 0, 7, 50, 1, False, False, True, False),
         ]),
     ]))
+elif route.marathon:
+    print(Path('Tower of Bab-il 7F', 18, 17, 0, 7, 50, 1, False, False, True, False))
+    print(Path('Tower of Bab-il 7F Save Room', 5, 0, 0, 0, 0, 1, False, False, False, False))
+    print(Path('Tower of Bab-il 7F', 54, 53, 0, 7, 50, 1, False, False, True, False))
 else:
     print(Path('Tower of Bab-il 7F', 44, 43, 0, 7, 50, 1, False, False, True, False))
 
@@ -690,10 +702,14 @@ if route.tas:
             Path('Tower of Bab-il B3F', 37, 36, 0, 8, 54, 1, False, False, True, False),
             Path('Tower of Bab-il B3F Save Room', 3, 0, 0, 0, 0, 1, False, False, False, False),
             Save('Tower of Bab-il B3F Save Room Save Point', 0),
-            Path('Tower of Bab-il B3F Save Room', 4, 0, 0, 0, 0, 1, False, False, False, False),
+            Path('Tower of Bab-il B3F Save Room', 4, 0, 0, 0, 0, 0, False, False, False, False),
             Path('Tower of Bab-il B3F', 8, 7, 0, 8, 54, 1, False, False, True, False),
         ]),
     ]))
+elif route.marathon:
+    Path('Tower of Bab-il B3F', 37, 36, 0, 8, 54, 1, False, False, True, False),
+    Path('Tower of Bab-il B3F Save Room', 7, 0, 0, 0, 0, 1, False, False, False, False),
+    Path('Tower of Bab-il B3F', 8, 7, 0, 8, 54, 1, False, False, True, False),
 else:
     print(Path('Tower of Bab-il B3F', 43, 42, 0, 8, 54, 1, False, False, True, False))
 
@@ -785,10 +801,19 @@ print(Path('Giant of Bab-il Mouth', 23, 18, 1, 9, 74, 1, False, True, True, Fals
 print(Path('Giant of Bab-il Neck', 3, 2, 0, 9, 74, 1, False, False, True, False))
 print(Path('Giant of Bab-il Chest', 98, 82, 0, 9, 75, 1, False, True, True, False))
 print(Path('Giant of Bab-il Stomach', 52, 49, 0, 9, 76, 1, False, True, True, False))
-print(Search('Grind Fight Search', [200], [
-    Path('Giant of Bab-il Passage', 72, 61, 0, 9, 77, 1, True, True, True, False),
-    Path('Giant of Bab-il Lung', 9, 8, 0, 9, 78, 1, False, True, True, False),
-]))
+
+if route.marathon:
+    print(Search('Grind Fight Search', [200], [
+        Path('Giant of Bab-il Passage', 68, 59, 0, 9, 77, 1, True, True, True, False),
+        Path('Giant of Bab-il Passage', 18, 15, 0, 9, 77, 0, True, True, True, False),
+        Path('Giant of Bab-il Lung', 9, 8, 0, 9, 78, 1, False, True, True, False),
+    ]))
+else:
+    print(Search('Grind Fight Search', [200], [
+        Path('Giant of Bab-il Passage', 72, 61, 0, 9, 77, 1, True, True, True, False),
+        Path('Giant of Bab-il Lung', 9, 8, 0, 9, 78, 1, False, True, True, False),
+    ]))
+
 print(Note('Battle: Elements'))
 print(Path('Giant of Bab-il Lung', 11, 7, 0, 9, 78, 0, False, True, True, False))
 print(Path('Giant of Bab-il CPU', 6, 2, 0, 0, 0, 1, True, True, True, False))
