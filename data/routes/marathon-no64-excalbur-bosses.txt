@@ -1,4 +1,4 @@
-ROUTE	Final Fantasy IV Any% No64 (Edge+Excalbur) Marathon Safe
+ROUTE	Final Fantasy IV Any% No64 (Edge+Excalbur) Marathon Safe Extra Bosses
 VERSION	3
 PATH	World Map (Mist)			1	1	0	8	1	0	-	-	+	+
 PATH	World Map (Kaipo)			37	36	0	8	1	1	-	-	+	+
@@ -267,6 +267,27 @@ NOTE	Battle: Elements
 PATH	Giant of Bab-il Lung			11	7	0	9	78	0	-	+	+	-
 PATH	Giant of Bab-il CPU			6	2	0	0	0	1	+	+	+	-
 NOTE	Return to Moon
+NOTE	Return to Earth
+PATH	World Map (Eblan)			1	1	0	8	6	0	+	-	+	+
+PATH	Land of Monsters B1F			37	35	0	9	67	1	-	+	+	-
+PATH	Land of Monsters B2F			45	44	0	9	68	1	-	-	+	-
+CHOICE	3
+OPTION	Land of Monsters B3F Inward Direct
+PATH	Land of Monsters B3F			49	48	0	9	69	1	-	-	+	-
+OPTION	Land of Monsters B3F Inward Partial Secret Passage
+PATH	Land of Monsters B3F			87	38	0	9	69	1	-	+	+	-
+OPTION	Land of Monsters B3F Inward Full Secret Passage
+PATH	Land of Monsters B3F			87	28	0	9	69	1	-	+	+	-
+END
+PATH	Land of Monsters Basement		5	5	0	0	0	1	+	-	+	-
+PATH	Underworld Map (Land of Monsters)	1	1	0	8	8	1	-	-	+	+
+PATH	World Map (Eblan)			1	1	0	8	6	0	-	-	+	+
+NOTE	Fly to Bahamut Cave
+PATH	Lunar World Map				14	13	0	8	9	1	+	-	+	+
+PATH	Cave Bahamut B1F			48	47	0	9	71	1	-	-	+	-
+PATH	Cave Bahamut B2F			49	46	1	9	72	1	-	+	+	-
+PATH	Cave Bahamut B3F			54	52	0	9	82	1	-	+	+	-
+PATH	Lunar World Map				14	14	0	8	9	1	-	-	+	+
 PATH	Lunar World Map				6	5	0	8	9	0	-	-	+	+
 PATH	Lunar Path				39	38	0	8	90	1	-	-	+	-
 PATH	Lunar World Map				36	35	0	8	9	1	-	-	+	+

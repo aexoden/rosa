@@ -29,7 +29,7 @@ import sys
 #-------------------------------------------------------------------------------
 
 class Route(object):
-    def __init__(self, key, name, pre_mist, mist_clip, tas, yes64, drain, excalbur, marathon):
+    def __init__(self, key, name, pre_mist, mist_clip, tas, yes64, drain, excalbur, marathon, extra_bosses):
         self.key = key
         self.name = name
         self.pre_mist = pre_mist
@@ -39,28 +39,30 @@ class Route(object):
         self.drain = drain
         self.excalbur = excalbur
         self.marathon = marathon
+        self.extra_bosses = extra_bosses
 
 VERSION = 3
 
 ROUTES = {
-    'premist': ('Pre-Mist Clip', True, True, False, False, False, False, False),
+    'premist': ('Pre-Mist Clip', True, True, False, False, False, False, False, False),
 
-    'paladin': ('Paladin%', False, True, False, False, False, False, False),
+    'paladin': ('Paladin%', False, True, False, False, False, False, False, False),
 
-    'yes64': ('Any% Yes64', False, True, False, True, False, False, False),
+    'yes64': ('Any% Yes64', False, True, False, True, False, False, False, False),
 
-    'no64-drain': ('Any% No64 (Edge+Drain)', False, True, False, False, True, False, False),
-    'no64-excalbur': ('Any% No64 (Edge+Excalbur)', False, True, False, False, False, True, False),
+    'no64-drain': ('Any% No64 (Edge+Drain)', False, True, False, False, True, False, False, False),
+    'no64-excalbur': ('Any% No64 (Edge+Excalbur)', False, True, False, False, False, True, False, False),
 
-    'ss-drain': ('Any% No64 Single Segment (Edge+Drain)', True, False, False, False, True, False, False),
-    'ss-excalbur': ('Any% No64 Single Segment (Edge+Excalbur)', True, False, False, False, False, True, False),
+    'ss-drain': ('Any% No64 Single Segment (Edge+Drain)', True, False, False, False, True, False, False, False),
+    'ss-excalbur': ('Any% No64 Single Segment (Edge+Excalbur)', True, False, False, False, False, True, False, False),
 
-    'marathon-no64-drain': ('Any% No64 (Edge+Drain) Marathon Safe', False, True, False, False, True, False, True),
-    'marathon-no64-excalbur': ('Any% No64 (Edge+Excalbur) Marathon Safe Extra Bosses', False, True, False, False, False, True, True),
+    'marathon-no64-drain': ('Any% No64 (Edge+Drain) Marathon Safe', False, True, False, False, True, False, True, False),
+    'marathon-no64-excalbur': ('Any% No64 (Edge+Excalbur) Marathon Safe', False, True, False, False, False, True, True, False),
+    'marathon-no64-excalbur-bosses': ('Any% No64 (Edge+Excalbur) Marathon Safe Extra Bosses', False, True, False, False, False, True, True, True),
 
-    'tas-rosa': ('Any% No64 TAS (Rosa)', False, True, True, False, False, False, False),
-    'tas-drain': ('Any% No64 TAS (Edge+Drain)', False, True, True, False, True, False, False),
-    'tas-excalbur': ('Any% No64 TAS (Edge+Excalbur)', False, True, True, False, False, True, False),
+    'tas-rosa': ('Any% No64 TAS (Rosa)', False, True, True, False, False, False, False, False),
+    'tas-drain': ('Any% No64 TAS (Edge+Drain)', False, True, True, False, True, False, False, False),
+    'tas-excalbur': ('Any% No64 TAS (Edge+Excalbur)', False, True, True, False, False, True, False, False),
 }
 
 
@@ -820,12 +822,13 @@ else:
 print(Note('Battle: Elements'))
 print(Path('Giant of Bab-il Lung', 11, 7, 0, 9, 78, 0, False, True, True, False))
 print(Path('Giant of Bab-il CPU', 6, 2, 0, 0, 0, 1, True, True, True, False))
+print(Note('Return to Moon'))
 
 #-------------------------------------------------------------------------------
 # Marathon Extra Bosses
 #-------------------------------------------------------------------------------
 
-if route.marathon and route.excalbur:
+if route.extra_bosses:
     print(Note('Return to Earth'))
     print(Path('World Map (Eblan)', 1, 1, 0, 8, 6, 0, True, False, True, True))
     print(Path('Land of Monsters B1F', 37, 35, 0, 9, 67, 1, False, True, True, False))
@@ -855,7 +858,6 @@ if route.marathon and route.excalbur:
 # Final Dungeon
 #-------------------------------------------------------------------------------
 
-print(Note('Return to Moon'))
 print(Path('Lunar World Map', 6, 5, 0, 8, 9, 0, False, False, True, True))
 print(Path('Lunar Path', 39, 38, 0, 8, 90, 1, False, False, True, False))
 print(Path('Lunar World Map', 36, 35, 0, 8, 9, 1, False, False, True, True))
@@ -907,7 +909,13 @@ if route.tas:
         Path('Lunar Subterrane B7', 59, 58, 0, 8, 86, 1, True, False, True, False),
     ]))
 
-print(Choice(lunar_subterrane_b7_choices))
+if route.marathon:
+    print(Path('Lunar Subterrane B7', 24, 23, 0, 8, 86, 1, False, False, True, False))
+    print(Path('Lunar Subterrane B7 Save Room', 11, 7, 0, 0, 0, 1, True, False, True, False))
+    print(Path('Lunar Subterrane B7', 59, 58, 0, 8, 86, 1, True, False, True, False))
+else:
+    print(Choice(lunar_subterrane_b7_choices))
+
 print(Path('Lunar Core B1', 69, 68, 0, 8, 88, 1, False, False, True, False))
 print(Path('Lunar Core B2', 56, 55, 0, 8, 88, 1, False, False, True, False))
 print(Path('Lunar Core B3', 53, 52, 0, 8, 89, 1, False, False, True, False))

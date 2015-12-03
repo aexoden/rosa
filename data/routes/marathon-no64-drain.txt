@@ -278,16 +278,9 @@ PATH	Lunar Subterrane B5			7	6	0	8	84	1	-	-	+	-
 END
 PATH	Lunar Subterrane B6			38	37	0	8	85	1	+	-	+	-
 PATH	Lunar Subterrane B6 Room		14	13	0	10	87	1	-	-	+	-
-CHOICE	2
-OPTION	Lunar Subterrane B7 Inward Direct
-NOOP	1
-PATH	Lunar Subterrane B7			81	80	0	8	86	1	+	-	+	-
-OPTION	Lunar Subterrane B7 Inward Save Room Steps
 PATH	Lunar Subterrane B7			24	23	0	8	86	1	-	-	+	-
-PATH	Lunar Subterrane B7 Save Room		1	0	0	0	0	1	+	-	+	-
-NOOP	0
+PATH	Lunar Subterrane B7 Save Room		11	7	0	0	0	1	+	-	+	-
 PATH	Lunar Subterrane B7			59	58	0	8	86	1	+	-	+	-
-END
 PATH	Lunar Core B1				69	68	0	8	88	1	-	-	+	-
 PATH	Lunar Core B2				56	55	0	8	88	1	-	-	+	-
 PATH	Lunar Core B3				53	52	0	8	89	1	-	-	+	-
