@@ -84,6 +84,7 @@ int main (int argc, char ** argv)
 	option_group.add_entry(Options::create_option_entry("full-optimization", 'f', "Optimize all variables instead of only variables after input data"), options.full_optimization);
 	option_group.add_entry(Options::create_option_entry("load-existing-variables", 'l', "Use the existing variable data in the best route as seed data"), options.load_existing_variables);
 	option_group.add_entry(Options::create_option_entry("seed", 's', "Seed to process"), options.seed);
+	option_group.add_entry(Options::create_option_entry("maximum-comparisons", 'c', "Maximum number of pairwise comparisons per variable"), options.maximum_comparisons);
 	option_group.add_entry(Options::create_option_entry("maximum-steps", 'm', "Maximum number of extra steps per area"), options.maximum_steps);
 	option_group.add_entry(Options::create_option_entry("maximum-iterations", 'i', "Maximum number of iterations to attempt"), options.maximum_iterations);
 	option_group.add_entry(Options::create_option_entry("perturbation-strength", 'p', "Strength of perturbations for ILS"), options.perturbation_strength);

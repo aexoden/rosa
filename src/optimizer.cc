@@ -279,7 +279,14 @@ void optimize_local_pair(int start_index, double & best_frames, int & best_varia
 		{
 			int original_i_value = randomizer->data[i];
 
-			for (decltype(randomizer->data)::size_type j = i + 1; j < randomizer->data.size(); j++)
+			auto maximum = randomizer->data.size();
+
+			if (options.maximum_comparisons > 0)
+			{
+				maximum = std::min(maximum, i + 1 + options.maximum_comparisons);
+			}
+
+			for (decltype(randomizer->data)::size_type j = i + 1; j < maximum; j++)
 			{
 				std::cout << "\rSeed: " << std::right << std::setw(4) << options.seed;
 				std::cout << "   Algorithm: " << std::left << std::setw(15) << "Pairwise Local";
