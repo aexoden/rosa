@@ -301,29 +301,41 @@ void optimize_local_pair(int start_index, double & best_frames, int & best_varia
 
 				for (int i_value = 0; i_value <= options.maximum_steps; i_value++)
 				{
-					for (int j_value = 0; j_value <= options.maximum_steps; j_value++)
+					int j_minimum = 0;
+					int j_maximum = options.maximum_steps;
+
+					if (options.pairwise_shift)
 					{
-						randomizer->reset();
-						randomizer->data[i] = i_value;
-						randomizer->data[j] = j_value;
+						j_minimum = original_i_value + original_j_value - i_value;
+						j_maximum = j_minimum;
+					}
 
-						engine.reset();
-						engine.run();
-
-						if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && randomizer->get_set_variable_count() < best_variable_count)) && RouteOutput::write_route(output_file, randomizer, engine, base_engine, false))
+					for (int j_value = j_minimum; j_value <= j_maximum; j_value++)
+					{
+						if (j_value >= 0)
 						{
-							best_frames = engine.get_frames();
-							best_variable_count = randomizer->get_set_variable_count();
-						}
+							randomizer->reset();
+							randomizer->data[i] = i_value;
+							randomizer->data[j] = j_value;
 
-						if (engine.get_frames() < search_best_frames || (engine.get_frames() == search_best_frames && randomizer->get_set_variable_count() < search_best_variable_count))
-						{
-							search_best_frames = engine.get_frames();
-							search_best_variable_count = randomizer->get_set_variable_count();
-							best_i = i;
-							best_j = j;
-							best_i_value = i_value;
-							best_j_value = j_value;
+							engine.reset();
+							engine.run();
+
+							if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && randomizer->get_set_variable_count() < best_variable_count)) && RouteOutput::write_route(output_file, randomizer, engine, base_engine, false))
+							{
+								best_frames = engine.get_frames();
+								best_variable_count = randomizer->get_set_variable_count();
+							}
+
+							if (engine.get_frames() < search_best_frames || (engine.get_frames() == search_best_frames && randomizer->get_set_variable_count() < search_best_variable_count))
+							{
+								search_best_frames = engine.get_frames();
+								search_best_variable_count = randomizer->get_set_variable_count();
+								best_i = i;
+								best_j = j;
+								best_i_value = i_value;
+								best_j_value = j_value;
+							}
 						}
 					}
 				}

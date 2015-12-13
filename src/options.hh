@@ -53,6 +53,7 @@ class Options
 		int maximum_iterations = 1000;
 
 		int maximum_comparisons = 0;
+		bool pairwise_shift = false;
 
 		int perturbation_strength = 3;
 		int perturbation_wobble = 0;

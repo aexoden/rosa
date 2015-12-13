@@ -87,6 +87,7 @@ int main (int argc, char ** argv)
 	option_group.add_entry(Options::create_option_entry("maximum-comparisons", 'c', "Maximum number of pairwise comparisons per variable"), options.maximum_comparisons);
 	option_group.add_entry(Options::create_option_entry("maximum-steps", 'm', "Maximum number of extra steps per area"), options.maximum_steps);
 	option_group.add_entry(Options::create_option_entry("maximum-iterations", 'i', "Maximum number of iterations to attempt"), options.maximum_iterations);
+	option_group.add_entry(Options::create_option_entry("pairwise-shift", 'z', "Shift steps instead of testing all possibilities in local pairwise search"), options.pairwise_shift);
 	option_group.add_entry(Options::create_option_entry("perturbation-strength", 'p', "Strength of perturbations for ILS"), options.perturbation_strength);
 	option_group.add_entry(Options::create_option_entry("perturbation-wobble", 'w', "Initial wobble range added to the perturbation for ILS"), options.perturbation_wobble);
 	option_group.add_entry(Options::create_option_entry("tas-mode", 't', "Use options appropriate for TAS routing"), options.tas_mode);
