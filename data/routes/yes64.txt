@@ -119,7 +119,7 @@ END
 NOTE	Battle: Dark Elf
 PATH	World Map (Toroia)			2	2	0	10	5	1	-	-	+	+
 NOTE	Black Chocobo to Toroia
-PATH	World Map (Toroia)			25	24	0	10	5	0	-	-	+	+
+PATH	World Map (Toroia)			22	21	0	10	5	0	-	-	+	+
 CHOICE	2
 OPTION	Toroian Castle 1F Inward Direct
 PATH	Toroian Castle 1F			15	0	0	0	0	1	-	-	-	-

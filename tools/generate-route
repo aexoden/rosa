@@ -476,7 +476,7 @@ print(Path('World Map (Toroia)', 2, 2, 0, 10, 5, 1, False, False, True, True))
 print(Note('Black Chocobo to Toroia'))
 
 if route.yes64:
-    print(Path('World Map (Toroia)', 25, 24, 0, 10, 5, 0, False, False, True, True))
+    print(Path('World Map (Toroia)', 22, 21, 0, 10, 5, 0, False, False, True, True))
 elif route.tas:
     print(Save('World Map (Toroia) Before Toroian Castle', 0))
 
