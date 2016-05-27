@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#include <sstream>
+
 #include <tclap/CmdLine.h>
 
 #include "options.hh"

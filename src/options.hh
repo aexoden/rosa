@@ -23,6 +23,8 @@
 #ifndef SPOONY_OPTIONS_HH
 #define SPOONY_OPTIONS_HH
 
+#include <string>
+
 #include <tclap/Constraint.h>
 
 template<typename T>

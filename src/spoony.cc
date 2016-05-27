@@ -20,12 +20,7 @@
  * SOFTWARE.
  */
 
-#include <iostream>
-
-#include <tclap/CmdLine.h>
-
 #include "options.hh"
-#include "version.hh"
 
 int main(int argc, char ** argv)
 {
