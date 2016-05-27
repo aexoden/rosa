@@ -23,6 +23,37 @@
 #ifndef SPOONY_OPTIONS_HH
 #define SPOONY_OPTIONS_HH
 
+#include <tclap/Constraint.h>
+
+template<typename T>
+class NumberConstraint : public TCLAP::Constraint<T>
+{
+	public:
+		NumberConstraint(T min, T max);
+
+		virtual std::string description() const override;
+		virtual std::string shortID() const override;
+		virtual bool check(const T & value) const override;
+
+	private:
+		T _min;
+		T _max;
+};
+
+class Options
+{
+	public:
+		Options();
+
+		void parse(int argc, char ** argv);
+
+	private:
+		unsigned int _seed{0};
+
+		NumberConstraint<decltype(_seed)> _seed_constraint{0, 255};
+};
+
+/*
 #include <glibmm/optioncontext.h>
 #include <glibmm/optionentry.h>
 #include <glibmm/optiongroup.h>
@@ -58,5 +89,5 @@ class Options
 		int perturbation_strength = 3;
 		int perturbation_wobble = 0;
 };
-
+*/
 #endif

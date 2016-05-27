@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
+/*
 #include <iomanip>
 #include <iostream>
 #include <random>
@@ -420,3 +420,4 @@ void optimize_sequential(int start_index, double & best_frames, int & best_varia
 
 	std::cout << std::endl;
 }
+*/

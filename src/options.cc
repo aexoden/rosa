@@ -20,15 +20,46 @@
  * SOFTWARE.
  */
 
+#include <tclap/CmdLine.h>
+
 #include "options.hh"
+#include "version.hh"
 
-Glib::OptionEntry Options::create_option_entry(const Glib::ustring & long_name, const gchar & short_name, const Glib::ustring & description)
+template <typename T>
+NumberConstraint<T>::NumberConstraint(T min, T max) :
+	_min(min),
+	_max(max)
+{}
+
+template <typename T>
+std::string NumberConstraint<T>::description() const
 {
-	Glib::OptionEntry entry;
+	std::ostringstream string_stream;
+	string_stream << _min << ".." << _max;
+	return string_stream.str();
+}
 
-	entry.set_long_name(long_name);
-	entry.set_short_name(short_name);
-	entry.set_description(description);
+template <typename T>
+std::string NumberConstraint<T>::shortID() const
+{
+	return description();
+}
 
-	return entry;
+template <typename T>
+bool NumberConstraint<T>::check(const T & value) const
+{
+	return (value >= _min) && (value <= _max);
+}
+
+Options::Options() {}
+
+void Options::parse(int argc, char ** argv)
+{
+	TCLAP::CmdLine command_line{"Generates step routes for Final Fantasy IV", ' ', SPOONY_VERSION};
+
+	TCLAP::ValueArg<decltype(_seed)> option_seed{"s", "seed", "Encounter seed", true, 0, &_seed_constraint, command_line};
+
+	command_line.parse(argc, argv);
+
+	_seed = option_seed.getValue();
 }
