@@ -52,6 +52,8 @@ class Options
 	private:
 		unsigned int _seed{0};
 
+		std::string _route{""};
+
 		NumberConstraint<decltype(_seed)> _seed_constraint{0, 255};
 };
 

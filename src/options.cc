@@ -60,6 +60,7 @@ void Options::parse(int argc, char ** argv)
 	TCLAP::CmdLine command_line{"Generates step routes for Final Fantasy IV", ' ', SPOONY_VERSION};
 
 	TCLAP::ValueArg<decltype(_seed)> option_seed{"s", "seed", "Encounter seed", true, 0, &_seed_constraint, command_line};
+	TCLAP::ValueArg<decltype(_route)> option_route{"r", "route", "Route definition file", true, "", "filename", command_line};
 
 	command_line.parse(argc, argv);
 
