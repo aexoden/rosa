@@ -79,7 +79,7 @@ unsigned int Options::seed() const
 
 std::shared_ptr<const Route> Options::route() const
 {
-	return std::make_shared<const Route>(_route);
+	return std::make_shared<const Route>(_route, maps());
 }
 
 std::map<unsigned int, std::shared_ptr<const Map>> Options::maps() const

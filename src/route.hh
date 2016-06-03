@@ -23,12 +23,16 @@
 #ifndef SPOONY_ROUTE_HH
 #define SPOONY_ROUTE_HH
 
+#include <map>
+#include <memory>
 #include <string>
+
+class Map;
 
 class Route
 {
 	public:
-		explicit Route(const std::string & filename);
+		explicit Route(const std::string & filename, std::map<unsigned int, std::shared_ptr<const Map>> maps);
 
 		std::string name() const;
 		unsigned int version() const;
@@ -38,6 +42,8 @@ class Route
 
 		std::string _name;
 		unsigned int _version;
+
+		std::map<unsigned int, std::shared_ptr<const Map>> _maps;
 };
 
 /*

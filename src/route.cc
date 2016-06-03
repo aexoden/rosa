@@ -26,9 +26,11 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include "map.hh"
 #include "route.hh"
 
-Route::Route(const std::string & filename)
+Route::Route(const std::string & filename, std::map<unsigned int, std::shared_ptr<const Map>> maps) :
+	_maps(maps)
 {
 	std::ifstream file{filename};
 	std::string line;
