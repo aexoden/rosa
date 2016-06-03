@@ -65,4 +65,15 @@ void Options::parse(int argc, char ** argv)
 	command_line.parse(argc, argv);
 
 	_seed = option_seed.getValue();
+	_route = option_route.getValue();
+}
+
+unsigned int Options::seed() const
+{
+	return _seed;
+}
+
+std::string Options::route() const
+{
+	return _route;
 }
