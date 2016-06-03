@@ -29,13 +29,13 @@ int main(int argc, char ** argv)
 }
 
 /*
-   /*
+   /
  * Main Function
  *
 
    int main (int argc, char ** argv)
    {
-    /*
+    /
  * Initialization
  *
 
@@ -48,7 +48,7 @@ int main(int argc, char ** argv)
 
     Options options;
 
-    /*
+    /
  * Option Parsing
  *
 
@@ -79,7 +79,7 @@ int main(int argc, char ** argv)
         options.full_optimization = true;
     }
 
-    /*
+    /
  * Base Data
  *
 
@@ -107,7 +107,7 @@ int main(int argc, char ** argv)
         route_output_directory->make_directory_with_parents();
     }
 
-    /*
+    /
  * Variable Processing
  *
 
@@ -135,7 +135,7 @@ int main(int argc, char ** argv)
         }
     }
 
-    /*
+    /
  * Optimization
  *
 
@@ -176,7 +176,7 @@ int main(int argc, char ** argv)
         }
     }
 
-    /*
+    /
  * Output
  *
 
