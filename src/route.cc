@@ -22,6 +22,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <string>
 
 #include <boost/algorithm/string.hpp>
 
@@ -48,6 +49,11 @@ std::string Route::name() const
 	return _name;
 }
 
+unsigned int Route::version() const
+{
+	return _version;
+}
+
 void Route::_parse_line(const std::string & line)
 {
 	if (!line.empty() && line[0] != '#')
@@ -58,6 +64,10 @@ void Route::_parse_line(const std::string & line)
 		if (tokens[0] == "ROUTE")
 		{
 			_name = tokens[1];
+		}
+		else if (tokens[0] == "VERSION")
+		{
+			_version = static_cast<unsigned int>(std::stoul(tokens[1]));
 		}
 		else
 		{

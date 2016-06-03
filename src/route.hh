@@ -31,11 +31,13 @@ class Route
 		explicit Route(const std::string & filename);
 
 		std::string name() const;
+		unsigned int version() const;
 
 	private:
 		void _parse_line(const std::string & line);
 
 		std::string _name;
+		unsigned int _version;
 };
 
 /*
