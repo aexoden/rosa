@@ -24,6 +24,7 @@
 
 #include <tclap/CmdLine.h>
 
+#include "map.hh"
 #include "options.hh"
 #include "route.hh"
 #include "version.hh"
@@ -62,11 +63,13 @@ void Options::parse(int argc, char ** argv)
 
 	TCLAP::ValueArg<decltype(_seed)> option_seed{"s", "seed", "Encounter seed", true, 0, &_seed_constraint, command_line};
 	TCLAP::ValueArg<decltype(_route)> option_route{"r", "route", "Route definition file", true, "", "filename", command_line};
+	TCLAP::ValueArg<decltype(_maps)> option_maps{"m", "maps", "Maps definition file", true, "", "filename", command_line};
 
 	command_line.parse(argc, argv);
 
 	_seed = option_seed.getValue();
 	_route = option_route.getValue();
+	_maps = option_maps.getValue();
 }
 
 unsigned int Options::seed() const
@@ -77,4 +80,9 @@ unsigned int Options::seed() const
 std::shared_ptr<const Route> Options::route() const
 {
 	return std::make_shared<const Route>(_route);
+}
+
+std::map<unsigned int, std::shared_ptr<const Map>> Options::maps() const
+{
+	return Map::read_maps(_maps);
 }

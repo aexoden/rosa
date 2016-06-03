@@ -20,13 +20,16 @@
  * SOFTWARE.
  */
 
+#include "map.hh"
 #include "options.hh"
+#include "route.hh"
 
 int main(int argc, char ** argv)
 {
     Options options;
     options.parse(argc, argv);
 
+    auto maps = options.maps();
     auto route = options.route();
 }
 

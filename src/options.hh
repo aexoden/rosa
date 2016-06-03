@@ -23,11 +23,13 @@
 #ifndef SPOONY_OPTIONS_HH
 #define SPOONY_OPTIONS_HH
 
+#include <map>
 #include <memory>
 #include <string>
 
 #include <tclap/Constraint.h>
 
+class Map;
 class Route;
 
 template<typename T>
@@ -54,11 +56,13 @@ class Options
 
 		unsigned int seed() const;
 		std::shared_ptr<const Route> route() const;
+		std::map<unsigned int, std::shared_ptr<const Map>> maps() const;
 
 	private:
 		unsigned int _seed{0};
 
 		std::string _route{""};
+		std::string _maps{""};
 
 		NumberConstraint<decltype(_seed)> _seed_constraint{0, 255};
 };
