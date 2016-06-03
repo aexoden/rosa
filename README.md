@@ -14,6 +14,7 @@ and the included build machinery assumes as much.
 
 In addition, a few third-party libraries are required:
 
+* [boost](http://www.boost.org)
 * [gtkmm](http://www.gtkmm.org)
 * [tclap](http://tclap.sourceforge.net)
 

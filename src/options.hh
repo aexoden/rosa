@@ -23,9 +23,12 @@
 #ifndef SPOONY_OPTIONS_HH
 #define SPOONY_OPTIONS_HH
 
+#include <memory>
 #include <string>
 
 #include <tclap/Constraint.h>
+
+class Route;
 
 template<typename T>
 class NumberConstraint : public TCLAP::Constraint<T>
@@ -48,6 +51,9 @@ class Options
 		Options();
 
 		void parse(int argc, char ** argv);
+
+		unsigned int seed() const;
+		std::shared_ptr<const Route> route() const;
 
 	private:
 		unsigned int _seed{0};

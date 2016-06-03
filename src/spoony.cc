@@ -26,6 +26,8 @@ int main(int argc, char ** argv)
 {
     Options options;
     options.parse(argc, argv);
+
+    auto route = options.route();
 }
 
 /*

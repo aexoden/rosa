@@ -2,6 +2,6 @@ CXXFLAGS += -O3 -flto -march=native -fcolor-diagnostics
 CXXFLAGS +=  -std=c++14 -Weverything -Wno-c++98-compat
 CXXFLAGS += `pkg-config --cflags glibmm-2.4 giomm-2.4` --system-header-prefix=glibmm/ --system-header-prefix=giomm/
 
-LDFLAGS += `pkg-config --libs glibmm-2.4 giomm-2.4`
+LDFLAGS += `pkg-config --libs glibmm-2.4 giomm-2.4` -lboost_system
 
 !cxx = |> clang++ $(CXXFLAGS) -c -o %o %f |> %B.o

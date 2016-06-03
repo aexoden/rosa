@@ -25,6 +25,7 @@
 #include <tclap/CmdLine.h>
 
 #include "options.hh"
+#include "route.hh"
 #include "version.hh"
 
 template <typename T>
@@ -73,7 +74,7 @@ unsigned int Options::seed() const
 	return _seed;
 }
 
-std::string Options::route() const
+std::shared_ptr<const Route> Options::route() const
 {
-	return _route;
+	return std::make_shared<const Route>(_route);
 }
