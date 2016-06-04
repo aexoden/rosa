@@ -1,0 +1,4 @@
+CXXFLAGS += -O3 -flto -march=native -fcolor-diagnostics
+CXXFLAGS += -std=c++14 -Weverything -Wno-c++98-compat
+
+!cxx = |> clang++ $(CXXFLAGS) -c -o %o %f |> %B.o
