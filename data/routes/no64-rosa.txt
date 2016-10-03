@@ -1,4 +1,4 @@
-ROUTE	Final Fantasy IV Any% No64 (Edge+Drain)
+ROUTE	Final Fantasy IV Any% No64 (Rosa)
 VERSION	6
 PATH	World Map (Mist)			1	1	0	8	1	0	-	-	+	+
 PATH	World Map (Kaipo)			37	36	0	8	1	1	-	-	+	+
@@ -167,9 +167,8 @@ PATH	Tower of Bab-il 3F			51	50	0	7	46	1	-	-	+	-
 PATH	Tower of Bab-il 2F			39	38	0	7	45	1	-	-	+	-
 PATH	Tower of Bab-il 1F			16	15	0	7	44	1	-	-	+	-
 NOTE	Travel to Baron
-PATH	Castle Baron				20	13	0	0	0	2	-	+	+	-
+PATH	Castle Baron				20	13	0	0	0	2	+	+	+	-
 NOTE	Airship Hook
-PATH	Eblan					22	5	3	0	0	1	+	+	+	-
 PATH	World Map (Eblan)			1	1	0	8	6	1	-	-	+	+
 PATH	Cave Eblana B1F				43	42	0	8	42	1	-	-	+	-
 PATH	Cave Eblana B2F				67	56	2	0	0	3	+	+	+	-
@@ -267,7 +266,7 @@ PATH	Lunar Subterrane B4			16	15	0	8	83	1	-	-	+	-
 PATH	Lunar Subterrane B5			18	17	0	8	84	1	+	-	+	-
 PATH	Lunar Subterrane B5 Room		47	33	0	10	86	1	-	+	+	-
 PATH	Lunar Subterrane B5			10	9	0	8	84	1	+	-	+	-
-PATH	Lunar Subterrane B5 Room		15	14	0	10	87	1	-	-	+	-
+PATH	Lunar Subterrane B5 Room		33	32	0	10	87	1	-	-	+	-
 CHOICE	2
 OPTION	Lunar Subterrane B5 Inward Direct
 PATH	Lunar Subterrane B5			13	12	0	8	84	1	-	-	+	-
@@ -291,5 +290,5 @@ PATH	Lunar Subterrane B7			59	58	0	8	86	1	+	-	+	-
 END
 PATH	Lunar Core B1				69	68	0	8	88	1	-	-	+	-
 PATH	Lunar Core B2				56	55	0	8	88	1	-	-	+	-
-PATH	Lunar Core B3				53	52	0	8	89	1	-	-	+	-
+PATH	Lunar Core B3				57	56	0	8	89	1	-	-	+	-
 PATH	Lunar Core B4				71	70	0	8	79	1	-	-	+	-

@@ -1,5 +1,5 @@
-ROUTE	Final Fantasy IV Any% No64 (Edge+Excalbur)
-VERSION	3
+ROUTE	Final Fantasy IV Any% No64 (Edge+Drain) [To Giant]
+VERSION	6
 PATH	World Map (Mist)			1	1	0	8	1	0	-	-	+	+
 PATH	World Map (Kaipo)			37	36	0	8	1	1	-	-	+	+
 NOTE	Kaipo
@@ -140,11 +140,16 @@ PATH	Castle Baron				34	19	0	0	0	4	+	+	+	-
 NOTE	Fly to Agart
 PATH	World Map (Agart)			1	1	0	8	6	1	-	-	+	+
 PATH	Underworld Map (Castle of Dwarves)	2	1	0	8	7	0	-	-	+	+
+CHOICE	2
+OPTION	Castle of Dwarves Walk
 PATH	Castle of Dwarves			218	111	20	0	0	13	+	+	+	-
+OPTION	Castle of Dwarves Warp
+PATH	Castle of Dwarves			218	108	2	0	0	13	+	+	+	-
+END
 PATH	Underworld Map (Castle of Dwarves)	127	123	0	8	7	1	-	+	+	+
 PATH	Tower of Bab-il 1F			20	18	0	7	44	1	-	+	+	-
 PATH	Tower of Bab-il 2F			39	38	0	7	45	1	-	-	+	-
-PATH	Tower of Bab-il 3F			59	58	0	7	46	1	+	+	+	-
+PATH	Tower of Bab-il 3F			59	58	0	7	46	1	-	+	+	-
 PATH	Tower of Bab-il 4F			63	62	0	7	47	1	-	-	+	-
 PATH	Tower of Bab-il 5F			58	57	0	7	48	1	-	-	+	-
 PATH	Tower of Bab-il 6F			13	12	0	7	49	1	-	-	+	-
@@ -158,12 +163,13 @@ PATH	Tower of Bab-il 5F			43	42	0	7	48	1	-	-	+	-
 NOTE	Battle: Dark Imps
 PATH	Tower of Bab-il 5F			45	44	0	7	48	1	-	-	+	-
 PATH	Tower of Bab-il 4F			63	62	0	7	47	1	-	-	+	-
-PATH	Tower of Bab-il 3F			51	50	0	7	46	1	+	-	+	-
+PATH	Tower of Bab-il 3F			51	50	0	7	46	1	-	-	+	-
 PATH	Tower of Bab-il 2F			39	38	0	7	45	1	-	-	+	-
 PATH	Tower of Bab-il 1F			16	15	0	7	44	1	-	-	+	-
 NOTE	Travel to Baron
-PATH	Castle Baron				20	13	0	0	0	2	+	+	+	-
+PATH	Castle Baron				20	13	0	0	0	2	-	+	+	-
 NOTE	Airship Hook
+PATH	Eblan					22	5	3	0	0	1	+	+	+	-
 PATH	World Map (Eblan)			1	1	0	8	6	1	-	-	+	+
 PATH	Cave Eblana B1F				43	42	0	8	42	1	-	-	+	-
 PATH	Cave Eblana B2F				67	56	2	0	0	3	+	+	+	-
@@ -194,30 +200,14 @@ PATH	Tower of Bab-il 7F			25	24	0	8	60	1	-	-	+	-
 PATH	Tower of Bab-il 6F			51	50	0	8	61	1	-	-	+	-
 NOTE	Fly to Castle of Dwarves
 PATH	Castle of Dwarves			36	23	4	0	0	4	+	+	+	-
-PATH	Underworld Map (Castle of Dwarves)	1	1	0	8	7	1	+	-	+	+
-PATH	Land of Monsters B1F			37	35	0	9	67	1	-	+	+	-
-PATH	Land of Monsters B2F			45	44	0	9	68	1	-	-	+	-
-CHOICE	3
-OPTION	Land of Monsters B3F Inward Direct
-PATH	Land of Monsters B3F			49	48	0	9	69	1	-	-	+	-
-OPTION	Land of Monsters B3F Inward Partial Secret Passage
-PATH	Land of Monsters B3F			87	38	0	9	69	1	-	+	+	-
-OPTION	Land of Monsters B3F Inward Full Secret Passage
-PATH	Land of Monsters B3F			87	28	0	9	69	1	-	+	+	-
-END
-PATH	Underworld Map (Land of Monsters)	1	1	0	8	8	1	-	-	+	+
+PATH	Underworld Map (Castle of Dwarves)	1	1	0	8	7	1	-	-	+	+
 PATH	Sealed Cave				9	7	0	0	0	1	+	-	+	-
 PATH	Underworld Map (Sealed Cave)		1	1	0	8	8	1	-	-	+	+
 NOTE	Return to Castle of Dwarves
 PATH	Castle of Dwarves			2	1	0	0	0	1	+	+	+	-
 PATH	Underworld Map (Castle of Dwarves)	1	1	0	8	7	1	-	-	+	+
-PATH	World Map (Eblan)			1	1	0	8	6	0	+	-	+	+
-PATH	World Map (Silvera)			2	1	0	10	5	0	-	-	+	+
-PATH	Grotto Adamant				15	14	0	0	0	1	+	-	+	-
-PATH	World Map (Silvera)			2	2	0	10	5	0	-	-	+	+
 NOTE	Return to Mysidia
-PATH	World Map (Kokkol)			2	1	0	8	8	0	-	-	+	+
-PATH	World Map (Mysidia)			1	1	0	8	4	0	-	-	+	+
+PATH	World Map (Mysidia)			3	3	0	8	4	0	-	-	+	+
 CHOICE	2
 OPTION	Visit Hummingway First
 PATH	Hummingway Cave (16 Step Minimum)	17	16	0	0	0	1	+	-	+	-
@@ -251,55 +241,3 @@ PATH	Hummingway Cave (16 Step Minimum)	17	16	0	0	0	1	+	-	+	-
 PATH	Lunar World Map				1	1	0	8	9	1	-	-	+	+
 NOOP	1
 END
-PATH	Giant of Bab-il Mouth			23	18	1	9	74	1	-	+	+	-
-PATH	Giant of Bab-il Neck			3	2	0	9	74	1	-	-	+	-
-PATH	Giant of Bab-il Chest			98	82	0	9	75	1	-	+	+	-
-PATH	Giant of Bab-il Stomach			52	49	0	9	76	1	-	+	+	-
-SEARCH	Grind Fight Search			200
-PATH	Giant of Bab-il Passage			72	61	0	9	77	1	+	+	+	-
-PATH	Giant of Bab-il Lung			9	8	0	9	78	1	-	+	+	-
-WAIT
-NOTE	Battle: Elements
-PATH	Giant of Bab-il Lung			11	7	0	9	78	0	-	+	+	-
-PATH	Giant of Bab-il CPU			6	2	0	0	0	1	+	+	+	-
-NOTE	Return to Moon
-PATH	Lunar World Map				6	5	0	8	9	0	-	-	+	+
-PATH	Lunar Path				39	38	0	8	90	1	-	-	+	-
-PATH	Lunar World Map				36	35	0	8	9	1	-	-	+	+
-PATH	Lunar Path 2				32	31	0	8	91	1	-	-	+	-
-PATH	Lunar World Map				18	17	0	8	9	1	-	-	+	+
-PATH	Lunar Subterrane B1			34	33	0	7	80	1	-	-	+	-
-PATH	Lunar Subterrane B2			61	29	0	7	81	1	+	+	+	-
-PATH	Lunar Subterrane B3			15	14	0	7	82	1	-	-	+	-
-PATH	Lunar Subterrane B4			57	56	0	8	83	1	+	-	+	-
-PATH	Lunar Subterrane B4 Room		30	29	0	10	86	1	-	-	+	-
-PATH	Lunar Subterrane B4			16	15	0	8	83	1	-	-	+	-
-PATH	Lunar Subterrane B5			18	17	0	8	84	1	+	-	+	-
-PATH	Lunar Subterrane B5 Room		47	33	0	10	86	1	-	+	+	-
-PATH	Lunar Subterrane B5			10	9	0	8	84	1	+	-	+	-
-PATH	Lunar Subterrane B5 Room		15	14	0	10	87	1	-	-	+	-
-CHOICE	2
-OPTION	Lunar Subterrane B5 Inward Direct
-PATH	Lunar Subterrane B5			13	12	0	8	84	1	-	-	+	-
-NOOP	1
-OPTION	Lunar Subterrane B5 Inward Pink Puff Room Steps
-PATH	Lunar Subterrane B5			14	13	0	8	84	1	-	-	+	-
-PATH	Lunar Subterrane B5 Pink Puff Room	1	0	0	5	92	1	+	-	+	-
-PATH	Lunar Subterrane B5			7	6	0	8	84	1	-	-	+	-
-END
-PATH	Lunar Subterrane B6			38	37	0	8	85	1	+	-	+	-
-PATH	Lunar Subterrane B6 Room		14	13	0	10	87	1	-	-	+	-
-CHOICE	2
-OPTION	Lunar Subterrane B7 Inward Direct
-NOOP	1
-PATH	Lunar Subterrane B7			81	80	0	8	86	1	+	-	+	-
-OPTION	Lunar Subterrane B7 Inward Save Room Steps
-PATH	Lunar Subterrane B7			24	23	0	8	86	1	-	-	+	-
-PATH	Lunar Subterrane B7 Save Room		1	0	0	0	0	1	+	-	+	-
-NOOP	0
-PATH	Lunar Subterrane B7			59	58	0	8	86	1	+	-	+	-
-END
-PATH	Lunar Core B1				69	68	0	8	88	1	-	-	+	-
-PATH	Lunar Core B2				56	55	0	8	88	1	-	-	+	-
-PATH	Lunar Core B3				53	52	0	8	89	1	-	-	+	-
-PATH	Lunar Core B4				71	70	0	8	79	1	-	-	+	-

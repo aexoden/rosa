@@ -1,5 +1,5 @@
 ROUTE	Final Fantasy IV Any% No64 (Edge+Excalbur)
-VERSION	3
+VERSION	6
 PATH	World Map (Mist)			1	1	0	8	1	0	-	-	+	+
 PATH	World Map (Kaipo)			37	36	0	8	1	1	-	-	+	+
 NOTE	Kaipo
@@ -140,7 +140,12 @@ PATH	Castle Baron				34	19	0	0	0	4	+	+	+	-
 NOTE	Fly to Agart
 PATH	World Map (Agart)			1	1	0	8	6	1	-	-	+	+
 PATH	Underworld Map (Castle of Dwarves)	2	1	0	8	7	0	-	-	+	+
+CHOICE	2
+OPTION	Castle of Dwarves Walk
 PATH	Castle of Dwarves			218	111	20	0	0	13	+	+	+	-
+OPTION	Castle of Dwarves Warp
+PATH	Castle of Dwarves			218	108	2	0	0	13	+	+	+	-
+END
 PATH	Underworld Map (Castle of Dwarves)	127	123	0	8	7	1	-	+	+	+
 PATH	Tower of Bab-il 1F			20	18	0	7	44	1	-	+	+	-
 PATH	Tower of Bab-il 2F			39	38	0	7	45	1	-	-	+	-
