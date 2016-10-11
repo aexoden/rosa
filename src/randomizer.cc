@@ -58,6 +58,21 @@ int Randomizer::get_set_variable_count() const
 	return std::count_if(data.begin(), data.end(), [](int i) { return i > 0; });
 }
 
+int Randomizer::get_score() const
+{
+	int sum = 0;
+
+	for (decltype(data)::size_type i = 0; i != data.size(); i++)
+	{
+		if (data[i] > 0)
+		{
+			sum += i * data[i];
+		}
+	}
+
+	return sum;
+}
+
 int Randomizer::get_minimum_variables() const
 {
 	return _minimum_variables;

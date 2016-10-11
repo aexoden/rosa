@@ -22,6 +22,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <numeric>
 
 #include <giomm/datainputstream.h>
 
@@ -102,6 +103,12 @@ int RouteOutput::get_variable_count() const
 	return _variables.size();
 }
 
+int RouteOutput::get_score() const
+{
+	auto lambda = [&](int & a, decltype(*(_variables.begin())) b) { return a + b.first * b.second; };
+	return std::accumulate(_variables.begin(), _variables.end(), 0, lambda);
+}
+
 std::vector<std::pair<std::vector<int>::size_type, int>> RouteOutput::parse_variable_data(const Glib::ustring & variable_data)
 {
 	std::vector<std::pair<std::vector<int>::size_type, int>> variables;
@@ -153,7 +160,7 @@ bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::s
 	{
 		bool rewrite_if_equal = false;
 
-		if (SPOONY_VERSION != route_output_data.get_spoony_version() || engine.get_maximum_steps() > route_output_data.get_maximum_steps() || engine.get_variable_count() < route_output_data.get_variable_count())
+		if (SPOONY_VERSION != route_output_data.get_spoony_version() || engine.get_maximum_steps() > route_output_data.get_maximum_steps() || engine.get_score() > route_output_data.get_score())
 		{
 			rewrite_if_equal = true;
 		}
@@ -169,6 +176,8 @@ bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::s
 
 		best_frames = route_output_data.get_frames();
 	}
+
+	std::cout << route_output_data.get_score() << " -> " << engine.get_score() << std::endl;
 
 	std::vector<int> saved_data{randomizer->data};
 

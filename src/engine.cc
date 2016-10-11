@@ -224,6 +224,11 @@ int Engine::get_variable_count() const
 	return _parameters.randomizer->get_set_variable_count();
 }
 
+int Engine::get_score() const
+{
+	return _parameters.randomizer->get_score();
+}
+
 int Engine::get_initial_seed() const
 {
 	return _parameters.seed;

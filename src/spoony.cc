@@ -163,7 +163,7 @@ int main (int argc, char ** argv)
 	 */
 
 	double best_frames = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_frames() : base_engine.get_frames();
-	int best_variable_count = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_variable_count() : 0;
+	int best_score = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_score() : 0;
 
 	Engine engine{Parameters{options.tas_mode, options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters};
 
@@ -171,23 +171,23 @@ int main (int argc, char ** argv)
 	{
 		if (algorithm == "bb")
 		{
-			optimize_bb(optimization_index, best_frames, best_variable_count, options, randomizer, engine, base_engine, route_output_file);
+			optimize_bb(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file);
 		}
 		else if (algorithm == "ils")
 		{
-			optimize_ils(optimization_index, best_frames, best_variable_count, options, randomizer, engine, base_engine, route_output_file);
+			optimize_ils(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file);
 		}
 		else if (algorithm == "local")
 		{
-			optimize_local(optimization_index, best_frames, best_variable_count, options, randomizer, engine, base_engine, route_output_file, true);
+			optimize_local(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file, true);
 		}
 		else if (algorithm == "pair")
 		{
-			optimize_local_pair(optimization_index, best_frames, best_variable_count, options, randomizer, engine, base_engine, route_output_file);
+			optimize_local_pair(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file);
 		}
 		else if (algorithm == "sequential")
 		{
-			optimize_sequential(optimization_index, best_frames, best_variable_count, options, randomizer, engine, base_engine, route_output_file);
+			optimize_sequential(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file);
 		}
 		else if (algorithm == "none")
 		{
