@@ -291,7 +291,6 @@ void optimize_local_pair(int start_index, double & best_frames, int & best_score
 				std::cout << "   Best: " << std::setw(10) << Engine::frames_to_seconds(best_frames);
 				std::cout << "   Previous: " << std::setw(10) << Engine::frames_to_seconds(previous_search_best_frames);
 				std::cout << "   Current: " << std::setw(10) << Engine::frames_to_seconds(search_best_frames);
-				std::cout << "   " << search_best_score;
 				std::cout << std::flush;
 
 				int original_j_value = randomizer->data[j];

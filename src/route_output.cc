@@ -177,8 +177,6 @@ bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::s
 		best_frames = route_output_data.get_frames();
 	}
 
-	std::cout << route_output_data.get_score() << " -> " << engine.get_score() << std::endl;
-
 	std::vector<int> saved_data{randomizer->data};
 
 	normalize_route(randomizer, engine);
