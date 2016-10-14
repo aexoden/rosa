@@ -56,7 +56,7 @@ ROUTES = {
     'no64-drain': ('Any% No64 (Edge+Drain)', False, True, False, False, True, False, False, False, False, True, True),
     'no64-excalbur': ('Any% No64 (Edge+Excalbur)', False, True, False, False, False, True, False, False, False, True, True),
     'no64-rosa': ('Any% No64 (Rosa)', False, True, False, False, False, False, True, False, False, True, True),
-    'no64-rosa-50-elixir': ('Any% No64 (Rosa) (50 Elixirs)', False, True, False, False, False, False, True, False, False, True, True),
+    'no64-rosa-50-elixir': ('Any% No64 (Rosa) [50 Elixir]', False, True, False, False, False, False, True, False, False, True, True),
 
     'no64-drain-to-giant': ('Any% No64 (Edge+Drain) [To Giant]', False, True, False, False, True, False, False, False, False, False, True),
     'no64-excalbur-to-giant': ('Any% No64 (Edge+Excalbur) [To Giant]', False, True, False, False, False, True, False, False, False, False, True),
