@@ -45,6 +45,7 @@ class LogEntry
 
 		std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> encounters;
 		std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> potential_encounters;
+		std::map<int, double> step_details;
 };
 
 class Engine

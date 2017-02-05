@@ -92,6 +92,7 @@ int main (int argc, char ** argv)
 	option_group.add_entry(Options::create_option_entry("perturbation-wobble", 'w', "Initial wobble range added to the perturbation for ILS"), options.perturbation_wobble);
 	option_group.add_entry(Options::create_option_entry("tas-mode", 't', "Use options appropriate for TAS routing"), options.tas_mode);
 	option_group.add_entry(Options::create_option_entry("variables", 'v', "Explicitly set variables in the form index:value"), options.variables);
+	option_group.add_entry(Options::create_option_entry("step-output", 'x', "Output detailed information per step"), options.step_output);
 
 	Glib::OptionContext option_context;
 	option_context.set_main_group(option_group);
@@ -119,7 +120,7 @@ int main (int argc, char ** argv)
 	auto instructions = read_instructions(route_source_file);
 	auto randomizer = std::make_shared<Randomizer>(false);
 
-	Engine base_engine{Parameters{options.tas_mode, options.seed, 0, "none", randomizer}, instructions, encounters};
+	Engine base_engine{Parameters{options.tas_mode, options.step_output, options.seed, 0, "none", randomizer}, instructions, encounters};
 	base_engine.run();
 
 	auto route_output_directory = Gio::File::create_for_path(Glib::build_filename(options.output_directory, options.route));
@@ -165,7 +166,7 @@ int main (int argc, char ** argv)
 	double best_frames = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_frames() : base_engine.get_frames();
 	int best_score = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_score() : 0;
 
-	Engine engine{Parameters{options.tas_mode, options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters};
+	Engine engine{Parameters{options.tas_mode, options.step_output, options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters};
 
 	for (const auto & algorithm : Glib::Regex::split_simple("\\+", options.algorithm))
 	{

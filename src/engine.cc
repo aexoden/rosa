@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+#include <iostream>
 #include <iomanip>
 #include <map>
 
@@ -171,6 +172,14 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 			if (entry.encounters.count(pair.first) == 0)
 			{
 				output.append(Glib::ustring::compose("%1 (Step %2: %3 / %4)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_duration(_parameters.tas_mode))));
+			}
+		}
+
+		if (_parameters.step_output)
+		{
+			for (auto & pair : entry.step_details)
+			{
+				output.append(Glib::ustring::compose("%1  :: Step %2 :: %3 elapsed :: %4 remaining\n", indent, Glib::ustring::format(std::setw(3), pair.first), format_time(pair.second), format_time(_frames - pair.second)));
 			}
 		}
 	}
@@ -476,6 +485,8 @@ void Engine::_reset(int seed)
 
 void Engine::_step(int tiles, int steps, bool simulate)
 {
+	double output_frames = _frames;
+
 	if (!simulate)
 	{
 		_frames += tiles * 16;
@@ -492,6 +503,7 @@ void Engine::_step(int tiles, int steps, bool simulate)
 
 	for (int i = 0; i < steps; i++)
 	{
+		output_frames += 16;
 		_log.back().steps++;
 
 		_step_index++;
@@ -531,6 +543,7 @@ void Engine::_step(int tiles, int steps, bool simulate)
 			{
 				_frames += duration;
 				_encounter_frames += duration;
+				output_frames += duration;
 				_encounter_count++;
 			}
 
@@ -545,6 +558,12 @@ void Engine::_step(int tiles, int steps, bool simulate)
 			{
 				_encounter_seed = (_encounter_seed + 17) % 256;
 			}
+
+		}
+
+		if (!simulate && _parameters.step_output)
+		{
+			_log.back().step_details[_log.back().steps] = output_frames;
 		}
 	}
 
