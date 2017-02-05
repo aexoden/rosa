@@ -133,7 +133,7 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 			indent.append("  ");
 		}
 
-		output.append(Glib::ustring::compose("%1%2\n", indent, entry.instruction->text));
+		output.append(Glib::ustring::compose("%1Seed: %2   Index: %3\n", Glib::ustring::format(std::left, std::setw(50), Glib::ustring::compose("%1%2", indent, entry.instruction->text)), Glib::ustring::format(std::setw(3), entry.seed_start), Glib::ustring::format(std::setw(3), entry.index_start)));
 
 		int optional_steps = std::min(entry.instruction->optional_steps, entry.steps - entry.instruction->required_steps);
 		int extra_steps = entry.steps - entry.instruction->required_steps - optional_steps;
@@ -584,6 +584,9 @@ void Engine::_transition(const std::shared_ptr<const Instruction> & instruction)
 	_frames += instruction->transition_count * 82;
 	_minimum_frames += instruction->transition_count * 82;
 	_log.push_back(LogEntry{instruction, _indent});
+
+	_log.back().seed_start = _step_seed;
+	_log.back().index_start = _step_index;
 
 	if (_encounter_search_area && instruction->type == InstructionType::PATH)
 	{
