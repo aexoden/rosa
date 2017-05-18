@@ -209,12 +209,12 @@ int main (int argc, char ** argv)
 	engine.reset();
 	engine.run();
 
-	RouteOutput::write_route(route_output_file, randomizer, engine, base_engine, true);
-
 	if (options.output_result)
 	{
 		std::cout << engine.format_output(base_engine);
 	}
+
+	RouteOutput::write_route(route_output_file, randomizer, engine, base_engine, true);
 
 	return 0;
 }
