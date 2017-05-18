@@ -1,6 +1,6 @@
 ROUTE	Final Fantasy IV Pre-Mist Clip
 VERSION	6
-PATH	Castle Baron				73	49	0	0	0	5	+	+	+	-
+PATH	Castle Baron				73	48	1	0	0	5	+	+	+	-
 PATH	World Map (Baron)			18	17	0	7	0	1	-	-	+	+
 PATH	Misty Cave				115	111	0	7	16	1	+	+	+	-
 PATH	World Map (Mist)			13	12	0	7	1	1	-	-	+	+
