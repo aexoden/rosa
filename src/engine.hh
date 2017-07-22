@@ -46,6 +46,8 @@ class LogEntry
 		int seed_start = 0;
 		int index_start = 0;
 
+		std::string party;
+
 		std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> encounters;
 		std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> potential_encounters;
 		std::map<int, double> step_details;
@@ -103,6 +105,8 @@ class Engine
 
 		std::set<int> _encounter_search;
 		bool _encounter_search_area;
+
+		std::string _party;
 
 		std::vector<LogEntry> _log;
 

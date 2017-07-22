@@ -59,6 +59,11 @@ Instruction::Instruction(const Glib::ustring & line)
 			type = InstructionType::OPTION;
 			text = tokens[1];
 		}
+		else if (tokens[0] == "PARTY" && tokens.size() == 2)
+		{
+			type = InstructionType::PARTY;
+			text = tokens[1];
+		}
 		else if (tokens[0] == "PATH" && tokens.size() == 12)
 		{
 			type = InstructionType::PATH;

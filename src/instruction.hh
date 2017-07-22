@@ -34,6 +34,7 @@ enum class InstructionType
 	END,
 	NOTE,
 	OPTION,
+	PARTY,
 	PATH,
 	ROUTE,
 	SAVE,

@@ -164,14 +164,14 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 
 		for (auto & pair : entry.encounters)
 		{
-			output.append(Glib::ustring::compose("%1  Step %2: %3 / %4 (%5s)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_duration(_parameters.tas_mode))));
+			output.append(Glib::ustring::compose("%1  Step %2: %3 / %4 (%5s)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_duration(_parameters.tas_mode, entry.party))));
 		}
 
 		for (auto & pair : entry.potential_encounters)
 		{
 			if (entry.encounters.count(pair.first) == 0)
 			{
-				output.append(Glib::ustring::compose("%1 (Step %2: %3 / %4)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_duration(_parameters.tas_mode))));
+				output.append(Glib::ustring::compose("%1 (Step %2: %3 / %4)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_duration(_parameters.tas_mode, entry.party))));
 			}
 		}
 
@@ -312,6 +312,9 @@ void Engine::_cycle()
 			}
 
 			_indent--;
+			break;
+		case InstructionType::PARTY:
+			_party = instruction->text;
 			break;
 		case InstructionType::PATH:
 			_encounter_rate = instruction->encounter_rate;
@@ -537,7 +540,7 @@ void Engine::_step(int tiles, int steps, bool simulate)
 				_log.back().encounters[_log.back().steps] = std::make_pair(_encounter_index + 1, encounter);
 			}
 
-			double duration = encounter->get_duration(_parameters.tas_mode);
+			double duration = encounter->get_duration(_parameters.tas_mode, _party);
 
 			if (!simulate)
 			{
@@ -587,6 +590,7 @@ void Engine::_transition(const std::shared_ptr<const Instruction> & instruction)
 
 	_log.back().seed_start = _step_seed;
 	_log.back().index_start = _step_index;
+	_log.back().party = _party;
 
 	if (_encounter_search_area && instruction->type == InstructionType::PATH)
 	{
