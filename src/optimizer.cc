@@ -123,7 +123,7 @@ void optimize_ils(int start_index, double & best_frames, int & best_score, const
 	std::random_device rd;
 	std::default_random_engine random_engine{rd()};
 
-	optimize_local(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false);
+	optimize_local_pair(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false);
 
 	double search_best_frames = engine.get_frames();
 
@@ -162,7 +162,7 @@ void optimize_ils(int start_index, double & best_frames, int & best_score, const
 			total -= value;
 		}
 
-		optimize_local(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false);
+		optimize_local_pair(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false);
 
 		if (engine.get_frames() < search_best_frames)
 		{
@@ -252,7 +252,7 @@ void optimize_local(int start_index, double & best_frames, int & best_score, con
 	}
 }
 
-void optimize_local_pair(int start_index, double & best_frames, int & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
+void optimize_local_pair(int start_index, double & best_frames, int & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline)
 {
 	randomizer->reset();
 
@@ -347,7 +347,11 @@ void optimize_local_pair(int start_index, double & best_frames, int & best_score
 			break;
 		}
 
-		std::cout << std::endl << "Updating (" << best_i << ", " << best_j << ") from (" << randomizer->data[best_i] << ", " << randomizer->data[best_j] << ") to (" << best_i_value << ", " << best_j_value << ") (" << Engine::frames_to_seconds(previous_search_best_frames) << "s -> " << Engine::frames_to_seconds(search_best_frames) << "s)" << std::endl;
+		if (final_newline)
+		{
+			std::cout << std::endl << "Updating (" << best_i << ", " << best_j << ") from (" << randomizer->data[best_i] << ", " << randomizer->data[best_j] << ") to (" << best_i_value << ", " << best_j_value << ") (" << Engine::frames_to_seconds(previous_search_best_frames) << "s -> " << Engine::frames_to_seconds(search_best_frames) << "s)" << std::endl;
+		}
+
 		previous_search_best_frames = search_best_frames;
 
 		randomizer->data[best_i] = best_i_value;
@@ -359,7 +363,10 @@ void optimize_local_pair(int start_index, double & best_frames, int & best_score
 	engine.reset();
 	engine.run();
 
-	std::cout << std::endl;
+	if (final_newline)
+	{
+		std::cout << std::endl;
+	}
 }
 
 void optimize_sequential(int start_index, double & best_frames, int & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)

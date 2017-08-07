@@ -184,7 +184,7 @@ int main (int argc, char ** argv)
 		}
 		else if (algorithm == "pair")
 		{
-			optimize_local_pair(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file);
+			optimize_local_pair(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file, true);
 		}
 		else if (algorithm == "sequential")
 		{
