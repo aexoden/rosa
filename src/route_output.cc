@@ -154,6 +154,8 @@ bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::s
 {
 	RouteOutput route_output_data{file};
 
+	normalize_route(randomizer, engine);
+
 	double best_frames = 0.0;
 
 	if (route_output_data.is_valid(engine.get_version()))
@@ -178,8 +180,6 @@ bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::s
 	}
 
 	std::vector<int> saved_data{randomizer->data};
-
-	normalize_route(randomizer, engine);
 
 	std::cout << "\r                                                                                                                                                                      ";
 	std::cout << "\r" << Glib::DateTime::create_now_local().format("%Y-%m-%d %H:%M:%S") << ": ";
