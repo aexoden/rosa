@@ -105,7 +105,7 @@ int RouteOutput::get_variable_count() const
 
 int RouteOutput::get_score() const
 {
-	auto lambda = [&](int & a, decltype(*(_variables.begin())) b) { return a + b.first * b.second; };
+	auto lambda = [&](int & a, decltype(*(_variables.begin())) b) { return a + b.first * (b.second / 2); };
 	return std::accumulate(_variables.begin(), _variables.end(), 0, lambda);
 }
 

@@ -66,7 +66,7 @@ int Randomizer::get_score() const
 	{
 		if (data[i] > 0)
 		{
-			sum += i * data[i];
+			sum += i * (data[i] / 2);
 		}
 	}
 
