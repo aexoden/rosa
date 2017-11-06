@@ -50,6 +50,7 @@ class Instruction
 
 		InstructionType type = InstructionType::NOOP;
 		Glib::ustring text;
+		std::string party;
 
 		std::set<int> numbers;
 

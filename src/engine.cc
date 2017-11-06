@@ -403,6 +403,7 @@ void Engine::_cycle()
 		case InstructionType::SEARCH:
 			_encounter_search = instruction->numbers;
 			_encounter_search_area = true;
+			_encounter_search_party = instruction->party;
 
 			_transition(instruction);
 			_indent++;
@@ -526,6 +527,7 @@ void Engine::_step(int tiles, int steps, bool simulate)
 
 		if (!simulate && encounter && _encounter_search.size() > 0 && _encounter_search.count(encounter->get_id()) > 0)
 		{
+			_party = _encounter_search_party;
 			_encounter_search.clear();
 		}
 

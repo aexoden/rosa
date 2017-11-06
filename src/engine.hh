@@ -105,6 +105,7 @@ class Engine
 
 		std::set<int> _encounter_search;
 		bool _encounter_search_area;
+		std::string _encounter_search_party;
 
 		std::string _party;
 

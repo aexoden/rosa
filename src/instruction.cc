@@ -90,7 +90,7 @@ Instruction::Instruction(const Glib::ustring & line)
 			text = tokens[1];
 			number = std::stoi(tokens[2]);
 		}
-		else if (tokens[0] == "SEARCH" && tokens.size() == 3)
+		else if (tokens[0] == "SEARCH" && tokens.size() == 4)
 		{
 			type = InstructionType::SEARCH;
 			text = tokens[1];
@@ -99,6 +99,8 @@ Instruction::Instruction(const Glib::ustring & line)
 			{
 				numbers.insert(std::stoi(number));
 			}
+			
+			party = tokens[3];
 		}
 		else if (tokens[0] == "VERSION" && tokens.size() == 2)
 		{
