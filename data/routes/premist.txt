@@ -1,7 +1,13 @@
 ROUTE	Final Fantasy IV Pre-Mist Clip
-VERSION	6
+VERSION	10
+PARTY	3-+K11---C10------10
 PATH	Castle Baron				73	48	1	0	0	5	+	+	+	-
-PATH	World Map (Baron)			18	17	0	7	0	1	-	-	+	+
-PATH	Misty Cave				115	111	0	7	16	1	+	+	+	-
-PATH	World Map (Mist)			13	12	0	7	1	1	-	-	+	+
-PATH	World Map (Mist)			1	1	0	8	1	0	-	-	-	+
+PATH	World Map (Baron)			18	17	0	7	0	1	+	-	+	+
+PARTY	3--K11---C10------10
+PATH	Misty Cave				113	110	0	7	16	1	+	+	+	-
+NOTE	Battle: D.Mist
+PARTY	3G-K11---C11------10
+PATH	Misty Cave				2	1	0	7	16	0	+	+	+	-
+PARTY	3G+K11---C11------10
+PATH	World Map (Mist)			13	12	0	7	1	1	+	-	+	+
+PATH	World Map (Mist)			1	1	0	8	1	0	+	-	-	+
