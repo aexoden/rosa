@@ -103,10 +103,10 @@ int RouteOutput::get_variable_count() const
 	return _variables.size();
 }
 
-int RouteOutput::get_score() const
+double RouteOutput::get_score() const
 {
-	auto lambda = [&](int & a, decltype(*(_variables.begin())) b) { return a + b.first * (b.second / 2); };
-	return std::accumulate(_variables.begin(), _variables.end(), 0, lambda);
+	auto lambda = [&](double & a, decltype(*(_variables.begin())) b) { return a + b.first * (b.second / 2) + (b.second % 2 == 1 ? b.first / 1000000.0 : 0); };
+	return std::accumulate(_variables.begin(), _variables.end(), 0.0, lambda);
 }
 
 std::vector<std::pair<std::vector<int>::size_type, int>> RouteOutput::parse_variable_data(const Glib::ustring & variable_data)

@@ -30,7 +30,7 @@
 #include "randomizer.hh"
 #include "route_output.hh"
 
-void optimize_bb(int start_index, double & best_frames, int & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
+void optimize_bb(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
 	randomizer->reset();
 
@@ -38,7 +38,7 @@ void optimize_bb(int start_index, double & best_frames, int & best_score, const 
 	engine.run();
 
 	double search_best_frames = engine.get_frames();
-	int search_best_score = randomizer->get_score();
+	double search_best_score = randomizer->get_score();
 
 	std::vector<int> best_data;
 
@@ -118,7 +118,7 @@ void optimize_bb(int start_index, double & best_frames, int & best_score, const 
 	std::cout << std::endl;
 }
 
-void optimize_ils(int start_index, double & best_frames, int & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
+void optimize_ils(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
 	std::random_device rd;
 	std::default_random_engine random_engine{rd()};
@@ -182,7 +182,7 @@ void optimize_ils(int start_index, double & best_frames, int & best_score, const
 	std::cout << std::endl;
 }
 
-void optimize_local(int start_index, double & best_frames, int & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline)
+void optimize_local(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline)
 {
 	randomizer->reset();
 
@@ -252,7 +252,7 @@ void optimize_local(int start_index, double & best_frames, int & best_score, con
 	}
 }
 
-void optimize_local_pair(int start_index, double & best_frames, int & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline)
+void optimize_local_pair(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline)
 {
 	randomizer->reset();
 
@@ -261,7 +261,7 @@ void optimize_local_pair(int start_index, double & best_frames, int & best_score
 
 	double search_best_frames = engine.get_frames();
 	double previous_search_best_frames = engine.get_frames();
-	int search_best_score = randomizer->get_score();
+	double search_best_score = randomizer->get_score();
 
 	while (true)
 	{
@@ -369,7 +369,7 @@ void optimize_local_pair(int start_index, double & best_frames, int & best_score
 	}
 }
 
-void optimize_sequential(int start_index, double & best_frames, int & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
+void optimize_sequential(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
 	randomizer->reset();
 
@@ -377,7 +377,7 @@ void optimize_sequential(int start_index, double & best_frames, int & best_score
 	engine.run();
 
 	double search_best_frames = engine.get_frames();
-	int search_best_score = randomizer->get_score();
+	double search_best_score = randomizer->get_score();
 
 	for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++)
 	{

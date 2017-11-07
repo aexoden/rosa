@@ -70,7 +70,7 @@ class Engine
 		int get_maximum_steps() const;
 
 		int get_variable_count() const;
-		int get_score() const;
+		double get_score() const;
 
 		static double frames_to_seconds(double frames);
 

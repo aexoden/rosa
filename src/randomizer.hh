@@ -37,7 +37,7 @@ class Randomizer
 		int get_int(int min_value, int max_value);
 
 		int get_set_variable_count() const;
-		int get_score() const;
+		double get_score() const;
 
 		int get_minimum_variables() const;
 		int get_maximum_variables() const;

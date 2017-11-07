@@ -164,7 +164,7 @@ int main (int argc, char ** argv)
 	 */
 
 	double best_frames = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_frames() : base_engine.get_frames();
-	int best_score = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_score() : 0;
+	double best_score = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_score() : 0.0;
 
 	Engine engine{Parameters{options.tas_mode, options.step_output, options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters};
 

@@ -233,7 +233,7 @@ int Engine::get_variable_count() const
 	return _parameters.randomizer->get_set_variable_count();
 }
 
-int Engine::get_score() const
+double Engine::get_score() const
 {
 	return _parameters.randomizer->get_score();
 }
