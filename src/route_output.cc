@@ -103,12 +103,6 @@ int RouteOutput::get_variable_count() const
 	return _variables.size();
 }
 
-double RouteOutput::get_score() const
-{
-	auto lambda = [&](double & a, decltype(*(_variables.begin())) b) { return a + b.first * (b.second / 2) + (b.second % 2 == 1 ? b.first / 1000000.0 : 0); };
-	return std::accumulate(_variables.begin(), _variables.end(), 0.0, lambda);
-}
-
 std::vector<std::pair<std::vector<int>::size_type, int>> RouteOutput::parse_variable_data(const Glib::ustring & variable_data)
 {
 	std::vector<std::pair<std::vector<int>::size_type, int>> variables;
@@ -150,7 +144,7 @@ static void normalize_route(const std::shared_ptr<Randomizer> & randomizer, Engi
 	}
 }
 
-bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, bool normalize)
+bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, bool normalize, double initial_score)
 {
 	RouteOutput route_output_data{file};
 
@@ -162,7 +156,7 @@ bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::s
 	{
 		bool rewrite_if_equal = false;
 
-		if (SPOONY_VERSION != route_output_data.get_spoony_version() || engine.get_maximum_steps() > route_output_data.get_maximum_steps() || engine.get_score() > route_output_data.get_score())
+		if (SPOONY_VERSION != route_output_data.get_spoony_version() || engine.get_maximum_steps() > route_output_data.get_maximum_steps() || engine.get_score() > initial_score)
 		{
 			rewrite_if_equal = true;
 		}

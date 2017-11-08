@@ -43,10 +43,9 @@ class RouteOutput
 
 		double get_frames() const;
 		int get_variable_count() const;
-		double get_score() const;
 
 		static std::vector<std::pair<std::vector<int>::size_type, int>> parse_variable_data(const Glib::ustring & variable_data);
-		static bool write_route(const Glib::RefPtr<Gio::File> & file, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, bool normalize);
+		static bool write_route(const Glib::RefPtr<Gio::File> & file, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, bool normalize, double initial_score);
 
 	private:
 		int _version = 0;

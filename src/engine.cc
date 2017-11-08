@@ -235,7 +235,7 @@ int Engine::get_variable_count() const
 
 double Engine::get_score() const
 {
-	return _parameters.randomizer->get_score();
+	return _score;
 }
 
 int Engine::get_initial_seed() const
@@ -340,7 +340,7 @@ void Engine::_cycle()
 				int optional_steps = std::min(instruction->optional_steps, steps);
 				int extra_steps = steps - optional_steps;
 				int tiles = 0;
-
+				
 				if (extra_steps % 2 == 1 && optional_steps > 0)
 				{
 					extra_steps++;
@@ -351,6 +351,11 @@ void Engine::_cycle()
 				{
 					extra_steps--;
 				}
+				
+				_score -= steps * 1000;
+				_score += (_parameters.randomizer->get_index() * static_cast<double>(optional_steps) * 0.5 * 0.001);
+				_score += (_parameters.randomizer->get_index() * static_cast<double>(extra_steps / 2) * 0.001);
+				_score += (_parameters.randomizer->get_index() * (extra_steps % 2 == 1 ? 0.0000001 : 0));
 
 				if (instruction->can_double_step)
 				{

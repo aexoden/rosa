@@ -98,6 +98,7 @@ class Engine
 		double _frames = 0;
 		double _encounter_frames = 0;
 		double _minimum_frames = 0;
+		double _score = 0;
 
 		Encounters _encounters;
 
