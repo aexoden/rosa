@@ -30,7 +30,7 @@
 #include "randomizer.hh"
 #include "route_output.hh"
 
-void optimize_bb(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, double initial_score)
+void optimize_bb(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
 	randomizer->reset();
 
@@ -68,7 +68,7 @@ void optimize_bb(int start_index, double & best_frames, double & best_score, con
 
 		iterations++;
 
-		if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_file, randomizer, engine, base_engine, false, initial_score))
+		if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_file, randomizer, engine, base_engine, false))
 		{
 			best_frames = engine.get_frames();
 			best_score = engine.get_score();
@@ -118,12 +118,12 @@ void optimize_bb(int start_index, double & best_frames, double & best_score, con
 	std::cout << std::endl;
 }
 
-void optimize_ils(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, double initial_score)
+void optimize_ils(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
 	std::random_device rd;
 	std::default_random_engine random_engine{rd()};
 
-	optimize_local_pair(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false, initial_score);
+	optimize_local_pair(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false);
 
 	double search_best_frames = engine.get_frames();
 
@@ -162,7 +162,7 @@ void optimize_ils(int start_index, double & best_frames, double & best_score, co
 			total -= value;
 		}
 
-		optimize_local_pair(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false, initial_score);
+		optimize_local_pair(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false);
 
 		if (engine.get_frames() < search_best_frames)
 		{
@@ -182,7 +182,7 @@ void optimize_ils(int start_index, double & best_frames, double & best_score, co
 	std::cout << std::endl;
 }
 
-void optimize_local(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline, double initial_score)
+void optimize_local(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline)
 {
 	randomizer->reset();
 
@@ -216,7 +216,7 @@ void optimize_local(int start_index, double & best_frames, double & best_score, 
 				engine.reset();
 				engine.run();
 
-				if ((engine.get_frames() < best_frames) && RouteOutput::write_route(output_file, randomizer, engine, base_engine, false, initial_score))
+				if ((engine.get_frames() < best_frames) && RouteOutput::write_route(output_file, randomizer, engine, base_engine, false))
 				{
 					best_frames = engine.get_frames();
 					best_score = engine.get_score();
@@ -252,7 +252,7 @@ void optimize_local(int start_index, double & best_frames, double & best_score, 
 	}
 }
 
-void optimize_local_pair(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline, double initial_score)
+void optimize_local_pair(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline)
 {
 	randomizer->reset();
 
@@ -317,7 +317,7 @@ void optimize_local_pair(int start_index, double & best_frames, double & best_sc
 							engine.reset();
 							engine.run();
 
-							if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_file, randomizer, engine, base_engine, false, initial_score))
+							if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_file, randomizer, engine, base_engine, false))
 							{
 								best_frames = engine.get_frames();
 								best_score = engine.get_score();
@@ -369,7 +369,7 @@ void optimize_local_pair(int start_index, double & best_frames, double & best_sc
 	}
 }
 
-void optimize_sequential(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, double initial_score)
+void optimize_sequential(int start_index, double & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
 	randomizer->reset();
 
@@ -399,7 +399,7 @@ void optimize_sequential(int start_index, double & best_frames, double & best_sc
 			engine.reset();
 			engine.run();
 
-			if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_file, randomizer, engine, base_engine, false, initial_score))
+			if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_file, randomizer, engine, base_engine, false))
 			{
 				best_frames = engine.get_frames();
 				best_score = engine.get_score();

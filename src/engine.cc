@@ -61,6 +61,7 @@ void Engine::reset()
 	_frames = 0;
 	_encounter_frames = 0;
 	_minimum_frames = 0;
+	_score = 0.0;
 
 	_encounter_count = 0;
 
@@ -107,6 +108,7 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 	output.append(Glib::ustring::compose("METHOD\t%1\n", _parameters.algorithm));
 	output.append(Glib::ustring::compose("MAXSTEP\t%1\n", _parameters.maximum_extra_steps));
 	output.append(Glib::ustring::compose("FRAMES\t%1\n", Glib::ustring::format(std::setprecision(20), _frames)));
+	output.append(Glib::ustring::compose("SCORE\t%1\n", Glib::ustring::format(std::setprecision(20), _score)));
 
 	output.append("VARS\t");
 

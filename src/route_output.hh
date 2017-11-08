@@ -42,10 +42,11 @@ class RouteOutput
 		int get_maximum_steps() const;
 
 		double get_frames() const;
+		double get_score() const;
 		int get_variable_count() const;
 
 		static std::vector<std::pair<std::vector<int>::size_type, int>> parse_variable_data(const Glib::ustring & variable_data);
-		static bool write_route(const Glib::RefPtr<Gio::File> & file, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, bool normalize, double initial_score);
+		static bool write_route(const Glib::RefPtr<Gio::File> & file, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, bool normalize);
 
 	private:
 		int _version = 0;
@@ -58,4 +59,5 @@ class RouteOutput
 		int _maximum_steps = 0;
 
 		double _frames = std::numeric_limits<double>::max();
+		double _score = std::numeric_limits<double>::min();		
 };

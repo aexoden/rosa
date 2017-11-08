@@ -50,6 +50,10 @@ RouteOutput::RouteOutput(const Glib::RefPtr<Gio::File> & file)
 				{
 					_frames = std::stod(tokens[1]);
 				}
+				else if (tokens[0] == "SCORE" && tokens.size() == 2)
+				{
+					_score = std::stod(tokens[1]);
+				}
 				else if (tokens[0] == "MAXSTEP" && tokens.size() == 2)
 				{
 					_maximum_steps = std::stoi(tokens[1]);
@@ -98,6 +102,11 @@ double RouteOutput::get_frames() const
 	return _frames;
 }
 
+double RouteOutput::get_score() const
+{
+	return _score;
+}
+
 int RouteOutput::get_variable_count() const
 {
 	return _variables.size();
@@ -144,7 +153,7 @@ static void normalize_route(const std::shared_ptr<Randomizer> & randomizer, Engi
 	}
 }
 
-bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, bool normalize, double initial_score)
+bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, bool normalize)
 {
 	RouteOutput route_output_data{file};
 
@@ -156,11 +165,11 @@ bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::s
 	{
 		bool rewrite_if_equal = false;
 
-		if (SPOONY_VERSION != route_output_data.get_spoony_version() || engine.get_maximum_steps() > route_output_data.get_maximum_steps() || engine.get_score() > initial_score)
+		if (SPOONY_VERSION != route_output_data.get_spoony_version() || engine.get_maximum_steps() > route_output_data.get_maximum_steps() || engine.get_score() > route_output_data.get_score())
 		{
 			rewrite_if_equal = true;
 		}
-
+		
 		if (engine.get_frames() > route_output_data.get_frames())
 		{
 			return false;

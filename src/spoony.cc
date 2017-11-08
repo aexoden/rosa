@@ -173,29 +173,27 @@ int main (int argc, char ** argv)
 	double best_frames = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_frames() : base_engine.get_frames();
 	double best_score = route_output_data.is_valid(base_engine.get_version()) ? engine.get_score() : base_engine.get_score();
 	
-	double initial_score = best_score;
-
 	for (const auto & algorithm : Glib::Regex::split_simple("\\+", options.algorithm))
 	{
 		if (algorithm == "bb")
 		{
-			optimize_bb(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file, initial_score);
+			optimize_bb(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file);
 		}
 		else if (algorithm == "ils")
 		{
-			optimize_ils(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file, initial_score);
+			optimize_ils(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file);
 		}
 		else if (algorithm == "local")
 		{
-			optimize_local(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file, true, initial_score);
+			optimize_local(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file, true);
 		}
 		else if (algorithm == "pair")
 		{
-			optimize_local_pair(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file, true, initial_score);
+			optimize_local_pair(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file, true);
 		}
 		else if (algorithm == "sequential")
 		{
-			optimize_sequential(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file, initial_score);
+			optimize_sequential(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file);
 		}
 		else if (algorithm == "none")
 		{
@@ -221,7 +219,7 @@ int main (int argc, char ** argv)
 		std::cout << engine.format_output(base_engine);
 	}
 
-	RouteOutput::write_route(route_output_file, randomizer, engine, base_engine, true, initial_score);
+	RouteOutput::write_route(route_output_file, randomizer, engine, base_engine, true);
 
 	return 0;
 }
