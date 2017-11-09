@@ -40,6 +40,11 @@ Instruction::Instruction(const Glib::ustring & line)
 			type = InstructionType::CHOICE;
 			number = std::stoi(tokens[1]);
 		}
+		else if (tokens[0] == "DELAY" && tokens.size() == 2)
+		{
+			type = InstructionType::DELAY;
+			number = std::stoi(tokens[1]);
+		}
 		else if (tokens[0] == "END" && tokens.size() == 1)
 		{
 			type = InstructionType::END;

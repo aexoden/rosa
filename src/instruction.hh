@@ -31,6 +31,7 @@ enum class InstructionType
 {
 	NOOP,
 	CHOICE,
+	DELAY,
 	END,
 	NOTE,
 	OPTION,

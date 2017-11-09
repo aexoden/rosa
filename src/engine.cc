@@ -296,6 +296,10 @@ void Engine::_cycle()
 
 			break;
 		}
+		case InstructionType::DELAY:
+			_frames += instruction->number;
+			_minimum_frames += instruction->number;
+			break;
 		case InstructionType::NOOP:
 			for (int i = 0; i < instruction->number; i++)
 			{
