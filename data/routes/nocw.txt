@@ -1,5 +1,5 @@
 ROUTE	Final Fantasy IV Any% NoCW
-VERSION	10
+VERSION	11
 PARTY	3G+K11---C11------10
 PATH	Overworld (Mist)			1	1	0	8	1	0	-	-	+	+
 PARTY	3G+------C11------11
