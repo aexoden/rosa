@@ -123,7 +123,7 @@ void optimize_ils(int start_index, double & best_frames, double & best_score, co
 	std::random_device rd;
 	std::default_random_engine random_engine{rd()};
 
-	optimize_local_pair(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false);
+	optimize_local(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false);
 
 	double search_best_frames = engine.get_frames();
 
@@ -162,7 +162,7 @@ void optimize_ils(int start_index, double & best_frames, double & best_score, co
 			total -= value;
 		}
 
-		optimize_local_pair(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false);
+		optimize_local(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false);
 
 		if (engine.get_frames() < search_best_frames)
 		{
