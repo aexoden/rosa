@@ -21,3 +21,5 @@ life.
   parallel and somehow deciding the best way to resolve the twin issues.
 * Add the ability to name variables, so the web data can easily use the routes
   without having to parse the text output.
+* Update the defaults for the tuning options to correspond to what's generally
+  used in the real world.
