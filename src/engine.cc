@@ -1,25 +1,3 @@
-/*
- * Copyright (c) 2015 Jason Lynch <jason@calindora.com>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include <iostream>
 #include <iomanip>
 #include <map>
@@ -346,7 +324,7 @@ void Engine::_cycle()
 				int optional_steps = std::min(instruction->optional_steps, steps);
 				int extra_steps = steps - optional_steps;
 				int tiles = 0;
-				
+
 				if (extra_steps % 2 == 1 && optional_steps > 0)
 				{
 					extra_steps++;
@@ -357,7 +335,7 @@ void Engine::_cycle()
 				{
 					extra_steps--;
 				}
-				
+
 				_score -= steps * 1000;
 				_score += (_parameters.randomizer->get_index() * static_cast<double>(optional_steps) * 0.5 * 0.001);
 				_score += (_parameters.randomizer->get_index() * static_cast<double>(extra_steps / 2) * 0.001);

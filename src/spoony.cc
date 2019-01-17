@@ -1,26 +1,4 @@
 /*
- * Copyright (c) 2015 Jason Lynch <jason@calindora.com>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/*
  * Known TODO:
  *   - Single extra steps at save points are slightly more costly.
  *   - You can take three extra steps in Cecil's room with only a two tile penalty.
@@ -172,7 +150,7 @@ int main (int argc, char ** argv)
 
 	double best_frames = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_frames() : base_engine.get_frames();
 	double best_score = route_output_data.is_valid(base_engine.get_version()) ? engine.get_score() : base_engine.get_score();
-	
+
 	for (const auto & algorithm : Glib::Regex::split_simple("\\+", options.algorithm))
 	{
 		if (algorithm == "bb")
