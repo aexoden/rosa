@@ -1,5 +1,5 @@
 ROUTE	Final Fantasy IV Any% No64 (Rosa)
-VERSION	11
+VERSION	12
 PARTY	3G+K11---C11------10
 PATH	Overworld (Mist)			1	1	0	8	1	0	-	-	+	+
 PARTY	3G+------C11------11
@@ -26,7 +26,7 @@ PATH	Waterfalls B2F				46	45	0	8	20	1	+	-	+	-
 PATH	Waterfalls Lake				38	37	0	8	20	1	+	-	+	-
 NOTE	Battle: Octomamm
 PARTY	2G-D06T08---C11---11
-PATH	Waterfalls Lake				2	1	0	8	20	0	+	+	+	-
+PATH	Waterfalls Lake				2	1	0	8	20	0	+	+	-	-
 PARTY	2G+D06T08---C11---11
 PATH	Overworld (Kaipo)			11	11	0	8	1	1	+	-	+	+
 PATH	Overworld (Damcyan)			6	4	0	8	2	0	+	-	+	+
@@ -120,13 +120,13 @@ NOTE	Black Chocobo to Cave Magnes
 PATH	Overworld (Toroia)			2	1	0	10	5	0	+	-	+	+
 PARTY	2G-T08C15I09Y10---16
 PATH	Cave Magnes B1F				71	68	0	8	33	1	+	+	+	-
-PATH	Cave Magnes B2F				42	41	0	8	34	1	+	-	+	-
+PATH	Cave Magnes B2F				42	41	0	8	34	1	+	+	+	-
 CHOICE	2
 OPTION	Cave Magnes B3F Inward Direct
 NOOP	2
 PATH	Cave Magnes B3F				72	70	0	8	35	1	+	+	+	-
 OPTION	Cave Magnes B3F Inward Save Room Steps
-PATH	Cave Magnes B3F				9	8	0	8	35	1	+	-	+	-
+PATH	Cave Magnes B3F				9	8	0	8	35	1	+	+	+	-
 PATH	Cave Magnes B3F Save Room		1	0	0	0	0	1	+	-	+	-
 PATH	Cave Magnes B3F				65	63	0	8	35	1	+	+	+	-
 END
@@ -134,9 +134,9 @@ PATH	Cave Magnes B3F Room			12	11	0	8	36	1	+	-	+	-
 CHOICE	2
 OPTION	Cave Magnes B4F Inward Direct
 NOOP	2
-PATH	Cave Magnes B4F				31	30	0	8	36	1	+	-	+	-
+PATH	Cave Magnes B4F				31	30	0	8	36	1	+	+	+	-
 OPTION	Cave Magnes B4F Inward Save Room Steps
-PATH	Cave Magnes B4F				39	38	0	8	36	1	+	-	+	-
+PATH	Cave Magnes B4F				39	38	0	8	36	1	+	+	+	-
 PATH	Cave Magnes B4F Save Room		1	0	0	0	0	1	+	-	+	-
 PATH	Cave Magnes B4F				24	23	0	8	36	1	+	-	+	-
 END
@@ -160,7 +160,7 @@ PATH	Tower of Zot 4F				61	60	0	8	40	1	+	-	+	-
 PATH	Tower of Zot 5F				24	23	0	8	41	1	+	-	+	-
 NOTE	Battle: Magus Sisters
 PARTY	3G-i09T08C15---y1118
-PATH	Tower of Zot 5F				2	1	0	8	41	0	+	-	+	-
+PATH	Tower of Zot 5F				2	1	0	8	41	0	+	+	+	-
 PATH	Tower of Zot 6F				15	14	0	0	0	1	+	-	+	-
 NOTE	Battle: Valvalis
 PATH	Castle Baron				34	19	0	0	0	4	+	+	+	-
@@ -175,11 +175,11 @@ PATH	Castle of Dwarves			228	111	20	0	0	13	+	+	+	-
 OPTION	Castle of Dwarves Warp
 PATH	Castle of Dwarves			228	108	2	0	0	13	+	+	+	-
 END
-PATH	Underworld (Castle of Dwarves)	127	123	0	8	7	1	+	+	+	+
+PATH	Underworld (Castle of Dwarves)		127	123	0	8	7	1	+	-	+	+
 PARTY	3G-R12D12K17C10Y1218
 PATH	Tower of Bab-il 1F			20	18	0	7	44	1	+	+	+	-
 PATH	Tower of Bab-il 2F			39	38	0	7	45	1	+	-	+	-
-PATH	Tower of Bab-il 3F			59	58	0	7	46	1	+	+	+	-
+PATH	Tower of Bab-il 3F			59	58	0	7	46	1	+	-	+	-
 PATH	Tower of Bab-il 4F			63	62	0	7	47	1	+	-	+	-
 PATH	Tower of Bab-il 5F			58	57	0	7	48	1	+	-	+	-
 PATH	Tower of Bab-il 6F			13	12	0	7	49	1	+	-	+	-
@@ -280,7 +280,7 @@ PATH	Giant of Bab-il Chest			98	82	0	9	75	1	+	+	+	-
 PATH	Giant of Bab-il Stomach			52	49	0	9	76	1	+	+	+	-
 SEARCH	Grind Fight Search			200	2G-R24g33f20d13c1132
 PATH	Giant of Bab-il Passage			72	61	0	9	77	1	+	+	+	-
-PATH	Giant of Bab-il Lung			9	8	0	9	78	1	+	+	+	-
+PATH	Giant of Bab-il Lung			9	8	0	9	78	1	+	-	+	-
 WAIT
 NOTE	Battle: Elements
 PARTY	2G-R24G33F20d13C1233

@@ -1,12 +1,12 @@
 ROUTE	Final Fantasy IV Paladin%
-VERSION	10
+VERSION	12
 PARTY	3G+K11---C11------10
-PATH	World Map (Mist)			1	1	0	8	1	0	-	-	+	+
+PATH	Overworld (Mist)			1	1	0	8	1	0	-	-	+	+
 PARTY	3G+------C11------11
-PATH	World Map (Kaipo)			37	36	0	8	1	1	-	-	+	+
+PATH	Overworld (Kaipo)			37	36	0	8	1	1	-	-	+	+
 NOTE	Kaipo
 PARTY	3G+---D04C11------06
-PATH	World Map (Kaipo)			33	32	0	8	1	1	-	-	+	+
+PATH	Overworld (Kaipo)			33	32	0	8	1	1	-	-	+	+
 PARTY	3G----D04C11------06
 PATH	Watery Pass-South B1F			32	32	0	7	17	1	-	-	+	-
 NOTE	Recruit Tellah
@@ -19,17 +19,17 @@ PATH	Watery Pass-South B3F			35	34	0	7	18	1	+	-	+	-
 PATH	Watery Pass-North B2F			22	21	0	8	18	1	+	-	+	-
 PATH	Watery Pass-North B1F			62	60	0	8	19	1	+	+	+	-
 PARTY	3G+T08D04C11------10
-PATH	World Map (Kaipo)			10	9	0	8	1	1	+	-	+	+
+PATH	Overworld (Kaipo)			10	9	0	8	1	1	+	-	+	+
 PARTY	3G-T08D04C11------10
 PATH	Waterfalls B1F				2	1	0	0	0	1	+	-	+	-
 PATH	Waterfalls B2F				46	45	0	8	20	1	+	-	+	-
 PATH	Waterfalls Lake				38	37	0	8	20	1	+	-	+	-
 NOTE	Battle: Octomamm
 PARTY	2G-D06T08---C11---11
-PATH	Waterfalls Lake				2	1	0	8	20	0	+	+	+	-
+PATH	Waterfalls Lake				2	1	0	8	20	0	+	+	-	-
 PARTY	2G+D06T08---C11---11
-PATH	World Map (Kaipo)			11	11	0	8	1	1	+	-	+	+
-PATH	World Map (Damcyan)			6	4	0	8	2	0	+	-	+	+
+PATH	Overworld (Kaipo)			11	11	0	8	1	1	+	-	+	+
+PATH	Overworld (Damcyan)			6	4	0	8	2	0	+	-	+	+
 PATH	Damcyan					17	7	1	0	0	3	+	+	+	-
 PARTY	2G-D06---E09C11---06
 PATH	Antlion B1F				39	38	0	8	21	1	+	-	+	-
@@ -65,17 +65,17 @@ PARTY	2G-D07Y08E11C12R0809
 PATH	Mt.Hobs Summit				7	6	0	8	24	0	+	-	+	-
 PATH	Mt.Hobs-East				55	46	0	8	25	1	+	+	+	-
 PARTY	2G+D07Y08E11C12R0809
-PATH	World Map (Fabul)			86	84	0	10	3	1	+	+	+	+
+PATH	Overworld (Fabul)			86	84	0	10	3	1	+	+	+	+
 PATH	Fabul					101	60	10	0	0	10	+	+	+	-
 PARTY	2G+D07Y09E12C17---10
-PATH	World Map (Fabul)			9	7	0	10	3	1	+	+	+	+
+PATH	Overworld (Fabul)			9	7	0	10	3	1	+	+	+	+
 NOTE	Fabul Boat and Leviatan
 PARTY	2G+---------C17---13
-PATH	World Map (Mysidia)			10	9	0	8	4	0	+	-	+	+
+PATH	Overworld (Mysidia)			10	9	0	8	4	0	+	-	+	+
 NOTE	Mysidia
 PARTY	2G+O07---P08C17---11
-PATH	World Map (Mysidia)			10	10	0	8	4	1	+	-	+	+
-PATH	World Map (Mt.Ordeals)			95	94	0	10	4	0	+	-	+	+
+PATH	Overworld (Mysidia)			10	10	0	8	4	1	+	-	+	+
+PATH	Overworld (Mt.Ordeals)			95	94	0	10	4	0	+	-	+	+
 PARTY	2G-O07---P08C17---11
 PATH	Mt.Ordeals				45	43	0	8	26	1	+	-	+	-
 PATH	Mt.Ordeals-3rd station			24	23	0	8	27	1	+	-	+	-
