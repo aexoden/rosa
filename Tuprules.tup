@@ -1,6 +1,0 @@
-CXXFLAGS += -O3 -flto -march=native -fcolor-diagnostics -ggdb
-CXXFLAGS += -std=c++17 -Weverything -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded
-
-CXXFLAGS += `pkg-config --cflags --libs glibmm-2.4 giomm-2.4`
-
-!cxx = |> clang++ $(CXXFLAGS) -c -o %o %f |> %B.o
