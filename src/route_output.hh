@@ -4,6 +4,8 @@
 #include <glibmm/regex.h>
 #include <glibmm/ustring.h>
 
+#include "encounter.hh"
+
 class Engine;
 class Randomizer;
 
@@ -19,7 +21,7 @@ class RouteOutput
 
 		int get_maximum_steps() const;
 
-		double get_frames() const;
+		milliframes get_frames() const;
 		double get_score() const;
 		int get_variable_count() const;
 
@@ -36,6 +38,6 @@ class RouteOutput
 
 		int _maximum_steps = 0;
 
-		double _frames = std::numeric_limits<double>::max();
+		milliframes _frames = std::numeric_limits<milliframes>::max();
 		double _score = std::numeric_limits<double>::min();
 };

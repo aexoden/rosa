@@ -26,7 +26,7 @@ RouteOutput::RouteOutput(const Glib::RefPtr<Gio::File> & file)
 			{
 				if (tokens[0] == "FRAMES" && tokens.size() == 2)
 				{
-					_frames = std::stod(tokens[1]);
+					_frames = milliframes{std::stoll(tokens[1])};
 				}
 				else if (tokens[0] == "SCORE" && tokens.size() == 2)
 				{
@@ -75,7 +75,7 @@ int RouteOutput::get_maximum_steps() const
 	return _maximum_steps;
 }
 
-double RouteOutput::get_frames() const
+milliframes RouteOutput::get_frames() const
 {
 	return _frames;
 }
@@ -111,7 +111,7 @@ static void normalize_route(const std::shared_ptr<Randomizer> & randomizer, Engi
 	engine.reset();
 	engine.run();
 
-	double frames = engine.get_frames();
+	milliframes frames = engine.get_frames();
 
 	for (decltype(randomizer->data)::size_type i = 0; i < randomizer->data.size(); i++)
 	{
@@ -137,7 +137,7 @@ bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::s
 
 	normalize_route(randomizer, engine);
 
-	double best_frames = 0.0;
+	milliframes best_frames = 0_mf;
 
 	if (route_output_data.is_valid(engine.get_version()))
 	{
@@ -166,14 +166,14 @@ bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::s
 	std::cout << "\r" << Glib::DateTime::create_now_local().format("%Y-%m-%d %H:%M:%S") << ": ";
 	std::cout << std::left << std::setw(40) << engine.get_title() << std::right << std::setw(4) << engine.get_initial_seed();
 
-	if (best_frames > 0)
+	if (best_frames > 0_mf)
 	{
-		std::cout << std::setw(11) << Engine::frames_to_seconds(best_frames) << " -> " << std::left << std::setw(11) << Engine::frames_to_seconds(engine.get_frames());
-		std::cout << std::setw(8) << Engine::frames_to_seconds(best_frames - engine.get_frames());
+		std::cout << std::setw(11) << seconds(best_frames).count() << " -> " << std::left << std::setw(11) << seconds(engine.get_frames()).count();
+		std::cout << std::setw(8) << seconds(best_frames - engine.get_frames()).count();
 	}
 	else
 	{
-		std::cout << std::setw(11) << std::setw(11) << "N/A" << " -> " << std::left << std::setw(11) << Engine::frames_to_seconds(engine.get_frames());
+		std::cout << std::setw(11) << std::setw(11) << "N/A" << " -> " << std::left << std::setw(11) << seconds(engine.get_frames()).count();
 	}
 
 	std::cout << std::endl;

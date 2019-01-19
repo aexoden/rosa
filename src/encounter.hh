@@ -1,38 +1,47 @@
 #ifndef SPOONY_ENCOUNTER_HH
 #define SPOONY_ENCOUNTER_HH
 
+#include <chrono>
 #include <unordered_map>
+#include <vector>
 
 #include <giomm/file.h>
 #include <glibmm/ustring.h>
 
-class Encounter
-{
-	public:
-		Encounter(unsigned int id, const Glib::ustring & description);
+using seconds = std::chrono::duration<double>;
+using milliframes = std::chrono::duration<int64_t, std::ratio<655171, 39375000000>>;
 
-		unsigned int get_id() const;
+constexpr seconds operator ""_s(long double s) {
+	return seconds(s);
+}
 
-		Glib::ustring get_description() const;
+constexpr milliframes operator ""_mf(unsigned long long mf) {
+	return milliframes(mf);
+}
 
-		void add_duration(const std::string & party, double average, double minimum);
-
-		double get_average_duration(const std::string & party) const;
-		double get_minimum_duration(const std::string & party) const;
-
-		double get_duration(bool minimum, const std::string & party) const;
-
-	private:
-		const unsigned int _id;
-
-		const Glib::ustring _description;
-
-		std::unordered_map<std::string, double> _average_duration;
-		std::unordered_map<std::string, double> _minimum_duration;
+struct Duration {
+	milliframes average;
+	milliframes minimum;
 };
 
-class Encounters
-{
+class Encounter {
+	public:
+		Encounter(int id, const std::string & description);
+
+		int get_id() const;
+		std::string get_description() const;
+
+		void add_duration(const std::string & party, const Duration & duration);
+		milliframes get_duration(const std::string & party, bool minimum) const;
+
+	private:
+		const int _id;
+		const std::string _description;
+
+		std::unordered_map<std::string, Duration> _durations;
+};
+
+class Encounters {
 	public:
 		Encounters(const Glib::RefPtr<Gio::File> & file);
 

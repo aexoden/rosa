@@ -36,9 +36,9 @@ void Engine::reset()
 {
 	_instruction_index = 0;
 
-	_frames = 0;
-	_encounter_frames = 0;
-	_minimum_frames = 0;
+	_frames = 0_mf;
+	_encounter_frames = 0_mf;
+	_minimum_frames = 0_mf;
 	_score = 0.0;
 
 	_encounter_count = 0;
@@ -67,9 +67,9 @@ Glib::ustring format_label(const Glib::ustring & label)
 	return Glib::ustring::format(std::left, std::setw(18), label);
 }
 
-Glib::ustring format_time(double frames)
+Glib::ustring format_time(milliframes mf)
 {
-	return Glib::ustring::format(std::fixed, std::setprecision(3), Engine::frames_to_seconds(frames));
+	return Glib::ustring::format(std::fixed, std::setprecision(3), seconds(mf).count());
 }
 
 Glib::ustring Engine::format_output(const Engine & base_engine) const
@@ -85,7 +85,7 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 	output.append(Glib::ustring::compose("SEED\t%1\n", _parameters.seed));
 	output.append(Glib::ustring::compose("METHOD\t%1\n", _parameters.algorithm));
 	output.append(Glib::ustring::compose("MAXSTEP\t%1\n", _parameters.maximum_extra_steps));
-	output.append(Glib::ustring::compose("FRAMES\t%1\n", Glib::ustring::format(std::setprecision(20), _frames)));
+	output.append(Glib::ustring::compose("FRAMES\t%1\n", Glib::ustring::format(std::setprecision(20), _frames.count())));
 	output.append(Glib::ustring::compose("SCORE\t%1\n", Glib::ustring::format(std::setprecision(20), _score)));
 
 	output.append("VARS\t");
@@ -144,14 +144,14 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 
 		for (auto & pair : entry.encounters)
 		{
-			output.append(Glib::ustring::compose("%1  Step %2: %3 / %4 (%5s)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_duration(_parameters.tas_mode, entry.party))));
+			output.append(Glib::ustring::compose("%1  Step %2: %3 / %4 (%5s)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_duration(entry.party, _parameters.tas_mode))));
 		}
 
 		for (auto & pair : entry.potential_encounters)
 		{
 			if (entry.encounters.count(pair.first) == 0)
 			{
-				output.append(Glib::ustring::compose("%1 (Step %2: %3 / %4)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_duration(_parameters.tas_mode, entry.party))));
+				output.append(Glib::ustring::compose("%1 (Step %2: %3 / %4)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_duration(entry.party, _parameters.tas_mode))));
 			}
 		}
 
@@ -183,12 +183,12 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 	return output;
 }
 
-double Engine::get_frames() const
+milliframes Engine::get_frames() const
 {
 	return _frames;
 }
 
-double Engine::get_minimum_frames() const
+milliframes Engine::get_minimum_frames() const
 {
 	return _minimum_frames;
 }
@@ -275,8 +275,8 @@ void Engine::_cycle()
 			break;
 		}
 		case InstructionType::DELAY:
-			_frames += instruction->number;
-			_minimum_frames += instruction->number;
+			_frames += milliframes(instruction->number * 1000);
+			_minimum_frames += milliframes(instruction->number * 1000);
 			break;
 		case InstructionType::NOOP:
 			for (int i = 0; i < instruction->number; i++)
@@ -376,7 +376,7 @@ void Engine::_cycle()
 			if (value > 0)
 			{
 				int seed = value - 1;
-				int frames = 697 - instruction->number;
+				milliframes frames = milliframes((697 - instruction->number) * 1000);
 
 				_reset(seed);
 
@@ -478,12 +478,12 @@ void Engine::_reset(int seed)
 
 void Engine::_step(int tiles, int steps, bool simulate)
 {
-	double output_frames = _frames;
+	milliframes output_frames = _frames;
 
 	if (!simulate)
 	{
-		_frames += tiles * 16;
-		_minimum_frames += tiles * 16;
+		_frames += milliframes(tiles * 16 * 1000);
+		_minimum_frames += milliframes(tiles * 16 * 1000);
 	}
 
 	int log_steps = _log.back().steps;
@@ -496,7 +496,7 @@ void Engine::_step(int tiles, int steps, bool simulate)
 
 	for (int i = 0; i < steps; i++)
 	{
-		output_frames += 16;
+		output_frames += 16000_mf;
 		_log.back().steps++;
 
 		_step_index++;
@@ -531,7 +531,7 @@ void Engine::_step(int tiles, int steps, bool simulate)
 				_log.back().encounters[_log.back().steps] = std::make_pair(_encounter_index + 1, encounter);
 			}
 
-			double duration = encounter->get_duration(_parameters.tas_mode, _party);
+			milliframes duration = encounter->get_duration(_party, _parameters.tas_mode);
 
 			if (!simulate)
 			{
@@ -575,8 +575,8 @@ void Engine::_step(int tiles, int steps, bool simulate)
 
 void Engine::_transition(const std::shared_ptr<const Instruction> & instruction)
 {
-	_frames += instruction->transition_count * 82;
-	_minimum_frames += instruction->transition_count * 82;
+	_frames += milliframes(instruction->transition_count * 82 * 1000);
+	_minimum_frames += milliframes(instruction->transition_count * 82 * 1000);
 	_log.push_back(LogEntry{instruction, _indent});
 
 	_log.back().seed_start = _step_seed;

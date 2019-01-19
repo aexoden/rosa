@@ -5,69 +5,32 @@
 
 #include "encounter.hh"
 
-Encounter::Encounter(unsigned int id, const Glib::ustring & description) :
-	_id{id},
-	_description{description}
-{ }
+using namespace std::chrono_literals;
 
-unsigned int Encounter::get_id() const
-{
+Encounter::Encounter(int id, const std::string & description) : _id{id}, _description{description} { }
+
+int Encounter::get_id() const {
 	return _id;
 }
 
-Glib::ustring Encounter::get_description() const
-{
+std::string Encounter::get_description() const {
 	return _description;
 }
 
-void Encounter::add_duration(const std::string & party, double average, double minimum)
-{
-	_average_duration[party] = average;
-	_minimum_duration[party] = minimum;
+void Encounter::add_duration(const std::string & party, const Duration & duration) {
+	_durations[party] = duration;
 }
 
-double Encounter::get_average_duration(const std::string & party) const
-{
-	if (_average_duration.count(party) > 0)
-	{
-		return _average_duration.at(party);
+milliframes Encounter::get_duration(const std::string & party, bool minimum) const {
+	if (_durations.count(party) == 0) {
+		std::cerr << "WARNING: Party '" << party << "' not found for encounter " << _id << "... assuming 20 seconds\n";
+		return std::chrono::duration_cast<milliframes>(20s);
 	}
-	else
-	{
-		std::cerr << "WARNING: Party '" << party << "' not found for encounter " << _id << std::endl;
-		return 10000;
-	}
+
+	return minimum ? _durations.at(party).minimum : _durations.at(party).average;
 }
 
-double Encounter::get_minimum_duration(const std::string & party) const
-{
-	if (_minimum_duration.count(party) > 0)
-	{
-		return _minimum_duration.at(party);
-	}
-	else
-	{
-		std::cerr << "WARNING: Party '" << party << "' not found for encounter " << _id << std::endl;
-		return 10000;
-	}
-}
-
-double Encounter::get_duration(bool minimum, const std::string & party) const
-{
-	if (minimum)
-	{
-		return get_minimum_duration(party);
-	}
-	else
-	{
-		return get_average_duration(party);
-	}
-}
-
-Encounters::Encounters(const Glib::RefPtr<Gio::File> & file) :
-	_encounters{512},
-	_encounter_groups{512}
-{
+Encounters::Encounters(const Glib::RefPtr<Gio::File> & file) : _encounters{512}, _encounter_groups{512} {
 	auto file_stream = Gio::DataInputStream::create(file->read());
 	std::string line;
 
@@ -88,7 +51,9 @@ Encounters::Encounters(const Glib::RefPtr<Gio::File> & file) :
 					_encounters[id] = std::make_shared<Encounter>(id, tokens[2]);
 				}
 
-				_encounters[id]->add_duration(tokens[3], std::stod(tokens[4]), std::stod(tokens[5]));
+				Duration duration = {milliframes{static_cast<int>(std::stod(tokens[4]) * 1000)}, milliframes{static_cast<int>(std::stod(tokens[5]) * 1000)}};
+
+				_encounters[id]->add_duration(tokens[3], duration);
 			}
 			else if (tokens[0] == "GROUP" && tokens.size() == 10)
 			{
