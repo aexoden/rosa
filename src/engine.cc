@@ -275,8 +275,8 @@ void Engine::_cycle()
 			break;
 		}
 		case InstructionType::DELAY:
-			_frames += milliframes(instruction->number * 1000);
-			_minimum_frames += milliframes(instruction->number * 1000);
+			_frames += frames(instruction->number);
+			_minimum_frames += frames(instruction->number);
 			break;
 		case InstructionType::NOOP:
 			for (int i = 0; i < instruction->number; i++)
@@ -376,12 +376,12 @@ void Engine::_cycle()
 			if (value > 0)
 			{
 				int seed = value - 1;
-				milliframes frames = milliframes((697 - instruction->number) * 1000);
+				milliframes new_frames = 697_f - frames{instruction->number};
 
 				_reset(seed);
 
-				_frames += frames;
-				_minimum_frames += frames;
+				_frames += new_frames;
+				_minimum_frames += new_frames;
 
 				_log.back().save_reset = true;
 				_log.back().new_seed = seed;
@@ -482,8 +482,8 @@ void Engine::_step(int tiles, int steps, bool simulate)
 
 	if (!simulate)
 	{
-		_frames += milliframes(tiles * 16 * 1000);
-		_minimum_frames += milliframes(tiles * 16 * 1000);
+		_frames += tiles * 16_f;
+		_minimum_frames += tiles * 16_f;
 	}
 
 	int log_steps = _log.back().steps;
@@ -496,7 +496,7 @@ void Engine::_step(int tiles, int steps, bool simulate)
 
 	for (int i = 0; i < steps; i++)
 	{
-		output_frames += 16000_mf;
+		output_frames += 16_f;
 		_log.back().steps++;
 
 		_step_index++;
@@ -575,8 +575,8 @@ void Engine::_step(int tiles, int steps, bool simulate)
 
 void Engine::_transition(const std::shared_ptr<const Instruction> & instruction)
 {
-	_frames += milliframes(instruction->transition_count * 82 * 1000);
-	_minimum_frames += milliframes(instruction->transition_count * 82 * 1000);
+	_frames += instruction->transition_count * 82_f;
+	_minimum_frames += instruction->transition_count * 82_f;
 	_log.push_back(LogEntry{instruction, _indent});
 
 	_log.back().seed_start = _step_seed;

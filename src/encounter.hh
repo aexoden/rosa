@@ -9,10 +9,15 @@
 #include <glibmm/ustring.h>
 
 using seconds = std::chrono::duration<double>;
+using frames = std::chrono::duration<int64_t, std::ratio<655171, 39375000>>;
 using milliframes = std::chrono::duration<int64_t, std::ratio<655171, 39375000000>>;
 
 constexpr seconds operator ""_s(long double s) {
 	return seconds(s);
+}
+
+constexpr frames operator ""_f(unsigned long long f) {
+	return frames(f);
 }
 
 constexpr milliframes operator ""_mf(unsigned long long mf) {
