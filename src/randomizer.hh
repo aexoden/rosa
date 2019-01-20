@@ -4,22 +4,19 @@
 #include <limits>
 #include <vector>
 
-class Randomizer
-{
+class Randomizer {
 	public:
-		Randomizer(bool random);
-
 		void reset();
 
-		int get_index();
+		std::size_t get_index();
 		int get_int(int min_value, int max_value);
 
 		int get_set_variable_count() const;
 
-		int get_minimum_variables() const;
-		int get_maximum_variables() const;
+		std::size_t get_minimum_variables() const;
+		std::size_t get_maximum_variables() const;
 
-		void set_implicit_index(int index);
+		void set_implicit_index(std::size_t index);
 		bool is_implicit() const;
 
 		std::vector<int> data;
@@ -27,14 +24,11 @@ class Randomizer
 	private:
 		int _next();
 
-		int _minimum_variables = std::numeric_limits<int>::max();
-		int _maximum_variables = 0;
+		std::size_t _minimum_variables = std::numeric_limits<std::size_t>::max();
+		std::size_t _maximum_variables = 0;
 
-		std::vector<int>::size_type _index = 0;
-
-		bool _random;
-
-		std::vector<int>::size_type _implicit_index = 0;
+		std::size_t _index = 0;
+		std::size_t _implicit_index = 0;
 };
 
 #endif // SPOONY_RANDOMIZER_HH

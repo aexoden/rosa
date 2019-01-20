@@ -107,7 +107,7 @@ int main (int argc, char ** argv)
 	}
 
 	auto instructions = read_instructions(route_source_file);
-	auto randomizer = std::make_shared<Randomizer>(false);
+	auto randomizer = std::make_shared<Randomizer>();
 
 	Engine base_engine{Parameters{options.tas_mode, options.step_output, options.seed, 0, "none", randomizer}, instructions, encounters};
 	base_engine.run();
