@@ -1,13 +1,10 @@
 #ifndef SPOONY_INSTRUCTION_HH
 #define SPOONY_INSTRUCTION_HH
 
+#include <istream>
 #include <set>
 
-#include <giomm/file.h>
-#include <glibmm/ustring.h>
-
-enum class InstructionType
-{
+enum class InstructionType {
 	NOOP,
 	CHOICE,
 	DELAY,
@@ -23,13 +20,12 @@ enum class InstructionType
 	WAIT
 };
 
-class Instruction
-{
+class Instruction {
 	public:
-		Instruction(const Glib::ustring & line);
+		Instruction(const std::string & line);
 
 		InstructionType type = InstructionType::NOOP;
-		Glib::ustring text;
+		std::string text;
 		std::string party;
 
 		std::set<int> numbers;
@@ -52,6 +48,6 @@ class Instruction
 		bool is_world_map = false;
 };
 
-std::vector<std::shared_ptr<const Instruction>> read_instructions(const Glib::RefPtr<Gio::File> & file);
+std::vector<std::shared_ptr<const Instruction>> read_instructions(std::istream & input);
 
 #endif // SPOONY_INSTRUCTION_HH

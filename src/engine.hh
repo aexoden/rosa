@@ -1,8 +1,11 @@
 #ifndef SPOONY_ENGINE_HH
 #define SPOONY_ENGINE_HH
 
+#include <map>
 #include <memory>
 #include <vector>
+
+#include <glibmm/ustring.h>
 
 #include "duration.hh"
 #include "encounter.hh"

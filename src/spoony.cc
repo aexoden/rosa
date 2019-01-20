@@ -98,11 +98,11 @@ int main (int argc, char ** argv)
 
 	Encounters encounters{encounters_file};
 
-	auto route_source_file = Gio::File::create_for_path(Glib::build_filename("data", "routes", Glib::ustring::compose("%1.txt", options.route)));
+	std::string route_source_filename{"data/routes/" + options.route + ".txt"};
+	std::ifstream route_source_file{route_source_filename, std::ios_base::in};
 
-	if (!route_source_file->query_exists())
-	{
-		std::cerr << "Route \"" << options.route << "\" does not exist." << std::endl;
+	if (!route_source_file.is_open()) {
+		std::cerr << "ERROR: Failed to open " << route_source_filename << '\n';
 		return EXIT_FAILURE;
 	}
 
