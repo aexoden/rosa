@@ -3,9 +3,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 
-#include <giomm/datainputstream.h>
-#include <glibmm/regex.h>
-
 #include "encounter.hh"
 
 using namespace std::chrono_literals;
