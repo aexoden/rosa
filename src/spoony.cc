@@ -13,6 +13,8 @@
  *   - Figure out Damcyan reset seeds.
  */
 
+#include <cstdlib>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 
@@ -85,14 +87,22 @@ int main (int argc, char ** argv)
 	 * Base Data
 	 */
 
-	Encounters encounters{Gio::File::create_for_path("data/encounters/ff2us.txt")};
+	std::string encounters_filename{"data/encounters/ff2us.txt"};
+	std::ifstream encounters_file{encounters_filename, std::ios_base::in};
+
+	if (!encounters_file.is_open()) {
+		std::cerr << "ERROR: Failed to open " << encounters_filename << '\n';
+		return EXIT_FAILURE;
+	}
+
+	Encounters encounters{encounters_file};
 
 	auto route_source_file = Gio::File::create_for_path(Glib::build_filename("data", "routes", Glib::ustring::compose("%1.txt", options.route)));
 
 	if (!route_source_file->query_exists())
 	{
 		std::cerr << "Route \"" << options.route << "\" does not exist." << std::endl;
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	auto instructions = read_instructions(route_source_file);

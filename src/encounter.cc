@@ -1,5 +1,8 @@
 #include <iostream>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
+
 #include <giomm/datainputstream.h>
 #include <glibmm/regex.h>
 
@@ -23,50 +26,43 @@ void Encounter::add_duration(const std::string & party, const Duration & duratio
 
 Milliframes Encounter::get_duration(const std::string & party, bool minimum) const {
 	if (_durations.count(party) == 0) {
-		std::cerr << "WARNING: Party '" << party << "' not found for encounter " << _id << "... assuming 20 seconds\n";
-		return std::chrono::duration_cast<Milliframes>(20s);
+		std::cerr << "WARNING: Party '" << party << "' not found for encounter " << _id << "... assuming 30 seconds\n";
+		return std::chrono::duration_cast<Milliframes>(30s);
 	}
 
 	return minimum ? _durations.at(party).minimum : _durations.at(party).average;
 }
 
-Encounters::Encounters(const Glib::RefPtr<Gio::File> & file) : _encounters{512}, _encounter_groups{512} {
-	auto file_stream = Gio::DataInputStream::create(file->read());
+Encounters::Encounters(std::istream & input) : _encounters{512}, _encounter_groups{512} {
 	std::string line;
 
-	auto split_regex = Glib::Regex::create("\t+");
+	while (std::getline(input, line)) {
+		std::vector<std::string> tokens;
+		boost::algorithm::split(tokens, line, boost::is_any_of("\t"), boost::token_compress_on);
 
-	while (file_stream->read_line(line))
-	{
-		std::vector<Glib::ustring> tokens = split_regex->split(line);
+		if (tokens.size() > 0 && line[0] != '#') {
+			if (tokens[0] == "ENCOUNT" && tokens.size() == 6) {
+				decltype(_encounters)::size_type id{std::stoul(tokens[1])};
 
-		if (!tokens.empty())
-		{
-			if (tokens[0] == "ENCOUNT" && tokens.size() == 6)
-			{
-				unsigned int id = std::stoul(tokens[1]);
+				std::string description{tokens[2]};
+				std::string party{tokens[3]};
 
-				if (!_encounters[id])
-				{
+				Milliframes average_duration{static_cast<int>(std::stod(tokens[4]) * 1000)};
+				Milliframes minimum_duration{static_cast<int>(std::stod(tokens[5]) * 1000)};
+
+				if (!_encounters[id]) {
 					_encounters[id] = std::make_shared<Encounter>(id, tokens[2]);
 				}
 
-				Duration duration = {Milliframes{static_cast<int>(std::stod(tokens[4]) * 1000)}, Milliframes{static_cast<int>(std::stod(tokens[5]) * 1000)}};
+				_encounters[id]->add_duration(party, Duration{average_duration, minimum_duration});
+			} else if (tokens[0] == "GROUP" && tokens.size() == 10) {
+				decltype(_encounter_groups)::size_type id{std::stoul(tokens[1])};
 
-				_encounters[id]->add_duration(tokens[3], duration);
-			}
-			else if (tokens[0] == "GROUP" && tokens.size() == 10)
-			{
-				unsigned int id = std::stoul(tokens[1]);
-
-				for (int i = 0; i < 8; i++)
-				{
-					_encounter_groups[id].push_back(std::stoul(tokens[i + 2]));
+				for (int i = 0; i < 8; i++) {
+					_encounter_groups[id].push_back(std::stoi(tokens[i + 2]));
 				}
-			}
-			else
-			{
-				std::cerr << "Unrecognized line: " << line << std::endl;
+			} else {
+				std::cerr << "WARNING: Unrecognized line in encounter data: " << line << '\n';
 			}
 		}
 	}

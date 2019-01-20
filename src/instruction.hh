@@ -3,6 +3,7 @@
 
 #include <set>
 
+#include <giomm/file.h>
 #include <glibmm/ustring.h>
 
 enum class InstructionType

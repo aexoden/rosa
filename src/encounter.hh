@@ -1,11 +1,9 @@
 #ifndef SPOONY_ENCOUNTER_HH
 #define SPOONY_ENCOUNTER_HH
 
+#include <memory>
 #include <unordered_map>
 #include <vector>
-
-#include <giomm/file.h>
-#include <glibmm/ustring.h>
 
 #include "duration.hh"
 
@@ -28,14 +26,14 @@ class Encounter {
 
 class Encounters {
 	public:
-		Encounters(const Glib::RefPtr<Gio::File> & file);
+		Encounters(std::istream & file);
 
 		std::shared_ptr<const Encounter> get_encounter(int id);
 		std::shared_ptr<const Encounter> get_encounter_from_group(int group_index, int encounter_index);
 
 	private:
 		std::vector<std::shared_ptr<Encounter>> _encounters;
-		std::vector<std::vector<unsigned int>> _encounter_groups;
+		std::vector<std::vector<int>> _encounter_groups;
 };
 
 #endif // SPOONY_ENCOUNTER_HH
