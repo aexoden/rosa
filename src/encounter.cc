@@ -7,9 +7,9 @@
 
 using namespace std::chrono_literals;
 
-Encounter::Encounter(int id, const std::string & description) : _id{id}, _description{description} { }
+Encounter::Encounter(std::size_t id, std::string description) : _id{id}, _description{std::move(description)} { }
 
-int Encounter::get_id() const {
+std::size_t Encounter::get_id() const {
 	return _id;
 }
 
@@ -37,9 +37,9 @@ Encounters::Encounters(std::istream & input) : _encounters{512}, _encounter_grou
 		std::vector<std::string> tokens;
 		boost::algorithm::split(tokens, line, boost::is_any_of("\t"), boost::token_compress_on);
 
-		if (tokens.size() > 0 && line[0] != '#') {
+		if (!tokens.empty() && line[0] != '#') {
 			if (tokens[0] == "ENCOUNT" && tokens.size() == 6) {
-				decltype(_encounters)::size_type id{std::stoul(tokens[1])};
+				std::size_t id{std::stoul(tokens[1])};
 
 				std::string description{tokens[2]};
 				std::string party{tokens[3]};
@@ -48,15 +48,15 @@ Encounters::Encounters(std::istream & input) : _encounters{512}, _encounter_grou
 				Milliframes minimum_duration{static_cast<int>(std::stod(tokens[5]) * 1000)};
 
 				if (!_encounters[id]) {
-					_encounters[id] = std::make_shared<Encounter>(id, tokens[2]);
+					_encounters[id] = std::make_shared<Encounter>(id, description);
 				}
 
 				_encounters[id]->add_duration(party, Duration{average_duration, minimum_duration});
 			} else if (tokens[0] == "GROUP" && tokens.size() == 10) {
-				decltype(_encounter_groups)::size_type id{std::stoul(tokens[1])};
+				std::size_t id{std::stoul(tokens[1])};
 
-				for (int i = 0; i < 8; i++) {
-					_encounter_groups[id].push_back(std::stoi(tokens[i + 2]));
+				for (std::size_t i = 0; i < 8; i++) {
+					_encounter_groups[id].push_back(std::stoul(tokens[i + 2]));
 				}
 			} else {
 				std::cerr << "WARNING: Unrecognized line in encounter data: " << line << '\n';
@@ -65,12 +65,12 @@ Encounters::Encounters(std::istream & input) : _encounters{512}, _encounter_grou
 	}
 }
 
-std::shared_ptr<const Encounter> Encounters::get_encounter(int id)
+std::shared_ptr<const Encounter> Encounters::get_encounter(std::size_t id)
 {
 	return _encounters[id];
 }
 
-std::shared_ptr<const Encounter> Encounters::get_encounter_from_group(int group_index, int encounter_index)
+std::shared_ptr<const Encounter> Encounters::get_encounter_from_group(std::size_t group_index, std::size_t encounter_index)
 {
 	auto encounter = _encounters[_encounter_groups[group_index][encounter_index]];
 
@@ -79,5 +79,5 @@ std::shared_ptr<const Encounter> Encounters::get_encounter_from_group(int group_
 		std::cerr << "WARNING: Attempted to use nonexistent encounter: " << _encounter_groups[group_index][encounter_index] << std::endl;
 	}
 
-	return encounter;
+	return std::move(encounter);
 }
