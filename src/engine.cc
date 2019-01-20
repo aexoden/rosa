@@ -67,9 +67,9 @@ Glib::ustring format_label(const Glib::ustring & label)
 	return Glib::ustring::format(std::left, std::setw(18), label);
 }
 
-Glib::ustring format_time(milliframes mf)
+Glib::ustring format_time(Milliframes mf)
 {
-	return Glib::ustring::format(std::fixed, std::setprecision(3), seconds(mf).count());
+	return Glib::ustring::format(std::fixed, std::setprecision(3), Seconds(mf).count());
 }
 
 Glib::ustring Engine::format_output(const Engine & base_engine) const
@@ -183,12 +183,12 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 	return output;
 }
 
-milliframes Engine::get_frames() const
+Milliframes Engine::get_frames() const
 {
 	return _frames;
 }
 
-milliframes Engine::get_minimum_frames() const
+Milliframes Engine::get_minimum_frames() const
 {
 	return _minimum_frames;
 }
@@ -275,8 +275,8 @@ void Engine::_cycle()
 			break;
 		}
 		case InstructionType::DELAY:
-			_frames += frames(instruction->number);
-			_minimum_frames += frames(instruction->number);
+			_frames += Frames{instruction->number};
+			_minimum_frames += Frames{instruction->number};
 			break;
 		case InstructionType::NOOP:
 			for (int i = 0; i < instruction->number; i++)
@@ -376,7 +376,7 @@ void Engine::_cycle()
 			if (value > 0)
 			{
 				int seed = value - 1;
-				milliframes new_frames = 697_f - frames{instruction->number};
+				Milliframes new_frames = 697_f - Frames{instruction->number};
 
 				_reset(seed);
 
@@ -478,7 +478,7 @@ void Engine::_reset(int seed)
 
 void Engine::_step(int tiles, int steps, bool simulate)
 {
-	milliframes output_frames = _frames;
+	Milliframes output_frames = _frames;
 
 	if (!simulate)
 	{
@@ -531,7 +531,7 @@ void Engine::_step(int tiles, int steps, bool simulate)
 				_log.back().encounters[_log.back().steps] = std::make_pair(_encounter_index + 1, encounter);
 			}
 
-			milliframes duration = encounter->get_duration(_party, _parameters.tas_mode);
+			Milliframes duration = encounter->get_duration(_party, _parameters.tas_mode);
 
 			if (!simulate)
 			{

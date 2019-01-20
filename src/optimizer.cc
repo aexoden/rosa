@@ -8,14 +8,14 @@
 #include "randomizer.hh"
 #include "route_output.hh"
 
-void optimize_bb(int start_index, milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
+void optimize_bb(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
 	randomizer->reset();
 
 	engine.reset();
 	engine.run();
 
-	milliframes search_best_frames = engine.get_frames();
+	Milliframes search_best_frames = engine.get_frames();
 	double search_best_score = engine.get_score();
 
 	std::vector<int> best_data;
@@ -33,8 +33,8 @@ void optimize_bb(int start_index, milliframes & best_frames, double & best_score
 			std::cout << "   Index: " << std::right << std::setw(2) << index;
 			std::cout << "   Iterations: " << std::setw(20) << iterations;
 			std::cout << "   Variables: (" << std::setw(2) << randomizer->get_minimum_variables() << ", " << randomizer->get_maximum_variables() << ")";
-			std::cout << "   Best: " << std::setw(10) << seconds(best_frames).count();
-			std::cout << "   Search Best: " << std::setw(10) << seconds(search_best_frames).count();
+			std::cout << "   Best: " << std::setw(10) << Seconds{best_frames}.count();
+			std::cout << "   Search Best: " << std::setw(10) << Seconds{search_best_frames}.count();
 			std::cout << std::flush;
 		}
 
@@ -96,14 +96,14 @@ void optimize_bb(int start_index, milliframes & best_frames, double & best_score
 	std::cout << std::endl;
 }
 
-void optimize_ils(int start_index, milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
+void optimize_ils(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
 	std::random_device rd;
 	std::default_random_engine random_engine{rd()};
 
 	optimize_local(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_file, false);
 
-	milliframes search_best_frames = engine.get_frames();
+	Milliframes search_best_frames = engine.get_frames();
 
 	for (int i = 0; i < options.maximum_iterations; i++)
 	{
@@ -111,9 +111,9 @@ void optimize_ils(int start_index, milliframes & best_frames, double & best_scor
 		std::cout << "   Algorithm: " << std::left << std::setw(15) << "ILS";
 		std::cout << "   Index: " << std::right << std::setw(2) << i;
 		std::cout << "   Variables: (" << std::setw(2) << randomizer->get_minimum_variables() << ", " << randomizer->get_maximum_variables() << ")";
-		std::cout << "   Best: " << std::setw(10) << seconds(best_frames).count();
-		std::cout << "   Current: " << std::setw(10) << seconds(search_best_frames).count();
-		std::cout << "   Search Best: " << std::setw(10) << seconds(search_best_frames).count();
+		std::cout << "   Best: " << std::setw(10) << Seconds{best_frames}.count();
+		std::cout << "   Current: " << std::setw(10) << Seconds{search_best_frames}.count();
+		std::cout << "   Search Best: " << std::setw(10) << Seconds{search_best_frames}.count();
 		std::cout << "   Iteration: " << std::setw(10) << (i + 1);
 		std::cout << std::flush;
 
@@ -160,14 +160,14 @@ void optimize_ils(int start_index, milliframes & best_frames, double & best_scor
 	std::cout << std::endl;
 }
 
-void optimize_local(int start_index, milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline)
+void optimize_local(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline)
 {
 	randomizer->reset();
 
 	engine.reset();
 	engine.run();
 
-	milliframes search_best_frames = engine.get_frames();
+	Milliframes search_best_frames = engine.get_frames();
 
 	while (true)
 	{
@@ -180,8 +180,8 @@ void optimize_local(int start_index, milliframes & best_frames, double & best_sc
 			std::cout << "   Algorithm: " << std::left << std::setw(15) << "Local";
 			std::cout << "   Index: " << std::right << std::setw(2) << i;
 			std::cout << "   Variables: (" << std::setw(2) << randomizer->get_minimum_variables() << ", " << randomizer->get_maximum_variables() << ")";
-			std::cout << "   Best: " << std::setw(10) << seconds(best_frames).count();
-			std::cout << "   Current: " << std::setw(10) << seconds(search_best_frames).count();
+			std::cout << "   Best: " << std::setw(10) << Seconds{best_frames}.count();
+			std::cout << "   Current: " << std::setw(10) << Seconds{search_best_frames}.count();
 			std::cout << std::flush;
 
 			int original_value = randomizer->data[i];
@@ -230,15 +230,15 @@ void optimize_local(int start_index, milliframes & best_frames, double & best_sc
 	}
 }
 
-void optimize_local_pair(int start_index, milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline)
+void optimize_local_pair(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file, bool final_newline)
 {
 	randomizer->reset();
 
 	engine.reset();
 	engine.run();
 
-	milliframes search_best_frames = engine.get_frames();
-	milliframes previous_search_best_frames = engine.get_frames();
+	Milliframes search_best_frames = engine.get_frames();
+	Milliframes previous_search_best_frames = engine.get_frames();
 	double search_best_score = engine.get_score();
 
 	while (true)
@@ -266,9 +266,9 @@ void optimize_local_pair(int start_index, milliframes & best_frames, double & be
 				std::cout << "   Algorithm: " << std::left << std::setw(15) << "Pairwise Local";
 				std::cout << "   Current Indexes: (" << std::right << std::setw(3) << i << ", " << std::setw(3) << j << ")";
 				std::cout << "   Variables: (" << std::setw(2) << randomizer->get_minimum_variables() << ", " << randomizer->get_maximum_variables() << ")";
-				std::cout << "   Best: " << std::setw(10) << seconds(best_frames).count();
-				std::cout << "   Previous: " << std::setw(10) << seconds(previous_search_best_frames).count();
-				std::cout << "   Current: " << std::setw(10) << seconds(search_best_frames).count();
+				std::cout << "   Best: " << std::setw(10) << Seconds{best_frames}.count();
+				std::cout << "   Previous: " << std::setw(10) << Seconds{previous_search_best_frames}.count();
+				std::cout << "   Current: " << std::setw(10) << Seconds{search_best_frames}.count();
 				std::cout << std::flush;
 
 				int original_j_value = randomizer->data[j];
@@ -327,7 +327,7 @@ void optimize_local_pair(int start_index, milliframes & best_frames, double & be
 
 		if (final_newline)
 		{
-			std::cout << std::endl << "Updating (" << best_i << ", " << best_j << ") from (" << randomizer->data[best_i] << ", " << randomizer->data[best_j] << ") to (" << best_i_value << ", " << best_j_value << ") (" << seconds(previous_search_best_frames).count() << "s -> " << seconds(search_best_frames).count() << "s)" << std::endl;
+			std::cout << std::endl << "Updating (" << best_i << ", " << best_j << ") from (" << randomizer->data[best_i] << ", " << randomizer->data[best_j] << ") to (" << best_i_value << ", " << best_j_value << ") (" << Seconds{previous_search_best_frames}.count() << "s -> " << Seconds{search_best_frames}.count() << "s)" << std::endl;
 		}
 
 		previous_search_best_frames = search_best_frames;
@@ -347,14 +347,14 @@ void optimize_local_pair(int start_index, milliframes & best_frames, double & be
 	}
 }
 
-void optimize_sequential(int start_index, milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
+void optimize_sequential(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const Glib::RefPtr<Gio::File> & output_file)
 {
 	randomizer->reset();
 
 	engine.reset();
 	engine.run();
 
-	milliframes search_best_frames = engine.get_frames();
+	Milliframes search_best_frames = engine.get_frames();
 	double search_best_score = engine.get_score();
 
 	for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++)
@@ -363,8 +363,8 @@ void optimize_sequential(int start_index, milliframes & best_frames, double & be
 		std::cout << "   Algorithm: " << std::left << std::setw(15) << "Sequential";
 		std::cout << "   Index: " << std::right << std::setw(2) << i;
 		std::cout << "   Variables: (" << std::setw(2) << randomizer->get_minimum_variables() << ", " << randomizer->get_maximum_variables() << ")";
-		std::cout << "   Best: " << std::setw(10) << seconds(best_frames).count();
-		std::cout << "   Current: " << std::setw(10) << seconds(search_best_frames).count();
+		std::cout << "   Best: " << std::setw(10) << Seconds{best_frames}.count();
+		std::cout << "   Current: " << std::setw(10) << Seconds{search_best_frames}.count();
 		std::cout << std::flush;
 
 		int best_value = randomizer->data[i];

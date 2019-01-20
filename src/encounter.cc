@@ -21,10 +21,10 @@ void Encounter::add_duration(const std::string & party, const Duration & duratio
 	_durations[party] = duration;
 }
 
-milliframes Encounter::get_duration(const std::string & party, bool minimum) const {
+Milliframes Encounter::get_duration(const std::string & party, bool minimum) const {
 	if (_durations.count(party) == 0) {
 		std::cerr << "WARNING: Party '" << party << "' not found for encounter " << _id << "... assuming 20 seconds\n";
-		return std::chrono::duration_cast<milliframes>(20s);
+		return std::chrono::duration_cast<Milliframes>(20s);
 	}
 
 	return minimum ? _durations.at(party).minimum : _durations.at(party).average;
@@ -51,7 +51,7 @@ Encounters::Encounters(const Glib::RefPtr<Gio::File> & file) : _encounters{512},
 					_encounters[id] = std::make_shared<Encounter>(id, tokens[2]);
 				}
 
-				Duration duration = {milliframes{static_cast<int>(std::stod(tokens[4]) * 1000)}, milliframes{static_cast<int>(std::stod(tokens[5]) * 1000)}};
+				Duration duration = {Milliframes{static_cast<int>(std::stod(tokens[4]) * 1000)}, Milliframes{static_cast<int>(std::stod(tokens[5]) * 1000)}};
 
 				_encounters[id]->add_duration(tokens[3], duration);
 			}

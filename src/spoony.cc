@@ -148,7 +148,7 @@ int main (int argc, char ** argv)
  	engine.reset();
  	engine.run();
 
-	milliframes best_frames = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_frames() : base_engine.get_frames();
+	Milliframes best_frames = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_frames() : base_engine.get_frames();
 	double best_score = route_output_data.is_valid(base_engine.get_version()) ? engine.get_score() : base_engine.get_score();
 
 	for (const auto & algorithm : Glib::Regex::split_simple("\\+", options.algorithm))

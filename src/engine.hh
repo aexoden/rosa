@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "duration.hh"
 #include "encounter.hh"
 #include "instruction.hh"
 #include "parameters.hh"
@@ -28,7 +29,7 @@ class LogEntry
 
 		std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> encounters;
 		std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> potential_encounters;
-		std::map<int, milliframes> step_details;
+		std::map<int, Milliframes> step_details;
 };
 
 class Engine
@@ -40,8 +41,8 @@ class Engine
 		void run();
 
 		Glib::ustring format_output(const Engine & base_engine) const;
-		milliframes get_frames() const;
-		milliframes get_minimum_frames() const;
+		Milliframes get_frames() const;
+		Milliframes get_minimum_frames() const;
 		int get_initial_seed() const;
 		Glib::ustring get_title() const;
 		int get_version() const;
@@ -73,9 +74,9 @@ class Engine
 		std::vector<std::shared_ptr<const Instruction>> _instructions;
 		std::vector<std::shared_ptr<const Instruction>>::size_type _instruction_index = 0;
 
-		milliframes _frames = 0_mf;
-		milliframes _encounter_frames = 0_mf;
-		milliframes _minimum_frames = 0_mf;
+		Milliframes _frames = 0_mf;
+		Milliframes _encounter_frames = 0_mf;
+		Milliframes _minimum_frames = 0_mf;
 		double _score = 0;
 
 		Encounters _encounters;

@@ -26,7 +26,7 @@ RouteOutput::RouteOutput(const Glib::RefPtr<Gio::File> & file)
 			{
 				if (tokens[0] == "FRAMES" && tokens.size() == 2)
 				{
-					_frames = milliframes{std::stoll(tokens[1])};
+					_frames = Milliframes{std::stoll(tokens[1])};
 				}
 				else if (tokens[0] == "SCORE" && tokens.size() == 2)
 				{
@@ -75,7 +75,7 @@ int RouteOutput::get_maximum_steps() const
 	return _maximum_steps;
 }
 
-milliframes RouteOutput::get_frames() const
+Milliframes RouteOutput::get_frames() const
 {
 	return _frames;
 }
@@ -111,7 +111,7 @@ static void normalize_route(const std::shared_ptr<Randomizer> & randomizer, Engi
 	engine.reset();
 	engine.run();
 
-	milliframes frames = engine.get_frames();
+	Milliframes frames = engine.get_frames();
 
 	for (decltype(randomizer->data)::size_type i = 0; i < randomizer->data.size(); i++)
 	{
@@ -137,7 +137,7 @@ bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::s
 
 	normalize_route(randomizer, engine);
 
-	milliframes best_frames = 0_mf;
+	Milliframes best_frames = 0_mf;
 
 	if (route_output_data.is_valid(engine.get_version()))
 	{
@@ -168,12 +168,12 @@ bool RouteOutput::write_route(const Glib::RefPtr<Gio::File> & file, const std::s
 
 	if (best_frames > 0_mf)
 	{
-		std::cout << std::setw(11) << seconds(best_frames).count() << " -> " << std::left << std::setw(11) << seconds(engine.get_frames()).count();
-		std::cout << std::setw(8) << seconds(best_frames - engine.get_frames()).count();
+		std::cout << std::setw(11) << Seconds{best_frames}.count() << " -> " << std::left << std::setw(11) << Seconds{engine.get_frames()}.count();
+		std::cout << std::setw(8) << Seconds{best_frames - engine.get_frames()}.count();
 	}
 	else
 	{
-		std::cout << std::setw(11) << std::setw(11) << "N/A" << " -> " << std::left << std::setw(11) << seconds(engine.get_frames()).count();
+		std::cout << std::setw(11) << std::setw(11) << "N/A" << " -> " << std::left << std::setw(11) << Seconds{engine.get_frames()}.count();
 	}
 
 	std::cout << std::endl;

@@ -4,6 +4,7 @@
 #include <glibmm/regex.h>
 #include <glibmm/ustring.h>
 
+#include "duration.hh"
 #include "encounter.hh"
 
 class Engine;
@@ -21,7 +22,7 @@ class RouteOutput
 
 		int get_maximum_steps() const;
 
-		milliframes get_frames() const;
+		Milliframes get_frames() const;
 		double get_score() const;
 		int get_variable_count() const;
 
@@ -38,6 +39,6 @@ class RouteOutput
 
 		int _maximum_steps = 0;
 
-		milliframes _frames = std::numeric_limits<milliframes>::max();
+		Milliframes _frames = std::numeric_limits<Milliframes>::max();
 		double _score = std::numeric_limits<double>::min();
 };
