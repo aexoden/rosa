@@ -30,6 +30,7 @@
 #include "instruction.hh"
 #include "optimizer.hh"
 #include "options.hh"
+#include "parameters.hh"
 #include "route_output.hh"
 
 /*

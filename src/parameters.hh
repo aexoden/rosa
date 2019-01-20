@@ -3,24 +3,19 @@
 
 #include <memory>
 
-#include <glibmm/ustring.h>
-
 #include "randomizer.hh"
 
-class Parameters
-{
+struct Parameters {
 	public:
-		Parameters(bool tas_mode, bool step_output, int seed, int maximum_extra_steps, const Glib::ustring & algorithm, const std::shared_ptr<Randomizer> & randomizer);
+		const bool tas_mode = false;
+		const bool step_output = false;
 
-		const bool tas_mode;
-		const bool step_output;
+		const int seed = 0;
+		const int maximum_extra_steps = 256;
 
-		const int seed;
-		const int maximum_extra_steps;
+		std::string algorithm = "ils+pair";
 
-		Glib::ustring algorithm;
-
-		const std::shared_ptr<Randomizer> randomizer;
+		const std::shared_ptr<Randomizer> randomizer = nullptr;
 };
 
 #endif // SPOONY_PARAMETERS_HH

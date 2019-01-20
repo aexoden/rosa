@@ -65,17 +65,14 @@ Encounters::Encounters(std::istream & input) : _encounters{512}, _encounter_grou
 	}
 }
 
-std::shared_ptr<const Encounter> Encounters::get_encounter(std::size_t id)
-{
+std::shared_ptr<const Encounter> Encounters::get_encounter(std::size_t id) {
 	return _encounters[id];
 }
 
-std::shared_ptr<const Encounter> Encounters::get_encounter_from_group(std::size_t group_index, std::size_t encounter_index)
-{
-	auto encounter = _encounters[_encounter_groups[group_index][encounter_index]];
+std::shared_ptr<const Encounter> Encounters::get_encounter_from_group(std::size_t group_index, std::size_t encounter_index) {
+	auto encounter{_encounters[_encounter_groups[group_index][encounter_index]]};
 
-	if (!encounter)
-	{
+	if (!encounter) {
 		std::cerr << "WARNING: Attempted to use nonexistent encounter: " << _encounter_groups[group_index][encounter_index] << std::endl;
 	}
 
