@@ -1,23 +1,17 @@
 #ifndef SPOONY_OPTIONS_HH
 #define SPOONY_OPTIONS_HH
 
-#include <glibmm/optioncontext.h>
-#include <glibmm/optionentry.h>
-#include <glibmm/optiongroup.h>
-
 class Options {
 	public:
-		static Glib::OptionEntry create_option_entry(const Glib::ustring & long_name, const gchar & short_name, const Glib::ustring & description);
-
-		Glib::ustring output_directory = "output/routes";
+		std::string output_directory = "output/routes";
 
 		bool output_result = false;
 
-		Glib::ustring route = "paladin";
+		std::string route = "paladin";
 
-		Glib::ustring algorithm = "pair";
+		std::string algorithm = "pair";
 
-		Glib::ustring variables = "";
+		std::string variables = "";
 
 		bool full_optimization = false;
 		bool load_existing_variables = false;
