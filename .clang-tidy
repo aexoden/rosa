@@ -1,7 +1,7 @@
 ---
 Checks:          '*,-fuchsia-default-arguments'
 WarningsAsErrors: ''
-HeaderFilterRegex: ''
+HeaderFilterRegex: 'src/.*hh'
 AnalyzeTemporaryDtors: false
 FormatStyle:     none
 User:            jason
