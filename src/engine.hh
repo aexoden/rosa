@@ -10,8 +10,7 @@
 #include "instruction.hh"
 #include "parameters.hh"
 
-class LogEntry
-{
+class LogEntry {
 	public:
 		LogEntry(const std::shared_ptr<const Instruction> & instruction, int indent);
 
@@ -33,8 +32,7 @@ class LogEntry
 		std::map<int, Milliframes> step_details;
 };
 
-class Engine
-{
+class Engine {
 	public:
 		Engine(const Parameters & parameters, const std::vector<std::shared_ptr<const Instruction>> & instructions, const Encounters & encounters);
 

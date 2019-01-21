@@ -7,16 +7,11 @@
 #include "engine.hh"
 #include "version.hh"
 
-Engine::Engine(const Parameters & parameters, const std::vector<std::shared_ptr<const Instruction>> & instructions, const Encounters & encounters) :
-	_parameters{parameters},
-	_instructions{instructions},
-	_encounters{encounters}
-{
+Engine::Engine(const Parameters & parameters, const std::vector<std::shared_ptr<const Instruction>> & instructions, const Encounters & encounters) : _parameters{parameters}, _instructions{instructions}, _encounters{encounters} {
 	_reset(_parameters.seed);
 }
 
-void Engine::reset()
-{
+void Engine::reset() {
 	_instruction_index = 0;
 
 	_frames = 0_mf;
@@ -37,16 +32,13 @@ void Engine::reset()
 	_reset(_parameters.seed);
 }
 
-void Engine::run()
-{
-	while (_instruction_index < _instructions.size())
-	{
+void Engine::run() {
+	while (_instruction_index < _instructions.size()) {
 		_cycle();
 	}
 }
 
-std::string Engine::format_output(const Engine & base_engine) const
-{
+std::string Engine::format_output(const Engine & base_engine) const {
 	std::stringstream output;
 
 	int total_optional_steps = 0;
@@ -75,8 +67,7 @@ std::string Engine::format_output(const Engine & base_engine) const
 
 	output << "\n\n";
 
-	for (auto & entry : _log)
-	{
+	for (auto & entry : _log) {
 		std::string indent = "";
 
 		for (int i = 0; i < entry.indent; i++) {
@@ -88,8 +79,7 @@ std::string Engine::format_output(const Engine & base_engine) const
 		int optional_steps = std::min(entry.instruction->optional_steps, entry.steps - entry.instruction->required_steps);
 		int extra_steps = entry.steps - entry.instruction->required_steps - optional_steps;
 
-		if (extra_steps % 2 == 1 && optional_steps > 0)
-		{
+		if (extra_steps % 2 == 1 && optional_steps > 0) {
 			extra_steps++;
 			optional_steps--;
 		}
@@ -145,85 +135,67 @@ std::string Engine::format_output(const Engine & base_engine) const
 	return output.str();
 }
 
-Milliframes Engine::get_frames() const
-{
+Milliframes Engine::get_frames() const {
 	return _frames;
 }
 
-Milliframes Engine::get_minimum_frames() const
-{
+Milliframes Engine::get_minimum_frames() const {
 	return _minimum_frames;
 }
 
-std::string Engine::get_title() const
-{
+std::string Engine::get_title() const {
 	return _title;
 }
 
-int Engine::get_version() const
-{
+int Engine::get_version() const {
 	return _version;
 }
 
-int Engine::get_maximum_steps() const
-{
+int Engine::get_maximum_steps() const {
 	return _parameters.maximum_extra_steps;
 }
 
-int Engine::get_variable_count() const
-{
+int Engine::get_variable_count() const {
 	return _parameters.randomizer->get_set_variable_count();
 }
 
-double Engine::get_score() const
-{
+double Engine::get_score() const {
 	return _score;
 }
 
-int Engine::get_initial_seed() const
-{
+int Engine::get_initial_seed() const {
 	return _parameters.seed;
 }
 
-double Engine::frames_to_seconds(double frames)
-{
+double Engine::frames_to_seconds(double frames) {
 	return frames / 60.0988;
 }
 
-void Engine::_cycle()
-{
-	if (_instruction_index == _instructions.size())
-	{
+void Engine::_cycle() {
+	if (_instruction_index == _instructions.size()) {
 		return;
 	}
 
 	auto instruction = _instructions[_instruction_index];
 
-	switch (instruction->type)
-	{
-		case InstructionType::CHOICE:
-		{
-			if (_parameters.randomizer->is_implicit())
-			{
+	switch (instruction->type) {
+		case InstructionType::CHOICE: {
+			if (_parameters.randomizer->is_implicit()) {
 				_full_minimum = false;
 			}
 
 			int choice = _parameters.randomizer->get_int(0, instruction->number - 1);
 
-			if (_parameters.maximum_extra_steps == 0)
-			{
+			if (_parameters.maximum_extra_steps == 0) {
 				choice = 0;
 			}
 
-			while (true)
-			{
-				while (_instructions[_instruction_index]->type != InstructionType::OPTION)
-				{
+			while (true) {
+				while (_instructions[_instruction_index]->type != InstructionType::OPTION) {
 					_instruction_index++;
 				}
 
-				if (choice == 0)
-				{
+				if (choice == 0) {
 					break;
 				}
 
@@ -241,8 +213,7 @@ void Engine::_cycle()
 			_minimum_frames += Frames{instruction->number};
 			break;
 		case InstructionType::NOOP:
-			for (int i = 0; i < instruction->number; i++)
-			{
+			for (int i = 0; i < instruction->number; i++) {
 				_parameters.randomizer->get_int(0, 1);
 			}
 
@@ -252,8 +223,7 @@ void Engine::_cycle()
 			break;
 		case InstructionType::OPTION:
 		case InstructionType::END:
-			while (_instructions[_instruction_index]->type != InstructionType::END)
-			{
+			while (_instructions[_instruction_index]->type != InstructionType::END) {
 				_instruction_index++;
 			}
 
@@ -268,17 +238,14 @@ void Engine::_cycle()
 			_transition(instruction);
 			_step(instruction->tiles, instruction->required_steps, false);
 
-			if (instruction->optional_steps > 0 || (instruction->take_extra_steps && (instruction->can_single_step || instruction->can_double_step)))
-			{
+			if (instruction->optional_steps > 0 || (instruction->take_extra_steps && (instruction->can_single_step || instruction->can_double_step))) {
 				int maximum_extra_steps = 65535;
 
-				if (!instruction->take_extra_steps)
-				{
+				if (!instruction->take_extra_steps) {
 					maximum_extra_steps = instruction->optional_steps;
 				}
 
-				if (_parameters.randomizer->is_implicit())
-				{
+				if (_parameters.randomizer->is_implicit()) {
 					_full_minimum = false;
 				}
 
@@ -287,14 +254,12 @@ void Engine::_cycle()
 				int extra_steps = steps - optional_steps;
 				int tiles = 0;
 
-				if (extra_steps % 2 == 1 && optional_steps > 0)
-				{
+				if (extra_steps % 2 == 1 && optional_steps > 0) {
 					extra_steps++;
 					optional_steps--;
 				}
 
-				if (extra_steps % 2 == 1 && !instruction->can_single_step)
-				{
+				if (extra_steps % 2 == 1 && !instruction->can_single_step) {
 					extra_steps--;
 				}
 
@@ -303,17 +268,13 @@ void Engine::_cycle()
 				_score += (_parameters.randomizer->get_index() * static_cast<double>(extra_steps / 2) * 0.001);
 				_score += (_parameters.randomizer->get_index() * (extra_steps % 2 == 1 ? 0.0000001 : 0));
 
-				if (instruction->can_double_step)
-				{
+				if (instruction->can_double_step) {
 					tiles = extra_steps;
-				}
-				else
-				{
+				} else {
 					tiles = extra_steps * 2;
 				}
 
-				if (tiles % 2 == 1)
-				{
+				if (tiles % 2 == 1) {
 					tiles++;
 				}
 
@@ -324,19 +285,16 @@ void Engine::_cycle()
 		case InstructionType::ROUTE:
 			_title = instruction->text;
 			break;
-		case InstructionType::SAVE:
-		{
+		case InstructionType::SAVE: {
 			_transition(instruction);
 
-			if (_parameters.randomizer->is_implicit())
-			{
+			if (_parameters.randomizer->is_implicit()) {
 				_full_minimum = false;
 			}
 
 			int value = _parameters.randomizer->get_int(0, 256);
 
-			if (value > 0)
-			{
+			if (value > 0) {
 				int seed = value - 1;
 				Milliframes new_frames = 697_f - Frames{instruction->number};
 
@@ -363,8 +321,7 @@ void Engine::_cycle()
 			_version = instruction->number;
 			break;
 		case InstructionType::WAIT:
-			while (_encounter_search.size() > 0)
-			{
+			while (_encounter_search.size() > 0) {
 				_step(2, 2, false);
 			}
 
@@ -378,43 +335,26 @@ void Engine::_cycle()
 	_instruction_index++;
 }
 
-std::shared_ptr<const Encounter> Engine::_get_encounter()
-{
-	if ((rng_data[_step_index] + _step_seed) % 256 < _encounter_rate)
-	{
+std::shared_ptr<const Encounter> Engine::_get_encounter() {
+	if ((rng_data[_step_index] + _step_seed) % 256 < _encounter_rate) {
 		int value = (rng_data[_encounter_index] + _encounter_seed) % 256;
 		int i;
 
-		if (value < 43)
-		{
+		if (value < 43) {
 			i = 0;
-		}
-		else if (value < 86)
-		{
+		} else if (value < 86) {
 			i = 1;
-		}
-		else if (value < 129)
-		{
+		} else if (value < 129) {
 			i = 2;
-		}
-		else if (value < 172)
-		{
+		} else if (value < 172) {
 			i = 3;
-		}
-		else if (value < 204)
-		{
+		} else if (value < 204) {
 			i = 4;
-		}
-		else if (value < 236)
-		{
+		} else if (value < 236) {
 			i = 5;
-		}
-		else if (value < 252)
-		{
+		} else if (value < 252) {
 			i = 6;
-		}
-		else
-		{
+		} else {
 			i = 7;
 		}
 
@@ -424,8 +364,7 @@ std::shared_ptr<const Encounter> Engine::_get_encounter()
 	return nullptr;
 }
 
-void Engine::_reset(int seed)
-{
+void Engine::_reset(int seed) {
 	_step_seed = seed;
 	_encounter_seed = (seed * 2) % 256;
 
@@ -438,12 +377,10 @@ void Engine::_reset(int seed)
 
 
 
-void Engine::_step(int tiles, int steps, bool simulate)
-{
+void Engine::_step(int tiles, int steps, bool simulate) {
 	Milliframes output_frames = _frames;
 
-	if (!simulate)
-	{
+	if (!simulate) {
 		_frames += tiles * 16_f;
 		_minimum_frames += tiles * 16_f;
 	}
@@ -456,75 +393,62 @@ void Engine::_step(int tiles, int steps, bool simulate)
 	int encounter_index = _encounter_index;
 	int encounter_seed = _encounter_seed;
 
-	for (int i = 0; i < steps; i++)
-	{
+	for (int i = 0; i < steps; i++) {
 		output_frames += 16_f;
 		_log.back().steps++;
 
 		_step_index++;
 
-		if (_step_index == 256)
-		{
+		if (_step_index == 256) {
 			_step_index = 0;
 			_step_seed += 17;
 
-			if (_step_seed > 255)
-			{
+			if (_step_seed > 255) {
 				_step_seed -= 256;
 			}
 		}
 
 		auto encounter = _get_encounter();
 
-		if (!simulate && encounter && _encounter_search.size() > 0 && _encounter_search.count(encounter->get_id()) > 0)
-		{
+		if (!simulate && encounter && _encounter_search.size() > 0 && _encounter_search.count(encounter->get_id()) > 0) {
 			_party = _encounter_search_party;
 			_encounter_search.clear();
 		}
 
-		if (encounter)
-		{
-			if (simulate)
-			{
+		if (encounter) {
+			if (simulate) {
 				_log.back().potential_encounters[_log.back().steps] = std::make_pair(_encounter_index + 1, encounter);
-			}
-			else
-			{
+			} else {
 				_log.back().encounters[_log.back().steps] = std::make_pair(_encounter_index + 1, encounter);
 			}
 
 			Milliframes duration = encounter->get_duration(_party, _parameters.tas_mode);
 
-			if (!simulate)
-			{
+			if (!simulate) {
 				_frames += duration;
 				_encounter_frames += duration;
 				output_frames += duration;
 				_encounter_count++;
 			}
 
-			if (!simulate && _full_minimum)
-			{
+			if (!simulate && _full_minimum) {
 				_minimum_frames += duration;
 			}
 
 			_encounter_index = (_encounter_index + 1) % 256;
 
-			if (_encounter_index == 0)
-			{
+			if (_encounter_index == 0) {
 				_encounter_seed = (_encounter_seed + 17) % 256;
 			}
 
 		}
 
-		if (!simulate && _parameters.step_output)
-		{
+		if (!simulate && _parameters.step_output) {
 			_log.back().step_details[_log.back().steps] = output_frames;
 		}
 	}
 
-	if (simulate)
-	{
+	if (simulate) {
 		_log.back().steps = log_steps;
 
 		_step_index = step_index;
@@ -535,8 +459,7 @@ void Engine::_step(int tiles, int steps, bool simulate)
 	}
 }
 
-void Engine::_transition(const std::shared_ptr<const Instruction> & instruction)
-{
+void Engine::_transition(const std::shared_ptr<const Instruction> & instruction) {
 	_frames += instruction->transition_count * 82_f;
 	_minimum_frames += instruction->transition_count * 82_f;
 	_log.push_back(LogEntry{instruction, _indent});
@@ -545,13 +468,12 @@ void Engine::_transition(const std::shared_ptr<const Instruction> & instruction)
 	_log.back().index_start = _step_index;
 	_log.back().party = _party;
 
-	if (_encounter_search_area && instruction->type == InstructionType::PATH)
-	{
+	if (_encounter_search_area && instruction->type == InstructionType::PATH) {
 		_step(256, 256, true);
 	}
 }
 
 LogEntry::LogEntry(const std::shared_ptr<const Instruction> & instruction, int indent) :
 	instruction(instruction),
-	indent(indent)
-{ }
+	indent(indent) {
+}

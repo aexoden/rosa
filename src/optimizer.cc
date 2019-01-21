@@ -8,8 +8,7 @@
 #include "randomizer.hh"
 #include "route_output.hh"
 
-void optimize_bb(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename)
-{
+void optimize_bb(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename) {
 	randomizer->reset();
 
 	engine.reset();
@@ -24,10 +23,8 @@ void optimize_bb(int start_index, Milliframes & best_frames, double & best_score
 
 	int iterations = 0;
 
-	while (true)
-	{
-		if (iterations % 143 == 0)
-		{
+	while (true) {
+		if (iterations % 143 == 0) {
 			std::cout << "\rSeed: " << std::right << std::setw(4) << options.seed;
 			std::cout << "   Algorithm: " << std::left << std::setw(15) << "Branch and Bound";
 			std::cout << "   Index: " << std::right << std::setw(2) << index;
@@ -46,43 +43,33 @@ void optimize_bb(int start_index, Milliframes & best_frames, double & best_score
 
 		iterations++;
 
-		if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_filename, randomizer, engine, base_engine, false))
-		{
+		if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_filename, randomizer, engine, base_engine, false)) {
 			best_frames = engine.get_frames();
 			best_score = engine.get_score();
 		}
 
-		if (engine.get_frames() < search_best_frames || (engine.get_frames() == search_best_frames && engine.get_score() > search_best_score))
-		{
+		if (engine.get_frames() < search_best_frames || (engine.get_frames() == search_best_frames && engine.get_score() > search_best_score)) {
 			best_data = randomizer->data;
 			search_best_frames = engine.get_frames();
 			search_best_score = engine.get_score();
 		}
 
-		if (randomizer->data[index] == options.maximum_steps || engine.get_minimum_frames() > best_frames)
-		{
+		if (randomizer->data[index] == options.maximum_steps || engine.get_minimum_frames() > best_frames) {
 			randomizer->data[index] = 0;
 			index--;
 
-			if (index >= 0)
-			{
+			if (index >= 0) {
 				randomizer->data[index]++;
 			}
-		}
-		else
-		{
-			if (index + 1 < randomizer->get_index())
-			{
+		} else {
+			if (index + 1 < randomizer->get_index()) {
 				index++;
-			}
-			else
-			{
+			} else {
 				randomizer->data[index]++;
 			}
 		}
 
-		if (index == start_index - 1)
-		{
+		if (index == start_index - 1) {
 			randomizer->data = best_data;
 			break;
 		}
@@ -96,8 +83,7 @@ void optimize_bb(int start_index, Milliframes & best_frames, double & best_score
 	std::cout << std::endl;
 }
 
-void optimize_ils(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename)
-{
+void optimize_ils(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename) {
 	std::random_device rd;
 	std::default_random_engine random_engine{rd()};
 
@@ -105,8 +91,7 @@ void optimize_ils(int start_index, Milliframes & best_frames, double & best_scor
 
 	Milliframes search_best_frames = engine.get_frames();
 
-	for (int i = 0; i < options.maximum_iterations; i++)
-	{
+	for (int i = 0; i < options.maximum_iterations; i++) {
 		std::cout << "\rSeed: " << std::right << std::setw(4) << options.seed;
 		std::cout << "   Algorithm: " << std::left << std::setw(15) << "ILS";
 		std::cout << "   Index: " << std::right << std::setw(2) << i;
@@ -123,16 +108,14 @@ void optimize_ils(int start_index, Milliframes & best_frames, double & best_scor
 
 		int total = std::uniform_int_distribution<int>{-options.perturbation_wobble, options.perturbation_wobble}(random_engine);
 
-		for (int j = 0; j < options.perturbation_strength; j++)
-		{
+		for (int j = 0; j < options.perturbation_strength; j++) {
 			int index = index_dist(random_engine);
 			total += randomizer->data[index];
 
 			int value = std::uniform_int_distribution<int>{0, std::max(0, total * 2)}(random_engine);
 			value = std::max(0, std::min(value, options.maximum_steps));
 
-			if (j == options.perturbation_strength - 1)
-			{
+			if (j == options.perturbation_strength - 1) {
 				value = std::max(0, std::min(total, options.maximum_steps));
 			}
 
@@ -142,12 +125,9 @@ void optimize_ils(int start_index, Milliframes & best_frames, double & best_scor
 
 		optimize_local(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_filename, false);
 
-		if (engine.get_frames() < search_best_frames)
-		{
+		if (engine.get_frames() < search_best_frames) {
 			search_best_frames = engine.get_frames();
-		}
-		else
-		{
+		} else {
 			randomizer->data = current_data;
 		}
 	}
@@ -160,8 +140,7 @@ void optimize_ils(int start_index, Milliframes & best_frames, double & best_scor
 	std::cout << std::endl;
 }
 
-void optimize_local(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename, bool final_newline)
-{
+void optimize_local(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename, bool final_newline) {
 	randomizer->reset();
 
 	engine.reset();
@@ -169,13 +148,11 @@ void optimize_local(int start_index, Milliframes & best_frames, double & best_sc
 
 	Milliframes search_best_frames = engine.get_frames();
 
-	while (true)
-	{
+	while (true) {
 		int best_index = -1;
 		int best_value = 0;
 
-		for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++)
-		{
+		for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++) {
 			std::cout << "\rSeed: " << std::right << std::setw(4) << options.seed;
 			std::cout << "   Algorithm: " << std::left << std::setw(15) << "Local";
 			std::cout << "   Index: " << std::right << std::setw(2) << i;
@@ -186,22 +163,19 @@ void optimize_local(int start_index, Milliframes & best_frames, double & best_sc
 
 			int original_value = randomizer->data[i];
 
-			for (int value = 0; value <= options.maximum_steps; value++)
-			{
+			for (int value = 0; value <= options.maximum_steps; value++) {
 				randomizer->reset();
 				randomizer->data[i] = value;
 
 				engine.reset();
 				engine.run();
 
-				if ((engine.get_frames() < best_frames) && RouteOutput::write_route(output_filename, randomizer, engine, base_engine, false))
-				{
+				if ((engine.get_frames() < best_frames) && RouteOutput::write_route(output_filename, randomizer, engine, base_engine, false)) {
 					best_frames = engine.get_frames();
 					best_score = engine.get_score();
 				}
 
-				if (engine.get_frames() < search_best_frames)
-				{
+				if (engine.get_frames() < search_best_frames) {
 					search_best_frames = engine.get_frames();
 					best_index = i;
 					best_value = value;
@@ -211,8 +185,7 @@ void optimize_local(int start_index, Milliframes & best_frames, double & best_sc
 			randomizer->data[i] = original_value;
 		}
 
-		if (best_index < 0)
-		{
+		if (best_index < 0) {
 			break;
 		}
 
@@ -224,14 +197,12 @@ void optimize_local(int start_index, Milliframes & best_frames, double & best_sc
 	engine.reset();
 	engine.run();
 
-	if (final_newline)
-	{
+	if (final_newline) {
 		std::cout << std::endl;
 	}
 }
 
-void optimize_local_pair(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename, bool final_newline)
-{
+void optimize_local_pair(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename, bool final_newline) {
 	randomizer->reset();
 
 	engine.reset();
@@ -241,27 +212,23 @@ void optimize_local_pair(int start_index, Milliframes & best_frames, double & be
 	Milliframes previous_search_best_frames = engine.get_frames();
 	double search_best_score = engine.get_score();
 
-	while (true)
-	{
+	while (true) {
 		int best_i = -1;
 		int best_j = -1;
 
 		int best_i_value = 0;
 		int best_j_value = 0;
 
-		for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++)
-		{
+		for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++) {
 			int original_i_value = randomizer->data[i];
 
 			auto maximum = randomizer->data.size();
 
-			if (options.maximum_comparisons > 0)
-			{
+			if (options.maximum_comparisons > 0) {
 				maximum = std::min(maximum, i + 1 + options.maximum_comparisons);
 			}
 
-			for (decltype(randomizer->data)::size_type j = i + 1; j < maximum; j++)
-			{
+			for (decltype(randomizer->data)::size_type j = i + 1; j < maximum; j++) {
 				std::cout << "\rSeed: " << std::right << std::setw(4) << options.seed;
 				std::cout << "   Algorithm: " << std::left << std::setw(15) << "Pairwise Local";
 				std::cout << "   Current Indexes: (" << std::right << std::setw(3) << i << ", " << std::setw(3) << j << ")";
@@ -273,21 +240,17 @@ void optimize_local_pair(int start_index, Milliframes & best_frames, double & be
 
 				int original_j_value = randomizer->data[j];
 
-				for (int i_value = 0; i_value <= options.maximum_steps; i_value++)
-				{
+				for (int i_value = 0; i_value <= options.maximum_steps; i_value++) {
 					int j_minimum = 0;
 					int j_maximum = options.maximum_steps;
 
-					if (options.pairwise_shift)
-					{
+					if (options.pairwise_shift) {
 						j_minimum = original_i_value + original_j_value - i_value;
 						j_maximum = j_minimum;
 					}
 
-					for (int j_value = j_minimum; j_value <= j_maximum; j_value++)
-					{
-						if (j_value >= 0)
-						{
+					for (int j_value = j_minimum; j_value <= j_maximum; j_value++) {
+						if (j_value >= 0) {
 							randomizer->reset();
 							randomizer->data[i] = i_value;
 							randomizer->data[j] = j_value;
@@ -295,14 +258,12 @@ void optimize_local_pair(int start_index, Milliframes & best_frames, double & be
 							engine.reset();
 							engine.run();
 
-							if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_filename, randomizer, engine, base_engine, false))
-							{
+							if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_filename, randomizer, engine, base_engine, false)) {
 								best_frames = engine.get_frames();
 								best_score = engine.get_score();
 							}
 
-							if (engine.get_frames() < search_best_frames || (engine.get_frames() == search_best_frames && engine.get_score() > search_best_score))
-							{
+							if (engine.get_frames() < search_best_frames || (engine.get_frames() == search_best_frames && engine.get_score() > search_best_score)) {
 								search_best_frames = engine.get_frames();
 								search_best_score = engine.get_score();
 								best_i = i;
@@ -320,13 +281,11 @@ void optimize_local_pair(int start_index, Milliframes & best_frames, double & be
 			randomizer->data[i] = original_i_value;
 		}
 
-		if (best_i < 0)
-		{
+		if (best_i < 0) {
 			break;
 		}
 
-		if (final_newline)
-		{
+		if (final_newline) {
 			std::cout << std::endl << "Updating (" << best_i << ", " << best_j << ") from (" << randomizer->data[best_i] << ", " << randomizer->data[best_j] << ") to (" << best_i_value << ", " << best_j_value << ") (" << Seconds{previous_search_best_frames}.count() << "s -> " << Seconds{search_best_frames}.count() << "s)" << std::endl;
 		}
 
@@ -341,14 +300,12 @@ void optimize_local_pair(int start_index, Milliframes & best_frames, double & be
 	engine.reset();
 	engine.run();
 
-	if (final_newline)
-	{
+	if (final_newline) {
 		std::cout << std::endl;
 	}
 }
 
-void optimize_sequential(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename)
-{
+void optimize_sequential(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename) {
 	randomizer->reset();
 
 	engine.reset();
@@ -357,8 +314,7 @@ void optimize_sequential(int start_index, Milliframes & best_frames, double & be
 	Milliframes search_best_frames = engine.get_frames();
 	double search_best_score = engine.get_score();
 
-	for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++)
-	{
+	for (decltype(randomizer->data)::size_type i = start_index; i < randomizer->data.size(); i++) {
 		std::cout << "\rSeed: " << std::right << std::setw(4) << options.seed;
 		std::cout << "   Algorithm: " << std::left << std::setw(15) << "Sequential";
 		std::cout << "   Index: " << std::right << std::setw(2) << i;
@@ -369,22 +325,19 @@ void optimize_sequential(int start_index, Milliframes & best_frames, double & be
 
 		int best_value = randomizer->data[i];
 
-		for (int value = 0; value <= options.maximum_steps; value++)
-		{
+		for (int value = 0; value <= options.maximum_steps; value++) {
 			randomizer->reset();
 			randomizer->data[i] = value;
 
 			engine.reset();
 			engine.run();
 
-			if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_filename, randomizer, engine, base_engine, false))
-			{
+			if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_filename, randomizer, engine, base_engine, false)) {
 				best_frames = engine.get_frames();
 				best_score = engine.get_score();
 			}
 
-			if (engine.get_frames() < search_best_frames || (engine.get_frames() == search_best_frames && engine.get_score() > search_best_score))
-			{
+			if (engine.get_frames() < search_best_frames || (engine.get_frames() == search_best_frames && engine.get_score() > search_best_score)) {
 				search_best_frames = engine.get_frames();
 				search_best_score = engine.get_score();
 				best_value = value;
