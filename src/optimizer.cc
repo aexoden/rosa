@@ -8,82 +8,7 @@
 #include "randomizer.hh"
 #include "route_output.hh"
 
-void optimize_bb(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename) {
-	randomizer->reset();
-
-	engine.reset();
-	engine.run();
-
-	Milliframes search_best_frames = engine.get_frames();
-	double search_best_score = engine.get_score();
-
-	std::vector<int> best_data;
-
-	int index = start_index;
-
-	int iterations = 0;
-
-	while (true) {
-		if (iterations % 143 == 0) {
-			std::cout << "\rSeed: " << std::right << std::setw(4) << options.seed;
-			std::cout << "   Algorithm: " << std::left << std::setw(15) << "Branch and Bound";
-			std::cout << "   Index: " << std::right << std::setw(2) << index;
-			std::cout << "   Iterations: " << std::setw(20) << iterations;
-			std::cout << "   Variables: (" << std::setw(2) << randomizer->get_minimum_variables() << ", " << randomizer->get_maximum_variables() << ")";
-			std::cout << "   Best: " << std::setw(10) << Seconds{best_frames}.count();
-			std::cout << "   Search Best: " << std::setw(10) << Seconds{search_best_frames}.count();
-			std::cout << std::flush;
-		}
-
-		randomizer->reset();
-		randomizer->set_implicit_index(index);
-
-		engine.reset();
-		engine.run();
-
-		iterations++;
-
-		if ((engine.get_frames() < best_frames || (engine.get_frames() == best_frames && engine.get_score() > best_score)) && RouteOutput::write_route(output_filename, randomizer, engine, base_engine, false)) {
-			best_frames = engine.get_frames();
-			best_score = engine.get_score();
-		}
-
-		if (engine.get_frames() < search_best_frames || (engine.get_frames() == search_best_frames && engine.get_score() > search_best_score)) {
-			best_data = randomizer->data;
-			search_best_frames = engine.get_frames();
-			search_best_score = engine.get_score();
-		}
-
-		if (randomizer->data[index] == options.maximum_steps || engine.get_minimum_frames() > best_frames) {
-			randomizer->data[index] = 0;
-			index--;
-
-			if (index >= 0) {
-				randomizer->data[index]++;
-			}
-		} else {
-			if (index + 1 < randomizer->get_index()) {
-				index++;
-			} else {
-				randomizer->data[index]++;
-			}
-		}
-
-		if (index == start_index - 1) {
-			randomizer->data = best_data;
-			break;
-		}
-	}
-
-	randomizer->reset();
-
-	engine.reset();
-	engine.run();
-
-	std::cout << std::endl;
-}
-
-void optimize_ils(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename) {
+void optimize_ils(std::size_t start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename) {
 	std::random_device rd;
 	std::default_random_engine random_engine{rd()};
 
@@ -104,7 +29,7 @@ void optimize_ils(int start_index, Milliframes & best_frames, double & best_scor
 
 		std::vector<int> current_data{randomizer->data};
 
-		std::uniform_int_distribution<int> index_dist{start_index, static_cast<int>(randomizer->data.size()) - 1};
+		std::uniform_int_distribution<std::size_t> index_dist{start_index, randomizer->data.size() - 1};
 
 		int total = std::uniform_int_distribution<int>{-options.perturbation_wobble, options.perturbation_wobble}(random_engine);
 
@@ -140,7 +65,7 @@ void optimize_ils(int start_index, Milliframes & best_frames, double & best_scor
 	std::cout << std::endl;
 }
 
-void optimize_local(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename, bool final_newline) {
+void optimize_local(std::size_t start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename, bool final_newline) {
 	randomizer->reset();
 
 	engine.reset();
@@ -202,7 +127,7 @@ void optimize_local(int start_index, Milliframes & best_frames, double & best_sc
 	}
 }
 
-void optimize_local_pair(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename, bool final_newline) {
+void optimize_local_pair(std::size_t start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename, bool final_newline) {
 	randomizer->reset();
 
 	engine.reset();
@@ -305,7 +230,7 @@ void optimize_local_pair(int start_index, Milliframes & best_frames, double & be
 	}
 }
 
-void optimize_sequential(int start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename) {
+void optimize_sequential(std::size_t start_index, Milliframes & best_frames, double & best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, const std::string & output_filename) {
 	randomizer->reset();
 
 	engine.reset();

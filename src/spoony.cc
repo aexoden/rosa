@@ -158,9 +158,7 @@ int main (int argc, char ** argv) {
 	boost::algorithm::split(algorithms, options.algorithm, boost::is_any_of("+"));
 
 	for (const auto & algorithm : algorithms) {
-		if (algorithm == "bb") {
-			optimize_bb(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_filename);
-		} else if (algorithm == "ils") {
+		if (algorithm == "ils") {
 			optimize_ils(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_filename);
 		} else if (algorithm == "local") {
 			optimize_local(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_filename, true);
