@@ -5,8 +5,6 @@
 #include <memory>
 #include <vector>
 
-#include <glibmm/ustring.h>
-
 #include "duration.hh"
 #include "encounter.hh"
 #include "instruction.hh"
@@ -43,11 +41,11 @@ class Engine
 		void reset();
 		void run();
 
-		Glib::ustring format_output(const Engine & base_engine) const;
+		std::string format_output(const Engine & base_engine) const;
 		Milliframes get_frames() const;
 		Milliframes get_minimum_frames() const;
 		int get_initial_seed() const;
-		Glib::ustring get_title() const;
+		std::string get_title() const;
 		int get_version() const;
 		int get_maximum_steps() const;
 
@@ -94,7 +92,7 @@ class Engine
 
 		std::vector<LogEntry> _log;
 
-		Glib::ustring _title;
+		std::string _title;
 		int _version;
 
 		int _indent = 0;

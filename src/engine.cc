@@ -2,6 +2,8 @@
 #include <iomanip>
 #include <map>
 
+#include <boost/format.hpp>
+
 #include "engine.hh"
 #include "version.hh"
 
@@ -62,58 +64,45 @@ void Engine::run()
 	}
 }
 
-Glib::ustring format_label(const Glib::ustring & label)
+std::string Engine::format_output(const Engine & base_engine) const
 {
-	return Glib::ustring::format(std::left, std::setw(18), label);
-}
-
-Glib::ustring format_time(Milliframes mf)
-{
-	return Glib::ustring::format(std::fixed, std::setprecision(3), Seconds(mf).count());
-}
-
-Glib::ustring Engine::format_output(const Engine & base_engine) const
-{
-	Glib::ustring output;
+	std::stringstream output;
 
 	int total_optional_steps = 0;
 	int total_extra_steps = 0;
 
-	output.append(Glib::ustring::compose("ROUTE\t%1\n", _title));
-	output.append(Glib::ustring::compose("VERSION\t%1\n", _version));
-	output.append(Glib::ustring::compose("SPOONY\t%1\n", SPOONY_VERSION));
-	output.append(Glib::ustring::compose("SEED\t%1\n", _parameters.seed));
-	output.append(Glib::ustring::compose("METHOD\t%1\n", _parameters.algorithm));
-	output.append(Glib::ustring::compose("MAXSTEP\t%1\n", _parameters.maximum_extra_steps));
-	output.append(Glib::ustring::compose("FRAMES\t%1\n", Glib::ustring::format(std::setprecision(20), _frames.count())));
-	output.append(Glib::ustring::compose("SCORE\t%1\n", Glib::ustring::format(std::setprecision(20), _score)));
+	output << boost::format("ROUTE\t%1%\n") % _title;
+	output << boost::format("VERSION\t%1%\n") % _version;
+	output << boost::format("SPOONY\t%1%\n") % SPOONY_VERSION;
+	output << boost::format("SEED\t%1%\n") % _parameters.seed;
+	output << boost::format("METHOD\t%1%\n") % _parameters.algorithm;
+	output << boost::format("MAXSTEP\t%1%\n") % _parameters.maximum_extra_steps;
+	output << boost::format("FRAMES\t%d\n") % _frames.count();
+	output << boost::format("SCORE\t%0.20f\n") % _score;
 
-	output.append("VARS\t");
+	output << "VARS\t";
 
 	bool output_var = false;
 
-	for (decltype(_parameters.randomizer->data)::size_type i = 0; i < _parameters.randomizer->data.size(); i++)
-	{
-		if (_parameters.randomizer->data[i] > 0)
-		{
-			output.append(Glib::ustring::compose("%1%2:%3", (output_var ? " " : ""), i, _parameters.randomizer->data[i]));
+	for (std::size_t i = 0; i < _parameters.randomizer->data.size(); i++) {
+		if (_parameters.randomizer->data[i] > 0) {
+			output << boost::format("%s%d:%d") % (output_var ? " " : "") % i % _parameters.randomizer->data[i];
 
 			output_var = true;
 		}
 	}
 
-	output.append("\n\n");
+	output << "\n\n";
 
 	for (auto & entry : _log)
 	{
-		Glib::ustring indent = "";
+		std::string indent = "";
 
-		for (int i = 0; i < entry.indent; i++)
-		{
+		for (int i = 0; i < entry.indent; i++) {
 			indent.append("  ");
 		}
 
-		output.append(Glib::ustring::compose("%1Seed: %2   Index: %3\n", Glib::ustring::format(std::left, std::setw(50), Glib::ustring::compose("%1%2", indent, entry.instruction->text)), Glib::ustring::format(std::setw(3), entry.seed_start), Glib::ustring::format(std::setw(3), entry.index_start)));
+		output << boost::format("%-58sSeed: %3d   Index: %3d\n") % (indent + entry.instruction->text) % entry.seed_start % entry.index_start;
 
 		int optional_steps = std::min(entry.instruction->optional_steps, entry.steps - entry.instruction->required_steps);
 		int extra_steps = entry.steps - entry.instruction->required_steps - optional_steps;
@@ -127,60 +116,52 @@ Glib::ustring Engine::format_output(const Engine & base_engine) const
 		total_optional_steps += optional_steps;
 		total_extra_steps += extra_steps;
 
-		if (entry.instruction->optional_steps > 0)
-		{
-			output.append(Glib::ustring::compose("%1  Optional Steps: %2\n", indent, optional_steps));
+		if (entry.instruction->optional_steps > 0) {
+			output << indent << "  Optional Steps: " << optional_steps << '\n';
 		}
 
-		if (extra_steps > 0)
-		{
-			output.append(Glib::ustring::compose("%1  Extra Steps: %2\n", indent, extra_steps));
+		if (extra_steps > 0) {
+			output << indent << "  Extra Steps: " << extra_steps << '\n';
 		}
 
-		if (entry.save_reset)
-		{
-			output.append(Glib::ustring::compose("%1  Save and reset to seed %2\n", indent, entry.new_seed));
+		if (entry.save_reset) {
+			output << indent << "  Save and reset to seed " << entry.new_seed << '\n';
 		}
 
-		for (auto & pair : entry.encounters)
-		{
-			output.append(Glib::ustring::compose("%1  Step %2: %3 / %4 (%5s)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_duration(entry.party, _parameters.tas_mode))));
+		for (auto & pair : entry.encounters) {
+			output << boost::format("%s  Step %3d: %d / %s (%0.3fs)\n") % indent % pair.first % pair.second.first % pair.second.second->get_description() % Seconds(pair.second.second->get_duration(entry.party, _parameters.tas_mode)).count();
 		}
 
-		for (auto & pair : entry.potential_encounters)
-		{
-			if (entry.encounters.count(pair.first) == 0)
-			{
-				output.append(Glib::ustring::compose("%1 (Step %2: %3 / %4)\n", indent, Glib::ustring::format(std::setw(3), pair.first), pair.second.first, pair.second.second->get_description(), format_time(pair.second.second->get_duration(entry.party, _parameters.tas_mode))));
+		for (auto & pair : entry.potential_encounters) {
+			if (entry.encounters.count(pair.first) == 0) {
+				output << boost::format("%s (Step %3d: %3d / %s)\n") % indent % pair.first % pair.second.first % pair.second.second->get_description();
 			}
 		}
 
-		if (_parameters.step_output)
-		{
-			for (auto & pair : entry.step_details)
-			{
-				output.append(Glib::ustring::compose("%1  :: Step %2 :: %3 elapsed :: %4 remaining\n", indent, Glib::ustring::format(std::setw(3), pair.first), format_time(pair.second), format_time(_frames - pair.second)));
+		if (_parameters.step_output) {
+			for (auto & pair : entry.step_details) 	{
+				output << boost::format("%s  :: Step %3d :: %0.3f elapsed :: %0.3f remaining\n") % indent % pair.first % Seconds(pair.second).count() % Seconds(_frames - pair.second).count();
 			}
 		}
 	}
 
-	output.append("\n");
+	output << '\n';
 
-	output.append(Glib::ustring::compose("%1 %2s\n", format_label("Encounter Time:"), format_time(_encounter_frames)));
-	output.append(Glib::ustring::compose("%1 %2s\n", format_label("Other Time:"), format_time(_frames - _encounter_frames)));
-	output.append(Glib::ustring::compose("%1 %2s\n", format_label("Total Time:"), format_time(_frames)));
-	output.append("\n");
-	output.append(Glib::ustring::compose("%1 %2s\n", format_label("Base Total Time:"), format_time(base_engine._frames)));
-	output.append(Glib::ustring::compose("%1 %2s\n", format_label("Time Saved:"), format_time(base_engine._frames - _frames)));
-	output.append("\n");
-	output.append(Glib::ustring::compose("%1 %2\n", format_label("Optional Steps:"), total_optional_steps));
-	output.append(Glib::ustring::compose("%1 %2\n", format_label("Extra Steps:"), total_extra_steps));
-	output.append(Glib::ustring::compose("%1 %2\n", format_label("Encounters:"), _encounter_count));
-	output.append("\n");
-	output.append(Glib::ustring::compose("%1 %2\n", format_label("Base Encounters:"), base_engine._encounter_count));
-	output.append(Glib::ustring::compose("%1 %2\n", format_label("Encounters Saved:"), base_engine._encounter_count - _encounter_count));
+	output << boost::format("%-18s %0.3fs\n") % "Encounter Time:" % Seconds(_encounter_frames).count();
+	output << boost::format("%-18s %0.3fs\n") % "Other Time:" % Seconds(_frames - _encounter_frames).count();
+	output << boost::format("%-18s %0.3fs\n") % "Total Time:" % Seconds(_frames).count();
+	output << '\n';
+	output << boost::format("%-18s %0.3fs\n") % "Base Total Time:" % Seconds(base_engine._frames).count();
+	output << boost::format("%-18s %0.3fs\n") % "Time Saved:" % Seconds(base_engine._frames - _frames).count();
+	output << '\n';
+	output << boost::format("%-18s %d\n") % "Optional Steps:" % total_optional_steps;
+	output << boost::format("%-18s %d\n") % "Extra Steps:" % total_extra_steps;
+	output << boost::format("%-18s %d\n") % "Encounters:" % _encounter_count;
+	output << '\n';
+	output << boost::format("%-18s %d\n") % "Base Encounters:" % base_engine._encounter_count;
+	output << boost::format("%-18s %d\n") % "Encounters Saved:" % (base_engine._encounter_count - _encounter_count);
 
-	return output;
+	return output.str();
 }
 
 Milliframes Engine::get_frames() const
@@ -193,7 +174,7 @@ Milliframes Engine::get_minimum_frames() const
 	return _minimum_frames;
 }
 
-Glib::ustring Engine::get_title() const
+std::string Engine::get_title() const
 {
 	return _title;
 }
