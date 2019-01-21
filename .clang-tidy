@@ -1,9 +1,8 @@
 ---
-Checks:          '*,-fuchsia-default-arguments'
+Checks:          '*,-fuchsia-default-arguments,-llvm-header-guard'
 WarningsAsErrors: ''
 HeaderFilterRegex: 'src/.*hh'
 AnalyzeTemporaryDtors: false
 FormatStyle:     none
-User:            jason
 CheckOptions:    
 ...
