@@ -14,16 +14,14 @@
  */
 
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 
-#include <giomm/file.h>
-#include <giomm/init.h>
-#include <glibmm/init.h>
-#include <glibmm/miscutils.h>
-#include <glibmm/regex.h>
-#include <glibmm/ustring.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/format.hpp>
 
 #include "encounter.hh"
 #include "engine.hh"
@@ -37,16 +35,10 @@
  * Main Function
  */
 
-int main (int argc, char ** argv)
-{
+int main (int argc, char ** argv) {
 	/*
 	 * Initialization
 	 */
-
-	setlocale(LC_ALL, "");
-
-	Glib::init();
-	Gio::init();
 
 	std::cout << std::fixed << std::setprecision(3);
 
@@ -79,8 +71,7 @@ int main (int argc, char ** argv)
 	option_context.set_main_group(option_group);
 	option_context.parse(argc, argv);
 
-	if (options.load_existing_variables)
-	{
+	if (options.load_existing_variables) {
 		options.full_optimization = true;
 	}
 
@@ -112,35 +103,30 @@ int main (int argc, char ** argv)
 	Engine base_engine{Parameters{options.tas_mode, options.step_output, options.seed, 0, "none", randomizer}, instructions, encounters};
 	base_engine.run();
 
-	auto route_output_directory = Gio::File::create_for_path(Glib::build_filename(options.output_directory, options.route));
-	auto route_output_file = Gio::File::create_for_path(Glib::build_filename(options.output_directory, options.route, Glib::ustring::format(std::setfill(L'0'), std::setw(3), options.seed, ".txt")));
+	auto route_output_directory = options.output_directory + "/" + options.route;
+	auto route_output_filename = (boost::format("%s/%s/%03d.txt") % options.output_directory % options.route % options.seed).str();
 
-	if (!route_output_directory->query_exists())
-	{
-		route_output_directory->make_directory_with_parents();
-	}
+	std::filesystem::create_directories(std::filesystem::path(route_output_directory));
 
 	/*
 	 * Variable Processing
 	 */
 
-	decltype(randomizer->data)::size_type optimization_index = 0;
+	std::size_t optimization_index = 0;
 
 	auto variables = RouteOutput::parse_variable_data(options.variables);
 
+	std::ifstream route_output_file{route_output_filename, std::ios_base::in};
 	RouteOutput route_output_data{route_output_file};
+	route_output_file.close();
 
-	if (options.load_existing_variables)
-	{
+	if (options.load_existing_variables) {
 		variables = route_output_data.get_variables();
 	}
 
-	for (const auto & pair : variables)
-	{
-		if (pair.first < randomizer->data.size())
-		{
-			if (!options.full_optimization && pair.first + 1 > optimization_index)
-			{
+	for (const auto & pair : variables) {
+		if (pair.first < randomizer->data.size()) {
+			if (!options.full_optimization && pair.first + 1 > optimization_index) {
 				optimization_index = pair.first + 1;
 			}
 
@@ -162,34 +148,22 @@ int main (int argc, char ** argv)
 	Milliframes best_frames = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_frames() : base_engine.get_frames();
 	double best_score = route_output_data.is_valid(base_engine.get_version()) ? engine.get_score() : base_engine.get_score();
 
-	for (const auto & algorithm : Glib::Regex::split_simple("\\+", options.algorithm))
-	{
-		if (algorithm == "bb")
-		{
-			optimize_bb(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file);
-		}
-		else if (algorithm == "ils")
-		{
-			optimize_ils(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file);
-		}
-		else if (algorithm == "local")
-		{
-			optimize_local(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file, true);
-		}
-		else if (algorithm == "pair")
-		{
-			optimize_local_pair(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file, true);
-		}
-		else if (algorithm == "sequential")
-		{
-			optimize_sequential(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_file);
-		}
-		else if (algorithm == "none")
-		{
+	std::vector<std::string> algorithms;
+	boost::algorithm::split(algorithms, options.algorithm, boost::is_any_of("+"));
 
-		}
-		else
-		{
+	for (const auto & algorithm : algorithms) {
+		if (algorithm == "bb") {
+			optimize_bb(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_filename);
+		} else if (algorithm == "ils") {
+			optimize_ils(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_filename);
+		} else if (algorithm == "local") {
+			optimize_local(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_filename, true);
+		} else if (algorithm == "pair") {
+			optimize_local_pair(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_filename, true);
+		} else if (algorithm == "sequential") {
+			optimize_sequential(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_filename);
+		} else if (algorithm == "none") {
+		} else {
 			std::cerr << "Algorithm \"" << algorithm << "\" is unknown" << std::endl;
 		}
 	}
@@ -203,12 +177,11 @@ int main (int argc, char ** argv)
 	engine.reset();
 	engine.run();
 
-	if (options.output_result)
-	{
+	if (options.output_result) {
 		std::cout << engine.format_output(base_engine);
 	}
 
-	RouteOutput::write_route(route_output_file, randomizer, engine, base_engine, true);
+	RouteOutput::write_route(route_output_filename, randomizer, engine, base_engine, true);
 
 	return 0;
 }

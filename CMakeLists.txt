@@ -17,6 +17,8 @@ if(Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
+link_libraries(stdc++fs)
+
 link_directories(${GLIBMM_LIBRARY_DIRS} ${GIOMM_LIBRARY_DIRS})
 include_directories(${GLIBMM_INCLUDE_DIRS} ${GIOMM_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 

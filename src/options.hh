@@ -5,8 +5,7 @@
 #include <glibmm/optionentry.h>
 #include <glibmm/optiongroup.h>
 
-class Options
-{
+class Options {
 	public:
 		static Glib::OptionEntry create_option_entry(const Glib::ustring & long_name, const gchar & short_name, const Glib::ustring & description);
 
