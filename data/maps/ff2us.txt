@@ -8,7 +8,7 @@ MAP	0006	10	4	-			Overworld (Mt.Ordeals)
 MAP	0007	10	5	-			Overworld (Toroia)
 MAP	0008	10	1	-			Overworld (Chocobo Island)
 MAP	0009	8	5	-			Overworld (West Baron Peninsula)
-MAP	0010	8	6	-			Overworld (Eblan)
+MAP	000A	8	6	-			Overworld (Eblan)
 MAP	1000	8	7	-			Underworld (Castle of Dwarves)
 MAP	1001	8	8	-			Underworld (Tomra)
 MAP	1002	8	10	-			Underworld (Three Step Peninsula)
@@ -23,323 +23,323 @@ MAP	3006	0	16	Agart			Agart
 MAP	3007	0	16	Inn			Town of Toroia Inn
 MAP	3008	0	16	Weapon Shop		Town of Toroia Weapon Shop
 MAP	3009	0	16	Armor Shop		Town of Toroia Armor Shop
-MAP	3010	0	16	Item Shop		Town of Toroia Item Shop
-MAP	3011	0	16	Inn			Town of Baron Inn
-MAP	3012	0	16	Weapon Shop		Town of Baron Weapon Shop
-MAP	3013	0	16	-			Town of Baron House (Cid)
-MAP	3014	0	16	-			Town of Baron House (Rosa)
-MAP	3015	0	16	-			Village Mist House
-MAP	3016	0	16	Inn			Kaipo Inn
-MAP	3017	0	16	Cafe			Kaipo Cafe
-MAP	3018	0	16				Kaipo House
-MAP	3019	0	16	Cafe			Mysidia Cafe
-MAP	3020	0	16	Inn			Mysidia Inn
-MAP	3021	0	16	-			Mt.Ordeals Tomb
-MAP	3022	0	16	House of Wishes		Mysidia House of Wishes
-MAP	3023	0	16	-			Mysidia Room of Wishes
-MAP	3024	0	16	Cafe			Town of Toroia Cafe 1F
-MAP	3025	0	16	2F			Town of Toroia Cafe 2F
-MAP	3026	0	16	Saloon KING		Town of Toroia Cafe Saloon KING
-MAP	3028	0	16	Black Chocobo Farm	Town of Toroia Black Chocobo Farm
-MAP	3029	0	16	Black Chocobo Farm	Town of Toroia Black Chocobo Farm Basement
-MAP	3030	0	16	Astro Tower		Agart Astro Tower
-MAP	3031	0	16	Observatory		Agart Astro Tower Observatory
-MAP	3032	0	16	Inn			Agart Inn
-MAP	3033	0	16	Chocobo's Village	Chocobo's Village
-MAP	3036	0	16	Baron			Castle Baron
-MAP	3037	0	16	Damcyan			Damcyan
-MAP	3038	0	16	Fabul			Fabul
-MAP	3039	0	16	Toroian Castle		Toroian Castle
-MAP	3040	0	16	Eblan			Eblan
-MAP	3042	0	16	1F			Castle Baron 1F
-MAP	3043	0	16	2F			Castle Baron 2F
-MAP	3044	0	16	King's Room		Castle Baron King's Room
-MAP	3045	0	16	-			Castle Baron Left Passage
-MAP	3046	0	16	-			Castle Baron Right Passage
-MAP	3047	0	16	-			Castle Baron Dungeon Antechamber
-MAP	3048	0	16	Dungeon			Castle Baron Dungeon
-MAP	3049	0	16	-			Castle Baron Infirmary
-MAP	3050	0	16	1F			Castle Baron Left Tower 1F
-MAP	3051	0	16	2F			Castle Baron Left Tower 2F
-MAP	3052	0	16	Room			Castle Baron Left Tower Room
-MAP	3053	0	16	1F			Castle Baron Right Tower 1F
-MAP	3054	0	16	2F			Castle Baron Right Tower 2F
-MAP	3055	0	16	3F			Castle Baron Right Tower 3F
-MAP	3056	0	16	B1F			Castle Baron Right Tower B1F
-MAP	3057	0	16	B2F			Castle Baron Right Tower B2F
-MAP	3058	8	30	Old Water-way		Old Water-way
-MAP	3059	8	31	B3F			Castle Baron B3F
-MAP	3060	8	32	B1F			Castle Baron B1F
-MAP	3061	0	32	-			Castle Baron B1F Save Room
-MAP	3062	8	32	B2F			Castle Baron B2F
-MAP	3063	0	16	1F			Damcyan 1F
-MAP	3064	0	16	2F			Damcyan 2F
-MAP	3065	0	16	3F			Damcyan 3F
-MAP	3066	0	16	Basement		Damcyan Basement
-MAP	3067	0	16	B1F			Damcyan B1F
-MAP	3068	0	16	-			Old Water-way Antechamber
-MAP	3069	0	16	Weapon Shop		Agart Weapon Shop
-MAP	3070	0	16	Armor Shop		Agart Armor Shop
-MAP	3071	0	16	1F			Fabul 1F
-MAP	3072	0	16	2F			Fabul 2F
-MAP	3073	0	16	King's Room		Fabul King's Room
-MAP	3074	0	16	Crystal Room		Fabul Crystal Room
-MAP	3075	0	16	Weapons/Armors		Fabul Weapons/Armors
-MAP	3076	0	16	Inn			Fabul Inn
-MAP	3077	0	16	Right Tower		Fabul Right Tower 1F
-MAP	3078	0	16	2F			Fabul Right Tower 2F
-MAP	3079	0	16	3F			Fabul Right Tower 3F
-MAP	3080	0	16	Left Tower		Fabul Left Tower 1F
-MAP	3081	0	16	2F			Fabul Left Tower 2F
-MAP	3082	0	16	3F			Fabul Left Tower 3F
-MAP	3083	0	16	-			Village Mist Clearing
-MAP	3084	0	16	-			Watery Pass-South B2F Save Room
-MAP	3085	0	16	1F			Toroian Castle 1F
-MAP	3086	0	16	2F			Toroian Castle 2F
-MAP	3087	0	16	Crystal Room		Toroian Castle Crystal Room
-MAP	3088	0	16	-			Toroian Castle Infirmary
-MAP	3089	0	16	-			Toroian Castle B1F Antechamber
-MAP	3090	0	16	B1F			Toroian Castle B1F Left
-MAP	3091	0	16	B1F			Toroian Castle B1F Center
-MAP	3092	0	16	B1F			Toroian Castle B1F Right
-MAP	3093	0	16	B2F			Toroian Castle B2F
-MAP	3094	0	16	1F			Eblan 1F
-MAP	3095	0	16	2F			Eblan 2F
-MAP	3096	0	16	King's Room		Eblan King's Room
-MAP	3097	0	16	Left Tower		Eblan Left Tower 1F
-MAP	3098	0	16	2F			Eblan Left Tower 2F
-MAP	3099	0	16	Right Tower		Eblan Right Tower 1F
-MAP	3100	0	16	2F			Eblan Right Tower 2F
-MAP	3101	0	16	Basement		Eblan Basement
-MAP	3102	0	16	Black Magic Class	Castle Baron Black Magic Class
-MAP	3103	0	16	White Magic Class	Castle Baron White Magic Class
-MAP	3104	0	16	-			Beach (outside Mysidia)
-MAP	3106	0	16	-			Waterfalls Waterfall
-MAP	3108	7	16	Misty Cave		Misty Cave
-MAP	3111	7	17	Watery Pass-South	Watery Pass-South B1F
-MAP	3112	7	17	B2F			Watery Pass-South B2F
-MAP	3113	7	18	B3F			Watery Pass-South B3F
-MAP	3114	8	18	B2F			Watery Pass-North B2F
-MAP	3115	8	19	Watery Pass-North	Watery Pass-North B1F
-MAP	3116	0	20	Waterfalls		Waterfalls B1F
-MAP	3117	8	20	B2F			Waterfalls B2F
-MAP	3118	8	20	Lake			Waterfalls Lake
-MAP	3119	8	21	Antlion B1F		Antlion B1F
-MAP	3120	8	22	Antlion B2F		Antlion B2F
-MAP	3121	8	22	Antlion's Nest		Antlion's Nest
-MAP	3122	0	21	-			Antlion B1F Save Room
-MAP	3123	0	21	-			Antlion B2F Treasure Room
-MAP	3124	0	21	-			Black Background
-MAP	3126	8	23	Mt.Hobs-West		Mt.Hobs-West
-MAP	3127	8	24	Summit			Mt.Hobs Summit
-MAP	3128	8	25	Mt.Hobs-East		Mt.Hobs-East
-MAP	3129	8	24	-			Mt.Hobs-West Treasure Area
-MAP	3131	0	16	?			Watery Pass-South B1F Treasure Room
-MAP	3132	8	26	Mt.Ordeals		Mt.Ordeals
-MAP	3133	8	27	Mt.Ordeals-3rd station	Mt.Ordeals-3rd station
-MAP	3134	8	28	Mt.Ordeals-7th station	Mt.Ordeals-7th station
-MAP	3135	8	28	Summit			Mt.Ordeals Summit
-MAP	3136	0	16	Crystal Room		Mysidia Crystal Room
-MAP	3137	0	16	Serpent Road		Mysidia Serpent Road
-MAP	3138	0	16	3F			Castle Baron 3F
-MAP	3139	0	16	-			Agart Well
-MAP	3140	8	33	Cave Magnes		Cave Magnes B1F
-MAP	3141	8	34	B2F			Cave Magnes B2F
-MAP	3142	8	34	-			Cave Magnes B2F Treasure Room
-MAP	3143	8	35	B3F			Cave Magnes B3F
-MAP	3144	8	35	-			Cave Magnes B3F Treasure Room
-MAP	3145	8	36	-			Cave Magnes B3F Passage
-MAP	3146	0	33	-			Cave Magnes B3F Save Room
-MAP	3147	8	36	B4F			Cave Magnes B4F
-MAP	3148	0	16	Crystal Room		Cave Magnes Crystal Room
-MAP	3150	0	16	-			Watery Pass-South B2F Save Room Camp
-MAP	3151	0	16	Serpent Road		Town of Baron Serpent Road
-MAP	3152	8	37	Tower of Zot		Tower of Zot 1F
-MAP	3153	8	38	2F			Tower of Zot 2F
-MAP	3154	8	39	3F			Tower of Zot 3F
-MAP	3155	0	16	-			Falling Black Background
-MAP	3156	8	40	4F			Tower of Zot 4F
-MAP	3157	8	41	5F			Tower of Zot 5F
-MAP	3158	0	16	6F			Tower of Zot 6F
-MAP	3159	0	16	7F			Tower of Zot 7F
-MAP	3160	0	16	Grotto Adamant		Grotto Adamant
-MAP	3161	0	16	-			Cave Magnes B4F Save Room
-MAP	3162	0	16	-			Tower of Zot 5F Save Room
-MAP	3163	0	16	-			Airship (Giant of Bab-il scene/Baron)
-MAP	3164	0	16	-			Airship (Giant of Bab-il scene/Mysidia)
-MAP	3165	0	16	-			Airship (Giant of Bab-il scene/Toroia)
-MAP	3166	0	16	-			Tower of Bab-il B3F Save Room
-MAP	3167	8	52	Tower of Bab-il 1F	Tower of Bab-il 1F
-MAP	3168	8	53	B2F			Tower of Bab-il B2F
-MAP	3169	8	54	B3F			Tower of Bab-il B3F
-MAP	3170	8	55	B4F			Tower of Bab-il B4F
-MAP	3171	0	16	Crystal Room		Tower of Bab-il Crystal Room
-MAP	3172	8	56	B5F			Tower of Bab-il B5F
-MAP	3173	8	57	-			Falling Cliff Background
-MAP	3177	0	16	Training Room		Training Room 1F
-MAP	3178	0	16	2F			Training Room 2F
-MAP	3181	9	74	Mouth			Giant of Bab-il Mouth
-MAP	3182	9	74	Neck			Giant of Bab-il Neck
-MAP	3183	9	75	Chest			Giant of Bab-il Chest
-MAP	3185	9	76	Stomach			Giant of Bab-il Stomach
-MAP	3186	9	77	Passage			Giant of Bab-il Passage
-MAP	3188	9	78	Lung			Giant of Bab-il Lung
-MAP	3189	0	79	CPU			Giant of Bab-il CPU
-MAP	3192	0	16	-			Airship (flying above Overworld)
-MAP	3193	0	16	-			Port of Fabul
-MAP	3194	0	16	-			Ship (at sea)
-MAP	3195	0	16	-			Airship (docked)
-MAP	3196	0	16	-			Two Airships (hovering above Overworld)
-MAP	3198	0	16	-			Airship (flying above Underworld)
-MAP	3199	8	42	Cave Eblana		Cave Eblana B1F
-MAP	3200	0	16	B2F			Cave Eblana B2F
-MAP	3201	8	43	Pass to Bab-il		Pass to Bab-il (south)
-MAP	3202	8	29	-			Pass to Bab-il (north)
-MAP	3203	0	16	Inn			Cave Eblana B2F Inn
-MAP	3204	0	16	Weapons/Armors		Cave Eblana B2F Weapons/Armors
-MAP	3205	0	16	-			Pass to Bab-il (north) Save Room
-MAP	3206	0	16	-			Cave Eblana B2F Infirmary
-MAP	3207	0	16	Chocobo's Forest	Fabul Chocobo's Forest
-MAP	3208	0	16	-			Airship (hovering above Overworld near Baron)
-MAP	3209	0	16	Chocobo's Forest	Mt.Ordeals Chocobo's Forest
-MAP	3210	0	16	Chocobo's Forest	Baron Chocobo's Forest
-MAP	3211	0	16	Chocobo's Forest	Toroia Chocobo's Forest
-MAP	3212	0	16	Chocobo's Forest	Chocobo Island Chocobo's Forest
-MAP	3213	0	16	-			Castle Baron Hidden Passage
-MAP	3214	0	16	-			Airship (remodeling)
-MAP	3215	0	16	-			Airship (hovering above Overworld near Agart)
-MAP	3217	0	16	-			Airship (landed)
-MAP	3218	0	16	-			Mysidia Room of Wishes (final boss scene)
-MAP	3224	0	16	Inn			Village Mist Inn
-MAP	3225	0	16	Weapon Shop		Village Mist Weapon Shop
-MAP	3226	0	16	Armor Shop		Village Mist Armor Shop
-MAP	3227	0	16	Weapon Shop		Kaipo Weapon Shop
-MAP	3228	0	16	Armor Shop		Kaipo Armor Shop
-MAP	3229	0	16	Weapon Shop		Mysidia Weapon Shop
-MAP	3230	0	16	Armor Shop		Mysidia Armor Shop
-MAP	3231	0	16	Item Shop		Mysidia Item Shop
-MAP	3232	0	16	Inn			Silvera Inn
-MAP	3233	0	16	Weapon Shop		Silvera Weapon Shop
-MAP	3234	0	16	Armor Shop		Silvera Armor Shop
-MAP	3235	0	16	Item Shop		Silvera Item Shop
-MAP	3236	0	16	Item Shop		Town of Baron Item Shop
-MAP	3237	0	16	-			House of Wishes (ending)
-MAP	3238	0	16	-			Pond (ending)
-MAP	3239	0	16	-			Eblan King's Room (ending)
-MAP	3240	0	16	-			Town of Monsters King's Room (ending)
-MAP	3241	0	16	-			Damcyan 3F (ending)
-MAP	3242	0	16	-			Castle of Dwarves (ending)
-MAP	3243	0	16	-			Mt.Ordeals-7th station (ending)
-MAP	3244	0	16	-			Agart Astro Tower Observatory (ending)
-MAP	3245	0	16	-			Castle Baron Left Tower Room (ending)
-MAP	3246	0	16	-			Castle Baron King's Room (ending)
-MAP	3247	0	16	-			Fabul King's Room (ending)
-MAP	3256	0	16	Kokkol, the Smith's	Kokkol, the Smith's
-MAP	3257	0	16	Tomra			Tomra
-MAP	3258	0	16	1F			Kokkol, the Smith's 1F
-MAP	3259	0	16	2F			Kokkol, the Smith's 2F
-MAP	3260	0	16	Inn			Tomra Inn
-MAP	3261	0	16	Weapons/Armors		Tomra Weapons/Armors
-MAP	3262	0	16	-			Tomra Treasure Room
-MAP	3263	0	16	Castle of Dwarves	Castle of Dwarves
-MAP	3264	0	16	1F			Castle of Dwarves 1F
-MAP	3265	0	16	King's Room		Castle of Dwarves King's Room
-MAP	3266	0	16	B1F			Castle of Dwarves B1F
-MAP	3267	0	16	B2F			Castle of Dwarves B2F
-MAP	3269	0	16	Crystal Room		Castle of Dwarves Crystal Room
-MAP	3270	0	16	2F			Castle of Dwarves Right Tower 2F
-MAP	3271	0	16	Dwarf Base		Castle of Dwarves Dwarf Base
-MAP	3272	0	16	Right Tower		Castle of Dwarves Right Tower 3F
-MAP	3273	0	16	2F			Castle of Dwarves Left Tower 2F
-MAP	3274	0	16	-			Castle of Dwarves Infirmary
-MAP	3275	0	16	Left Tower		Castle of Dwarves Left Tower 3F
-MAP	3276	0	16	-			Tower of Bab-il Save Room/Empty Room
-MAP	3277	63	45	-			Tower of Bab-il 2F Treasure Room B (IceBrand)
-MAP	3278	63	46	-			Tower of Bab-il 2F Treasure Room A (Blizzard)
-MAP	3279	63	47	-			Tower of Bab-il 4F Treasure Room A (Ice Shield)
-MAP	3280	63	48	-			Tower of Bab-il 4F Treasure Room B (Ice Armor)
-MAP	3281	0	16	5F			Castle of Dwarves Right Tower 5F
-MAP	3282	0	16	5F			Castle of Dwarves Left Tower 5F
-MAP	3283	0	16	4F			Castle of Dwarves 4F
-MAP	3285	8	59	-			Tower of Bab-il 8F (revisit)
-MAP	3286	8	60	7F			Tower of Bab-il 7F (revisit)
-MAP	3287	8	61	6F			Tower of Bab-il 6F (revisit)
-MAP	3288	0	16	Cafe HOWDY!		Castle of Dwarves Cafe HOWDY!
-MAP	3289	7	44	Tower of Bab-il 1F	Tower of Bab-il 1F
-MAP	3290	7	45	2F			Tower of Bab-il 2F
-MAP	3291	7	46	3F			Tower of Bab-il 3F
-MAP	3292	7	47	4F			Tower of Bab-il 4F
-MAP	3293	7	48	5F			Tower of Bab-il 5F
-MAP	3294	7	49	6F			Tower of Bab-il 6F
-MAP	3295	7	50	7F			Tower of Bab-il 7F
-MAP	3296	7	51	8F			Tower of Bab-il 8F
-MAP	3300	0	16	-			The Big Whale (Giant of Bab-il scene)
-MAP	3301	0	16	Super Cannon		Tower of Bab-il 5F Super Cannon
-MAP	3302	0	16	-			Dwarf Tank
-MAP	3303	0	16	-			The Big Whale
-MAP	3306	0	16	Item Shop		Tomra Item Shop
-MAP	3310	9	67	Land of Monsters	Land of Monsters B1F
-MAP	3311	9	68	B2F			Land of Monsters B2F
-MAP	3312	9	69	B3F			Land of Monsters B3F
-MAP	3314	0	16	B4F			Land of Monsters B4F
-MAP	3315	0	16	-			Land of Monsters Treasure Room
-MAP	3316	0	16	Town of Monsters	Town of Monsters
-MAP	3317	0	16	-			Town of Monsters Save Room
-MAP	3318	0	16	Library			Town of Monsters Library
-MAP	3319	0	16	-			Town of Monsters Library Downstairs
-MAP	3320	0	16	-			Town of Monsters King's Room
-MAP	3321	0	16	Weapon Shop		Town of Monsters Weapon Shop
-MAP	3322	0	16	Armor Shop		Town of Monsters Armor Shop
-MAP	3323	0	16	Inn			Town of Monsters Inn
-MAP	3324	0	16	Sealed Cave		Sealed Cave
-MAP	3325	8	62	Sylvan Cave		Sylvan Cave B1F
-MAP	3326	8	63	B2F			Sylvan Cave B2F
-MAP	3327	8	62	B3F			Sylvan Cave B3F
-MAP	3328	8	63	-			Sylvan Cave Treasure Room
-MAP	3329	0	16	-			Sylvan House
-MAP	3330	4	64	B1F			Sealed Cave B1F
-MAP	3331	4	64	-			Sealed Cave B1F Treasure Room
-MAP	3332	4	64	-			Sealed Cave B1F Passage
-MAP	3333	4	64	B2F			Sealed Cave B2F
-MAP	3334	4	65	-			Sealed Cave B2F Treasure Room C (Long/Ninja)
-MAP	3335	4	65	-			Sealed Cave B2F Treasure Room B (various)
-MAP	3336	4	65	-			Sealed Cave B2F Treasure Room A (Light)
-MAP	3337	4	65	-			Sealed Cave B2F Passage
-MAP	3338	4	65	B3F			Sealed Cave B3F
-MAP	3339	4	66	-			Sealed Cave B3F Passage
-MAP	3340	4	66	-			Sealed Cave B3F Treasure Room
-MAP	3341	0	16	B4F			Sealed Cave B4F
-MAP	3342	0	16	-			Sealed Cave B4F Save Room
-MAP	3343	0	16	B5F			Sealed Cave B5F
-MAP	3344	0	16	-			Sealed Cave Save Room/Empty Room
-MAP	3345	0	16	Crystal Room		Sealed Cave Crystal Room
-MAP	3346	9	71	Cave Bahamut		Cave Bahamut B1F
-MAP	3347	9	72	B2F			Cave Bahamut B2F
-MAP	3348	9	82	B3F			Cave Bahamut B3F
-MAP	3352	0	16	Lunar's Lair		Lunar's Lair 1F
-MAP	3353	0	16	2F			Lunar's Lair 2F
-MAP	3355	8	90	Lunar Path		Lunar Path (west)
-MAP	3356	8	91	Lunar Path		Lunar Path (east)
-MAP	3357	0	16	-			Hummingway Cave
-MAP	3359	7	80	Lunar Subterrane B1	Lunar Subterrane B1
-MAP	3360	7	81	Lunar Subterrane B2	Lunar Subterrane B2
-MAP	3361	7	82	Lunar Subterrane B3	Lunar Subterrane B3
-MAP	3362	8	83	Lunar Subterrane B4	Lunar Subterrane B4
-MAP	3363	8	84	Lunar Subterrane B5	Lunar Subterrane B5
-MAP	3364	8	85	Lunar Subterrane B6	Lunar Subterrane B6
-MAP	3365	8	86	Lunar Subterrane B7	Lunar Subterrane B7
-MAP	3366	8	88	-			Lunar Core B1
-MAP	3367	8	88	-			Lunar Core B2
-MAP	3368	8	89	-			Lunar Core B3
-MAP	3369	8	79	-			Lunar Core B4
-MAP	3370	0	16	-			Lunar Core B5
-MAP	3371	10	84	-			Lunar Subterrane B4 Treasure Room
-MAP	3372	10	86	-			Lunar Subterrane B4 Passage
-MAP	3373	10	86	-			Lunar Subterrane B5 Passage A
-MAP	3374	10	87	-			Lunar Subterrane B5 Passage B
-MAP	3375	5	92	-			Lunar Subterrane B5 Pink Puff Room
-MAP	3376	0	16	-			Lunar Subterrane B5 Save Room
-MAP	3377	10	87	-			Lunar Subterrane B6 Passage
-MAP	3378	10	87	-			Lunar Subterrane B7 Treasure Room A (White)
-MAP	3379	0	16	-			Lunar Subterrane B7 Save Room
-MAP	3380	10	87	-			Lunar Subterrane B7 Treasure Room B (Ribbon)
+MAP	300A	0	16	Item Shop		Town of Toroia Item Shop
+MAP	300B	0	16	Inn			Town of Baron Inn
+MAP	300C	0	16	Weapon Shop		Town of Baron Weapon Shop
+MAP	300D	0	16	-			Town of Baron House (Cid)
+MAP	300E	0	16	-			Town of Baron House (Rosa)
+MAP	300F	0	16	-			Village Mist House
+MAP	3010	0	16	Inn			Kaipo Inn
+MAP	3011	0	16	Cafe			Kaipo Cafe
+MAP	3012	0	16				Kaipo House
+MAP	3013	0	16	Cafe			Mysidia Cafe
+MAP	3014	0	16	Inn			Mysidia Inn
+MAP	3015	0	16	-			Mt.Ordeals Tomb
+MAP	3016	0	16	House of Wishes		Mysidia House of Wishes
+MAP	3017	0	16	-			Mysidia Room of Wishes
+MAP	3018	0	16	Cafe			Town of Toroia Cafe 1F
+MAP	3019	0	16	2F			Town of Toroia Cafe 2F
+MAP	301A	0	16	Saloon KING		Town of Toroia Cafe Saloon KING
+MAP	301C	0	16	Black Chocobo Farm	Town of Toroia Black Chocobo Farm
+MAP	301D	0	16	Black Chocobo Farm	Town of Toroia Black Chocobo Farm Basement
+MAP	301E	0	16	Astro Tower		Agart Astro Tower
+MAP	301F	0	16	Observatory		Agart Astro Tower Observatory
+MAP	3020	0	16	Inn			Agart Inn
+MAP	3021	0	16	Chocobo's Village	Chocobo's Village
+MAP	3024	0	16	Baron			Castle Baron
+MAP	3025	0	16	Damcyan			Damcyan
+MAP	3026	0	16	Fabul			Fabul
+MAP	3027	0	16	Toroian Castle		Toroian Castle
+MAP	3028	0	16	Eblan			Eblan
+MAP	302A	0	16	1F			Castle Baron 1F
+MAP	302B	0	16	2F			Castle Baron 2F
+MAP	302C	0	16	King's Room		Castle Baron King's Room
+MAP	302D	0	16	-			Castle Baron Left Passage
+MAP	302E	0	16	-			Castle Baron Right Passage
+MAP	302F	0	16	-			Castle Baron Dungeon Antechamber
+MAP	3030	0	16	Dungeon			Castle Baron Dungeon
+MAP	3031	0	16	-			Castle Baron Infirmary
+MAP	3032	0	16	1F			Castle Baron Left Tower 1F
+MAP	3033	0	16	2F			Castle Baron Left Tower 2F
+MAP	3034	0	16	Room			Castle Baron Left Tower Room
+MAP	3035	0	16	1F			Castle Baron Right Tower 1F
+MAP	3036	0	16	2F			Castle Baron Right Tower 2F
+MAP	3037	0	16	3F			Castle Baron Right Tower 3F
+MAP	3038	0	16	B1F			Castle Baron Right Tower B1F
+MAP	3039	0	16	B2F			Castle Baron Right Tower B2F
+MAP	303A	8	30	Old Water-way		Old Water-way
+MAP	303B	8	31	B3F			Castle Baron B3F
+MAP	303C	8	32	B1F			Castle Baron B1F
+MAP	303D	0	32	-			Castle Baron B1F Save Room
+MAP	303E	8	32	B2F			Castle Baron B2F
+MAP	303F	0	16	1F			Damcyan 1F
+MAP	3040	0	16	2F			Damcyan 2F
+MAP	3041	0	16	3F			Damcyan 3F
+MAP	3042	0	16	Basement		Damcyan Basement
+MAP	3043	0	16	B1F			Damcyan B1F
+MAP	3044	0	16	-			Old Water-way Antechamber
+MAP	3045	0	16	Weapon Shop		Agart Weapon Shop
+MAP	3046	0	16	Armor Shop		Agart Armor Shop
+MAP	3047	0	16	1F			Fabul 1F
+MAP	3048	0	16	2F			Fabul 2F
+MAP	3049	0	16	King's Room		Fabul King's Room
+MAP	304A	0	16	Crystal Room		Fabul Crystal Room
+MAP	304B	0	16	Weapons/Armors		Fabul Weapons/Armors
+MAP	304C	0	16	Inn			Fabul Inn
+MAP	304D	0	16	Right Tower		Fabul Right Tower 1F
+MAP	304E	0	16	2F			Fabul Right Tower 2F
+MAP	304F	0	16	3F			Fabul Right Tower 3F
+MAP	3050	0	16	Left Tower		Fabul Left Tower 1F
+MAP	3051	0	16	2F			Fabul Left Tower 2F
+MAP	3052	0	16	3F			Fabul Left Tower 3F
+MAP	3053	0	16	-			Village Mist Clearing
+MAP	3054	0	16	-			Watery Pass-South B2F Save Room
+MAP	3055	0	16	1F			Toroian Castle 1F
+MAP	3056	0	16	2F			Toroian Castle 2F
+MAP	3057	0	16	Crystal Room		Toroian Castle Crystal Room
+MAP	3058	0	16	-			Toroian Castle Infirmary
+MAP	3059	0	16	-			Toroian Castle B1F Antechamber
+MAP	305A	0	16	B1F			Toroian Castle B1F Left
+MAP	305B	0	16	B1F			Toroian Castle B1F Center
+MAP	305C	0	16	B1F			Toroian Castle B1F Right
+MAP	305D	0	16	B2F			Toroian Castle B2F
+MAP	305E	0	16	1F			Eblan 1F
+MAP	305F	0	16	2F			Eblan 2F
+MAP	3060	0	16	King's Room		Eblan King's Room
+MAP	3061	0	16	Left Tower		Eblan Left Tower 1F
+MAP	3062	0	16	2F			Eblan Left Tower 2F
+MAP	3063	0	16	Right Tower		Eblan Right Tower 1F
+MAP	3064	0	16	2F			Eblan Right Tower 2F
+MAP	3065	0	16	Basement		Eblan Basement
+MAP	3066	0	16	Black Magic Class	Castle Baron Black Magic Class
+MAP	3067	0	16	White Magic Class	Castle Baron White Magic Class
+MAP	3068	0	16	-			Beach (outside Mysidia)
+MAP	306A	0	16	-			Waterfalls Waterfall
+MAP	306C	7	16	Misty Cave		Misty Cave
+MAP	306F	7	17	Watery Pass-South	Watery Pass-South B1F
+MAP	3070	7	17	B2F			Watery Pass-South B2F
+MAP	3071	7	18	B3F			Watery Pass-South B3F
+MAP	3072	8	18	B2F			Watery Pass-North B2F
+MAP	3073	8	19	Watery Pass-North	Watery Pass-North B1F
+MAP	3074	0	20	Waterfalls		Waterfalls B1F
+MAP	3075	8	20	B2F			Waterfalls B2F
+MAP	3076	8	20	Lake			Waterfalls Lake
+MAP	3077	8	21	Antlion B1F		Antlion B1F
+MAP	3078	8	22	Antlion B2F		Antlion B2F
+MAP	3079	8	22	Antlion's Nest		Antlion's Nest
+MAP	307A	0	21	-			Antlion B1F Save Room
+MAP	307B	0	21	-			Antlion B2F Treasure Room
+MAP	307C	0	21	-			Black Background
+MAP	307E	8	23	Mt.Hobs-West		Mt.Hobs-West
+MAP	307F	8	24	Summit			Mt.Hobs Summit
+MAP	3080	8	25	Mt.Hobs-East		Mt.Hobs-East
+MAP	3081	8	24	-			Mt.Hobs-West Treasure Area
+MAP	3083	0	16	?			Watery Pass-South B1F Treasure Room
+MAP	3084	8	26	Mt.Ordeals		Mt.Ordeals
+MAP	3085	8	27	Mt.Ordeals-3rd station	Mt.Ordeals-3rd station
+MAP	3086	8	28	Mt.Ordeals-7th station	Mt.Ordeals-7th station
+MAP	3087	8	28	Summit			Mt.Ordeals Summit
+MAP	3088	0	16	Crystal Room		Mysidia Crystal Room
+MAP	3089	0	16	Serpent Road		Mysidia Serpent Road
+MAP	308A	0	16	3F			Castle Baron 3F
+MAP	308B	0	16	-			Agart Well
+MAP	308C	8	33	Cave Magnes		Cave Magnes B1F
+MAP	308D	8	34	B2F			Cave Magnes B2F
+MAP	308E	8	34	-			Cave Magnes B2F Treasure Room
+MAP	308F	8	35	B3F			Cave Magnes B3F
+MAP	3090	8	35	-			Cave Magnes B3F Treasure Room
+MAP	3091	8	36	-			Cave Magnes B3F Passage
+MAP	3092	0	33	-			Cave Magnes B3F Save Room
+MAP	3093	8	36	B4F			Cave Magnes B4F
+MAP	3094	0	16	Crystal Room		Cave Magnes Crystal Room
+MAP	3096	0	16	-			Watery Pass-South B2F Save Room Camp
+MAP	3097	0	16	Serpent Road		Town of Baron Serpent Road
+MAP	3098	8	37	Tower of Zot		Tower of Zot 1F
+MAP	3099	8	38	2F			Tower of Zot 2F
+MAP	309A	8	39	3F			Tower of Zot 3F
+MAP	309B	0	16	-			Falling Black Background
+MAP	309C	8	40	4F			Tower of Zot 4F
+MAP	309D	8	41	5F			Tower of Zot 5F
+MAP	309E	0	16	6F			Tower of Zot 6F
+MAP	309F	0	16	7F			Tower of Zot 7F
+MAP	30A0	0	16	Grotto Adamant		Grotto Adamant
+MAP	30A1	0	16	-			Cave Magnes B4F Save Room
+MAP	30A2	0	16	-			Tower of Zot 5F Save Room
+MAP	30A3	0	16	-			Airship (Giant of Bab-il scene/Baron)
+MAP	30A4	0	16	-			Airship (Giant of Bab-il scene/Mysidia)
+MAP	30A5	0	16	-			Airship (Giant of Bab-il scene/Toroia)
+MAP	30A6	0	16	-			Tower of Bab-il B3F Save Room
+MAP	30A7	8	52	Tower of Bab-il 1F	Tower of Bab-il 1F
+MAP	30A8	8	53	B2F			Tower of Bab-il B2F
+MAP	30A9	8	54	B3F			Tower of Bab-il B3F
+MAP	30AA	8	55	B4F			Tower of Bab-il B4F
+MAP	30AB	0	16	Crystal Room		Tower of Bab-il Crystal Room
+MAP	30AC	8	56	B5F			Tower of Bab-il B5F
+MAP	30AD	8	57	-			Falling Cliff Background
+MAP	30B1	0	16	Training Room		Training Room 1F
+MAP	30B2	0	16	2F			Training Room 2F
+MAP	30B5	9	74	Mouth			Giant of Bab-il Mouth
+MAP	30B6	9	74	Neck			Giant of Bab-il Neck
+MAP	30B7	9	75	Chest			Giant of Bab-il Chest
+MAP	30B9	9	76	Stomach			Giant of Bab-il Stomach
+MAP	30BA	9	77	Passage			Giant of Bab-il Passage
+MAP	30BC	9	78	Lung			Giant of Bab-il Lung
+MAP	30BD	0	79	CPU			Giant of Bab-il CPU
+MAP	30C0	0	16	-			Airship (flying above Overworld)
+MAP	30C1	0	16	-			Port of Fabul
+MAP	30C2	0	16	-			Ship (at sea)
+MAP	30C3	0	16	-			Airship (docked)
+MAP	30C4	0	16	-			Two Airships (hovering above Overworld)
+MAP	30C6	0	16	-			Airship (flying above Underworld)
+MAP	30C7	8	42	Cave Eblana		Cave Eblana B1F
+MAP	30C8	0	16	B2F			Cave Eblana B2F
+MAP	30C9	8	43	Pass to Bab-il		Pass to Bab-il (south)
+MAP	30CA	8	29	-			Pass to Bab-il (north)
+MAP	30CB	0	16	Inn			Cave Eblana B2F Inn
+MAP	30CC	0	16	Weapons/Armors		Cave Eblana B2F Weapons/Armors
+MAP	30CD	0	16	-			Pass to Bab-il (north) Save Room
+MAP	30CE	0	16	-			Cave Eblana B2F Infirmary
+MAP	30CF	0	16	Chocobo's Forest	Fabul Chocobo's Forest
+MAP	30D0	0	16	-			Airship (hovering above Overworld near Baron)
+MAP	30D1	0	16	Chocobo's Forest	Mt.Ordeals Chocobo's Forest
+MAP	30D2	0	16	Chocobo's Forest	Baron Chocobo's Forest
+MAP	30D3	0	16	Chocobo's Forest	Toroia Chocobo's Forest
+MAP	30D4	0	16	Chocobo's Forest	Chocobo Island Chocobo's Forest
+MAP	30D5	0	16	-			Castle Baron Hidden Passage
+MAP	30D6	0	16	-			Airship (remodeling)
+MAP	30D7	0	16	-			Airship (hovering above Overworld near Agart)
+MAP	30D9	0	16	-			Airship (landed)
+MAP	30DA	0	16	-			Mysidia Room of Wishes (final boss scene)
+MAP	30E0	0	16	Inn			Village Mist Inn
+MAP	30E1	0	16	Weapon Shop		Village Mist Weapon Shop
+MAP	30E2	0	16	Armor Shop		Village Mist Armor Shop
+MAP	30E3	0	16	Weapon Shop		Kaipo Weapon Shop
+MAP	30E4	0	16	Armor Shop		Kaipo Armor Shop
+MAP	30E5	0	16	Weapon Shop		Mysidia Weapon Shop
+MAP	30E6	0	16	Armor Shop		Mysidia Armor Shop
+MAP	30E7	0	16	Item Shop		Mysidia Item Shop
+MAP	30E8	0	16	Inn			Silvera Inn
+MAP	30E9	0	16	Weapon Shop		Silvera Weapon Shop
+MAP	30EA	0	16	Armor Shop		Silvera Armor Shop
+MAP	30EB	0	16	Item Shop		Silvera Item Shop
+MAP	30EC	0	16	Item Shop		Town of Baron Item Shop
+MAP	30ED	0	16	-			House of Wishes (ending)
+MAP	30EE	0	16	-			Pond (ending)
+MAP	30EF	0	16	-			Eblan King's Room (ending)
+MAP	30F0	0	16	-			Town of Monsters King's Room (ending)
+MAP	30F1	0	16	-			Damcyan 3F (ending)
+MAP	30F2	0	16	-			Castle of Dwarves (ending)
+MAP	30F3	0	16	-			Mt.Ordeals-7th station (ending)
+MAP	30F4	0	16	-			Agart Astro Tower Observatory (ending)
+MAP	30F5	0	16	-			Castle Baron Left Tower Room (ending)
+MAP	30F6	0	16	-			Castle Baron King's Room (ending)
+MAP	30F7	0	16	-			Fabul King's Room (ending)
+MAP	3100	0	16	Kokkol, the Smith's	Kokkol, the Smith's
+MAP	3101	0	16	Tomra			Tomra
+MAP	3102	0	16	1F			Kokkol, the Smith's 1F
+MAP	3103	0	16	2F			Kokkol, the Smith's 2F
+MAP	3104	0	16	Inn			Tomra Inn
+MAP	3105	0	16	Weapons/Armors		Tomra Weapons/Armors
+MAP	3106	0	16	-			Tomra Treasure Room
+MAP	3107	0	16	Castle of Dwarves	Castle of Dwarves
+MAP	3108	0	16	1F			Castle of Dwarves 1F
+MAP	3109	0	16	King's Room		Castle of Dwarves King's Room
+MAP	310A	0	16	B1F			Castle of Dwarves B1F
+MAP	310B	0	16	B2F			Castle of Dwarves B2F
+MAP	310D	0	16	Crystal Room		Castle of Dwarves Crystal Room
+MAP	310E	0	16	2F			Castle of Dwarves Right Tower 2F
+MAP	310F	0	16	Dwarf Base		Castle of Dwarves Dwarf Base
+MAP	3110	0	16	Right Tower		Castle of Dwarves Right Tower 3F
+MAP	3111	0	16	2F			Castle of Dwarves Left Tower 2F
+MAP	3112	0	16	-			Castle of Dwarves Infirmary
+MAP	3113	0	16	Left Tower		Castle of Dwarves Left Tower 3F
+MAP	3114	0	16	-			Tower of Bab-il Save Room/Empty Room
+MAP	3115	63	45	-			Tower of Bab-il 2F Treasure Room B (IceBrand)
+MAP	3116	63	46	-			Tower of Bab-il 2F Treasure Room A (Blizzard)
+MAP	3117	63	47	-			Tower of Bab-il 4F Treasure Room A (Ice Shield)
+MAP	3118	63	48	-			Tower of Bab-il 4F Treasure Room B (Ice Armor)
+MAP	3119	0	16	5F			Castle of Dwarves Right Tower 5F
+MAP	311A	0	16	5F			Castle of Dwarves Left Tower 5F
+MAP	311B	0	16	4F			Castle of Dwarves 4F
+MAP	311D	8	59	-			Tower of Bab-il 8F (revisit)
+MAP	311E	8	60	7F			Tower of Bab-il 7F (revisit)
+MAP	311F	8	61	6F			Tower of Bab-il 6F (revisit)
+MAP	3120	0	16	Cafe HOWDY!		Castle of Dwarves Cafe HOWDY!
+MAP	3121	7	44	Tower of Bab-il 1F	Tower of Bab-il 1F
+MAP	3122	7	45	2F			Tower of Bab-il 2F
+MAP	3123	7	46	3F			Tower of Bab-il 3F
+MAP	3124	7	47	4F			Tower of Bab-il 4F
+MAP	3125	7	48	5F			Tower of Bab-il 5F
+MAP	3126	7	49	6F			Tower of Bab-il 6F
+MAP	3127	7	50	7F			Tower of Bab-il 7F
+MAP	3128	7	51	8F			Tower of Bab-il 8F
+MAP	312C	0	16	-			The Big Whale (Giant of Bab-il scene)
+MAP	312D	0	16	Super Cannon		Tower of Bab-il 5F Super Cannon
+MAP	312E	0	16	-			Dwarf Tank
+MAP	312F	0	16	-			The Big Whale
+MAP	3132	0	16	Item Shop		Tomra Item Shop
+MAP	3136	9	67	Land of Monsters	Land of Monsters B1F
+MAP	3137	9	68	B2F			Land of Monsters B2F
+MAP	3138	9	69	B3F			Land of Monsters B3F
+MAP	313A	0	16	B4F			Land of Monsters B4F
+MAP	313B	0	16	-			Land of Monsters Treasure Room
+MAP	313C	0	16	Town of Monsters	Town of Monsters
+MAP	313D	0	16	-			Town of Monsters Save Room
+MAP	313E	0	16	Library			Town of Monsters Library
+MAP	313F	0	16	-			Town of Monsters Library Downstairs
+MAP	3140	0	16	-			Town of Monsters King's Room
+MAP	3141	0	16	Weapon Shop		Town of Monsters Weapon Shop
+MAP	3142	0	16	Armor Shop		Town of Monsters Armor Shop
+MAP	3143	0	16	Inn			Town of Monsters Inn
+MAP	3144	0	16	Sealed Cave		Sealed Cave
+MAP	3145	8	62	Sylvan Cave		Sylvan Cave B1F
+MAP	3146	8	63	B2F			Sylvan Cave B2F
+MAP	3147	8	62	B3F			Sylvan Cave B3F
+MAP	3148	8	63	-			Sylvan Cave Treasure Room
+MAP	3149	0	16	-			Sylvan House
+MAP	314A	4	64	B1F			Sealed Cave B1F
+MAP	314B	4	64	-			Sealed Cave B1F Treasure Room
+MAP	314C	4	64	-			Sealed Cave B1F Passage
+MAP	314D	4	64	B2F			Sealed Cave B2F
+MAP	314E	4	65	-			Sealed Cave B2F Treasure Room C (Long/Ninja)
+MAP	314F	4	65	-			Sealed Cave B2F Treasure Room B (various)
+MAP	3150	4	65	-			Sealed Cave B2F Treasure Room A (Light)
+MAP	3151	4	65	-			Sealed Cave B2F Passage
+MAP	3152	4	65	B3F			Sealed Cave B3F
+MAP	3153	4	66	-			Sealed Cave B3F Passage
+MAP	3154	4	66	-			Sealed Cave B3F Treasure Room
+MAP	3155	0	16	B4F			Sealed Cave B4F
+MAP	3156	0	16	-			Sealed Cave B4F Save Room
+MAP	3157	0	16	B5F			Sealed Cave B5F
+MAP	3158	0	16	-			Sealed Cave Save Room/Empty Room
+MAP	3159	0	16	Crystal Room		Sealed Cave Crystal Room
+MAP	315A	9	71	Cave Bahamut		Cave Bahamut B1F
+MAP	315B	9	72	B2F			Cave Bahamut B2F
+MAP	315C	9	82	B3F			Cave Bahamut B3F
+MAP	3160	0	16	Lunar's Lair		Lunar's Lair 1F
+MAP	3161	0	16	2F			Lunar's Lair 2F
+MAP	3163	8	90	Lunar Path		Lunar Path (west)
+MAP	3164	8	91	Lunar Path		Lunar Path (east)
+MAP	3165	0	16	-			Hummingway Cave
+MAP	3167	7	80	Lunar Subterrane B1	Lunar Subterrane B1
+MAP	3168	7	81	Lunar Subterrane B2	Lunar Subterrane B2
+MAP	3169	7	82	Lunar Subterrane B3	Lunar Subterrane B3
+MAP	316A	8	83	Lunar Subterrane B4	Lunar Subterrane B4
+MAP	316B	8	84	Lunar Subterrane B5	Lunar Subterrane B5
+MAP	316C	8	85	Lunar Subterrane B6	Lunar Subterrane B6
+MAP	316D	8	86	Lunar Subterrane B7	Lunar Subterrane B7
+MAP	316E	8	88	-			Lunar Core B1
+MAP	316F	8	88	-			Lunar Core B2
+MAP	3170	8	89	-			Lunar Core B3
+MAP	3171	8	79	-			Lunar Core B4
+MAP	3172	0	16	-			Lunar Core B5
+MAP	3173	10	84	-			Lunar Subterrane B4 Treasure Room
+MAP	3174	10	86	-			Lunar Subterrane B4 Passage
+MAP	3175	10	86	-			Lunar Subterrane B5 Passage A
+MAP	3176	10	87	-			Lunar Subterrane B5 Passage B
+MAP	3177	5	92	-			Lunar Subterrane B5 Pink Puff Room
+MAP	3178	0	16	-			Lunar Subterrane B5 Save Room
+MAP	3179	10	87	-			Lunar Subterrane B6 Passage
+MAP	317A	10	87	-			Lunar Subterrane B7 Treasure Room A (White)
+MAP	317B	0	16	-			Lunar Subterrane B7 Save Room
+MAP	317C	10	87	-			Lunar Subterrane B7 Treasure Room B (Ribbon)
