@@ -159,13 +159,13 @@ int main (int argc, char ** argv) {
 
 	for (const auto & algorithm : algorithms) {
 		if (algorithm == "ils") {
-			optimize_ils(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_filename);
+			optimize_ils(optimization_index, &best_frames, &best_score, options, randomizer, &engine, base_engine, route_output_filename);
 		} else if (algorithm == "local") {
-			optimize_local(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_filename, true);
+			optimize_local(optimization_index, &best_frames, &best_score, options, randomizer, &engine, base_engine, route_output_filename, true);
 		} else if (algorithm == "pair") {
-			optimize_local_pair(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_filename, true);
+			optimize_local_pair(optimization_index, &best_frames, &best_score, options, randomizer, &engine, base_engine, route_output_filename, true);
 		} else if (algorithm == "sequential") {
-			optimize_sequential(optimization_index, best_frames, best_score, options, randomizer, engine, base_engine, route_output_filename);
+			optimize_sequential(optimization_index, &best_frames, &best_score, options, randomizer, &engine, base_engine, route_output_filename);
 		} else if (algorithm == "none") {
 		} else {
 			std::cerr << "Algorithm \"" << algorithm << "\" is unknown" << std::endl;
@@ -185,7 +185,7 @@ int main (int argc, char ** argv) {
 		std::cout << engine.format_output(base_engine);
 	}
 
-	RouteOutput::write_route(route_output_filename, randomizer, engine, base_engine, true);
+	RouteOutput::write_route(route_output_filename, randomizer, &engine, base_engine, true);
 
 	return 0;
 }

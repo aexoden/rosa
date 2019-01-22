@@ -10,31 +10,28 @@
 #include "instruction.hh"
 #include "parameters.hh"
 
-class LogEntry {
-	public:
-		LogEntry(const std::shared_ptr<const Instruction> & instruction, int indent);
+struct LogEntry {
+	const std::shared_ptr<const Instruction> instruction;
+	const int indent = 0;
 
-		const std::shared_ptr<const Instruction> instruction;
-		const int indent = 0;
+	int steps = 0;
 
-		int steps = 0;
+	bool save_reset = false;
+	int new_seed = 0;
 
-		bool save_reset = false;
-		int new_seed = 0;
+	int seed_start = 0;
+	int index_start = 0;
 
-		int seed_start = 0;
-		int index_start = 0;
+	std::string party = "";
 
-		std::string party;
-
-		std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> encounters;
-		std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> potential_encounters;
-		std::map<int, Milliframes> step_details;
+	std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> encounters{};
+	std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> potential_encounters{};
+	std::map<int, Milliframes> step_details{};
 };
 
 class Engine {
 	public:
-		Engine(const Parameters & parameters, const std::vector<std::shared_ptr<const Instruction>> & instructions, const Encounters & encounters);
+		Engine(Parameters parameters, std::vector<std::shared_ptr<const Instruction>> instructions, Encounters encounters);
 
 		void reset();
 		void run();
@@ -78,14 +75,14 @@ class Engine {
 
 		Parameters _parameters;
 
-		int _step_seed;
-		int _step_index;
+		int _step_seed = 0;
+		int _step_index = 0;
 
-		int _encounter_seed;
-		int _encounter_index;
+		int _encounter_seed = 0;
+		int _encounter_index = 0;
 
-		int _encounter_rate;
-		int _encounter_group;
+		int _encounter_rate = 0;
+		int _encounter_group = 0;
 
 		std::vector<std::shared_ptr<const Instruction>> _instructions;
 		std::vector<std::shared_ptr<const Instruction>>::size_type _instruction_index = 0;
@@ -100,7 +97,7 @@ class Engine {
 		int _encounter_count = 0;
 
 		std::set<int> _encounter_search;
-		bool _encounter_search_area;
+		bool _encounter_search_area = false;
 		std::string _encounter_search_party;
 
 		std::string _party;
@@ -108,11 +105,11 @@ class Engine {
 		std::vector<LogEntry> _log;
 
 		std::string _title;
-		int _version;
+		int _version = 0;
 
 		int _indent = 0;
 
-		bool _full_minimum;
+		bool _full_minimum = false;
 };
 
 #endif // SPOONY_ENGINE_HH

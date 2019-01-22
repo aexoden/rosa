@@ -2,7 +2,9 @@
 #define SPOONY_INSTRUCTION_HH
 
 #include <istream>
+#include <memory>
 #include <set>
+#include <vector>
 
 enum class InstructionType {
 	NOOP,
@@ -22,7 +24,7 @@ enum class InstructionType {
 
 class Instruction {
 	public:
-		Instruction(const std::string & line);
+		explicit Instruction(const std::string & line);
 
 		InstructionType type = InstructionType::NOOP;
 		std::string text;

@@ -26,7 +26,7 @@ class Encounter {
 
 class Encounters {
 	public:
-		Encounters(std::istream & input);
+		explicit Encounters(std::istream & input);
 
 		std::shared_ptr<const Encounter> get_encounter(std::size_t id);
 		std::shared_ptr<const Encounter> get_encounter_from_group(std::size_t group_index, std::size_t encounter_index);

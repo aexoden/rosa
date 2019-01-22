@@ -1,5 +1,5 @@
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <map>
 
 #include <boost/format.hpp>
@@ -7,7 +7,8 @@
 #include "engine.hh"
 #include "version.hh"
 
-Engine::Engine(const Parameters & parameters, const std::vector<std::shared_ptr<const Instruction>> & instructions, const Encounters & encounters) : _parameters{parameters}, _instructions{instructions}, _encounters{encounters} {
+Engine::Engine(Parameters parameters, std::vector<std::shared_ptr<const Instruction>> instructions, Encounters encounters) :
+		_parameters{std::move(parameters)}, _instructions{std::move(instructions)}, _encounters{std::move(encounters)} {
 	_reset(_parameters.seed);
 }
 
@@ -68,7 +69,7 @@ std::string Engine::format_output(const Engine & base_engine) const {
 	output << "\n\n";
 
 	for (auto & entry : _log) {
-		std::string indent = "";
+		std::string indent;
 
 		for (int i = 0; i < entry.indent; i++) {
 			indent.append("  ");
@@ -261,7 +262,7 @@ void Engine::_cycle() {
 
 				_score -= steps * 1000;
 				_score += (_parameters.randomizer->get_index() * static_cast<double>(optional_steps) * 0.5 * 0.001);
-				_score += (_parameters.randomizer->get_index() * static_cast<double>(extra_steps / 2) * 0.001);
+				_score += (_parameters.randomizer->get_index() * static_cast<double>(static_cast<int>(extra_steps / 2)) * 0.001);
 				_score += (_parameters.randomizer->get_index() * (extra_steps % 2 == 1 ? 0.0000001 : 0));
 
 				if (instruction->can_double_step) {
@@ -317,7 +318,7 @@ void Engine::_cycle() {
 			_version = instruction->number;
 			break;
 		case InstructionType::WAIT:
-			while (_encounter_search.size() > 0) {
+			while (!_encounter_search.empty()) {
 				_step(2, 2, false);
 			}
 
@@ -332,9 +333,9 @@ void Engine::_cycle() {
 }
 
 std::shared_ptr<const Encounter> Engine::_get_encounter() {
-	if ((rng_data[_step_index] + _step_seed) % 256 < _encounter_rate) {
-		int value = (rng_data[_encounter_index] + _encounter_seed) % 256;
-		int i;
+	if ((rng_data[static_cast<std::size_t>(_step_index)] + _step_seed) % 256 < _encounter_rate) {
+		int value = (rng_data[static_cast<std::size_t>(_encounter_index)] + _encounter_seed) % 256;
+		std::size_t i;
 
 		if (value < 43) {
 			i = 0;
@@ -354,7 +355,7 @@ std::shared_ptr<const Encounter> Engine::_get_encounter() {
 			i = 7;
 		}
 
-		return _encounters.get_encounter_from_group(_encounter_group, i);
+		return _encounters.get_encounter_from_group(static_cast<std::size_t>(_encounter_group), i);
 	}
 
 	return nullptr;
@@ -406,7 +407,7 @@ void Engine::_step(int tiles, int steps, bool simulate) {
 
 		auto encounter = _get_encounter();
 
-		if (!simulate && encounter && _encounter_search.size() > 0 && _encounter_search.count(encounter->get_id()) > 0) {
+		if (!simulate && encounter && !_encounter_search.empty() && _encounter_search.count(static_cast<int>(encounter->get_id())) > 0) {
 			_party = _encounter_search_party;
 			_encounter_search.clear();
 		}
@@ -467,9 +468,4 @@ void Engine::_transition(const std::shared_ptr<const Instruction> & instruction)
 	if (_encounter_search_area && instruction->type == InstructionType::PATH) {
 		_step(256, 256, true);
 	}
-}
-
-LogEntry::LogEntry(const std::shared_ptr<const Instruction> & instruction, int indent) :
-	instruction(instruction),
-	indent(indent) {
 }

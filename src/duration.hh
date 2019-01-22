@@ -11,10 +11,12 @@ constexpr Seconds operator ""_s(long double s) {
 	return Seconds(s);
 }
 
+// NOLINTNEXTLINE(google-runtime-int)
 constexpr Frames operator ""_f(unsigned long long f) {
 	return Frames(f);
 }
 
+// NOLINTNEXTLINE(google-runtime-int)
 constexpr Milliframes operator ""_mf(unsigned long long mf) {
 	return Milliframes(mf);
 }

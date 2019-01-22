@@ -58,8 +58,8 @@ Instruction::Instruction(const std::string & line) {
 			std::vector<std::string> temp_numbers;
 			boost::algorithm::split(temp_numbers, tokens[2], boost::is_any_of("+"), boost::token_compress_on);
 
-			for (const auto & number : temp_numbers) {
-				numbers.insert(std::stoi(number));
+			for (const auto & temp_number : temp_numbers) {
+				numbers.insert(std::stoi(temp_number));
 			}
 
 			party = tokens[3];

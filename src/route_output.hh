@@ -10,7 +10,7 @@ class Randomizer;
 
 class RouteOutput {
 	public:
-		RouteOutput(std::istream & input);
+		explicit RouteOutput(std::istream & input);
 
 		bool is_valid(int current_version) const;
 
@@ -24,7 +24,7 @@ class RouteOutput {
 		std::size_t get_variable_count() const;
 
 		static std::vector<std::pair<std::size_t, int>> parse_variable_data(const std::string & variable_data);
-		static bool write_route(const std::string & filename, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, bool normalize);
+		static bool write_route(const std::string & filename, const std::shared_ptr<Randomizer> & randomizer, Engine * engine, const Engine & base_engine, bool normalize);
 
 	private:
 		int _version = 0;

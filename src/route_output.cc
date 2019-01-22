@@ -78,37 +78,37 @@ std::vector<std::pair<std::size_t, int>> RouteOutput::parse_variable_data(const 
 			std::vector<std::string> subtokens;
 			boost::algorithm::split(subtokens, variable, boost::is_any_of(":"), boost::token_compress_on);
 
-			variables.push_back(std::make_pair(std::stoi(subtokens[0]), std::stoi(subtokens[1])));
+			variables.emplace_back(std::make_pair(std::stoi(subtokens[0]), std::stoi(subtokens[1])));
 		}
 	}
 
 	return variables;
 }
 
-static void normalize_route(const std::shared_ptr<Randomizer> & randomizer, Engine & engine) {
+static void normalize_route(const std::shared_ptr<Randomizer> & randomizer, Engine * engine) {
 	randomizer->reset();
 
-	engine.reset();
-	engine.run();
+	engine->reset();
+	engine->run();
 
-	Milliframes frames = engine.get_frames();
+	Milliframes frames = engine->get_frames();
 
 	for (std::size_t i = 0; i < randomizer->data.size(); i++) {
-		for (int value = 0; value <= engine.get_maximum_steps(); value++) {
+		for (int value = 0; value <= engine->get_maximum_steps(); value++) {
 			randomizer->reset();
 			randomizer->data[i] = value;
 
-			engine.reset();
-			engine.run();
+			engine->reset();
+			engine->run();
 
-			if (engine.get_frames() == frames) {
+			if (engine->get_frames() == frames) {
 				break;
 			}
 		}
 	}
 }
 
-bool RouteOutput::write_route(const std::string & filename, const std::shared_ptr<Randomizer> & randomizer, Engine & engine, const Engine & base_engine, bool normalize) {
+bool RouteOutput::write_route(const std::string & filename, const std::shared_ptr<Randomizer> & randomizer, Engine * engine, const Engine & base_engine, bool normalize) {
 	std::ifstream route_output_file{filename, std::ios_base::in};
 	RouteOutput route_output_data{route_output_file};
 	route_output_file.close();
@@ -117,45 +117,51 @@ bool RouteOutput::write_route(const std::string & filename, const std::shared_pt
 
 	Milliframes best_frames = 0_mf;
 
-	if (route_output_data.is_valid(engine.get_version())) {
+	bool do_output = true;
+
+	if (route_output_data.is_valid(engine->get_version())) {
 		bool rewrite_if_equal = false;
 
-		if (SPOONY_VERSION != route_output_data.get_spoony_version() || engine.get_maximum_steps() > route_output_data.get_maximum_steps() || engine.get_score() > route_output_data.get_score()) {
+		if (SPOONY_VERSION != route_output_data.get_spoony_version() || engine->get_maximum_steps() > route_output_data.get_maximum_steps() || engine->get_score() > route_output_data.get_score()) {
 			rewrite_if_equal = true;
 		}
 
-		if (engine.get_frames() > route_output_data.get_frames()) {
-			return false;
-		} else if (engine.get_frames() == route_output_data.get_frames() && !rewrite_if_equal) {
-			return false;
+		if (engine->get_frames() > route_output_data.get_frames()) {
+			do_output = false;
+		} else if (engine->get_frames() == route_output_data.get_frames() && !rewrite_if_equal) {
+			do_output = false;
 		}
 
 		best_frames = route_output_data.get_frames();
 	}
 
-	std::vector<int> saved_data{randomizer->data};
+	if (do_output) {
+		std::vector<int> saved_data{randomizer->data};
 
-	std::time_t t = std::time(nullptr);
+		std::time_t t = std::time(nullptr);
 
-	std::cout << "\r                                                                                                                                                                      ";
-	std::cout << '\r' << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S") << ": ";
-	std::cout << std::left << std::setw(40) << engine.get_title() << std::right << std::setw(4) << engine.get_initial_seed();
+		std::cout << "\r                                                                                                                                                                      ";
+		std::cout << '\r' << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S") << ": ";
+		std::cout << std::left << std::setw(40) << engine->get_title() << std::right << std::setw(4) << engine->get_initial_seed();
 
-	if (best_frames > 0_mf) {
-		std::cout << std::setw(11) << Seconds{best_frames}.count() << " -> " << std::left << std::setw(11) << Seconds{engine.get_frames()}.count();
-		std::cout << std::setw(8) << Seconds{best_frames - engine.get_frames()}.count();
-	} else {
-		std::cout << std::setw(11) << std::setw(11) << "N/A" << " -> " << std::left << std::setw(11) << Seconds{engine.get_frames()}.count();
+		if (best_frames > 0_mf) {
+			std::cout << std::setw(11) << Seconds{best_frames}.count() << " -> " << std::left << std::setw(11) << Seconds{engine->get_frames()}.count();
+			std::cout << std::setw(8) << Seconds{best_frames - engine->get_frames()}.count();
+		} else {
+			std::cout << std::setw(11) << std::setw(11) << "N/A" << " -> " << std::left << std::setw(11) << Seconds{engine->get_frames()}.count();
+		}
+
+		std::cout << std::endl;
+
+		std::ofstream output{filename, std::ofstream::out};
+		output << engine->format_output(base_engine);
+
+		if (!normalize) {
+			randomizer->data = saved_data;
+		}
+
+		return true;
 	}
 
-	std::cout << std::endl;
-
-	std::ofstream output{filename, std::ofstream::out};
-	output << engine.format_output(base_engine);
-
-	if (!normalize) {
-		randomizer->data = saved_data;
-	}
-
-	return true;
+	return false;
 }
