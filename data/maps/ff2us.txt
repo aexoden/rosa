@@ -31,7 +31,7 @@ MAP	300E	0	16	-			Town of Baron House (Rosa)
 MAP	300F	0	16	-			Village Mist House
 MAP	3010	0	16	Inn			Kaipo Inn
 MAP	3011	0	16	Cafe			Kaipo Cafe
-MAP	3012	0	16				Kaipo House
+MAP	3012	0	16	-			Kaipo House
 MAP	3013	0	16	Cafe			Mysidia Cafe
 MAP	3014	0	16	Inn			Mysidia Inn
 MAP	3015	0	16	-			Mt.Ordeals Tomb
