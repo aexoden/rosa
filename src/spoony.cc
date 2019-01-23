@@ -115,9 +115,9 @@ int main (int argc, char ** argv) {
 	}
 
 	auto instructions = read_instructions(route_source_file);
-	auto randomizer = std::make_shared<Randomizer>();
+	auto variables = std::make_shared<Variables>();
 
-	Engine base_engine{Parameters{options.tas_mode, options.step_output, options.seed, 0, "none", randomizer}, instructions, encounters, maps};
+	Engine base_engine{Parameters{options.tas_mode, options.step_output, options.seed, 0, "none", variables}, instructions, encounters, maps};
 	base_engine.run();
 
 	auto route_output_directory = options.output_directory + "/" + options.route;
@@ -129,16 +129,18 @@ int main (int argc, char ** argv) {
 	 * Variable Processing
 	 */
 
+	/*
 	std::size_t optimization_index = 0;
 
-	auto variables = RouteOutput::parse_variable_data(options.variables);
+
+	auto loaded_variables = RouteOutput::parse_variable_data(options.variables);
 
 	std::ifstream route_output_file{route_output_filename, std::ios_base::in};
 	RouteOutput route_output_data{route_output_file};
 	route_output_file.close();
 
 	if (options.load_existing_variables) {
-		variables = route_output_data.get_variables();
+		loaded_variables = route_output_data.get_variables();
 	}
 
 	for (const auto & pair : variables) {
@@ -150,23 +152,24 @@ int main (int argc, char ** argv) {
 			randomizer->data[pair.first] = pair.second;
 		}
 	}
+	*/
 
 	/*
 	 * Optimization
 	 */
 
-	Engine engine{Parameters{options.tas_mode, options.step_output, options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters, maps};
-
-	randomizer->reset();
+	Engine engine{Parameters{options.tas_mode, options.step_output, options.seed, options.maximum_steps, options.algorithm, variables}, instructions, encounters, maps};
 
  	engine.reset();
  	engine.run();
 
-	Milliframes best_frames = route_output_data.is_valid(base_engine.get_version()) ? route_output_data.get_frames() : base_engine.get_frames();
-	double best_score = route_output_data.is_valid(base_engine.get_version()) ? engine.get_score() : base_engine.get_score();
+	/*
+	Milliframes best_frames = base_engine.get_frames();
+	double best_score = base_engine.get_score();
 
 	std::vector<std::string> algorithms;
 	boost::algorithm::split(algorithms, options.algorithm, boost::is_any_of("+"));
+
 
 	for (const auto & algorithm : algorithms) {
 		if (algorithm == "ils") {
@@ -182,21 +185,18 @@ int main (int argc, char ** argv) {
 			std::cerr << "Algorithm \"" << algorithm << "\" is unknown" << std::endl;
 		}
 	}
+	*/
 
 	/*
 	 * Output
 	 */
 
-	randomizer->reset();
-
 	engine.reset();
 	engine.run();
 
-	if (options.output_result) {
-		std::cout << engine.format_output(base_engine);
-	}
+	std::cout << engine.format_output(base_engine);
 
-	RouteOutput::write_route(route_output_filename, randomizer, &engine, base_engine, true);
+	//RouteOutput::write_route(route_output_filename, variables, &engine, base_engine, true);
 
 	return 0;
 }

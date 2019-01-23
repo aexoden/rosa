@@ -32,6 +32,8 @@ class Instruction {
 
 		std::set<int> numbers;
 
+		int variable = -1;
+
 		int number = 0;
 
 		int tiles = 0;

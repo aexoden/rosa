@@ -4,6 +4,7 @@
 
 #include "duration.hh"
 #include "encounter.hh"
+#include "variable.hh"
 
 class Engine;
 class Randomizer;
@@ -24,7 +25,7 @@ class RouteOutput {
 		std::size_t get_variable_count() const;
 
 		static std::vector<std::pair<std::size_t, int>> parse_variable_data(const std::string & variable_data);
-		static bool write_route(const std::string & filename, const std::shared_ptr<Randomizer> & randomizer, Engine * engine, const Engine & base_engine, bool normalize);
+		static bool write_route(const std::string & filename, const std::shared_ptr<Variables> & variables, Engine * engine, const Engine & base_engine, bool normalize);
 
 	private:
 		int _version = 0;

@@ -2,8 +2,9 @@
 #define SPOONY_PARAMETERS_HH
 
 #include <memory>
+#include <unordered_map>
 
-#include "randomizer.hh"
+#include "variable.hh"
 
 struct Parameters {
 	public:
@@ -15,7 +16,7 @@ struct Parameters {
 
 		std::string algorithm = "ils+pair";
 
-		const std::shared_ptr<Randomizer> randomizer = nullptr;
+		std::shared_ptr<Variables> variables;
 };
 
 #endif // SPOONY_PARAMETERS_HH

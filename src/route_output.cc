@@ -8,7 +8,6 @@
 #include <boost/algorithm/string/split.hpp>
 
 #include "engine.hh"
-#include "randomizer.hh"
 #include "route_output.hh"
 #include "version.hh"
 
@@ -85,18 +84,15 @@ std::vector<std::pair<std::size_t, int>> RouteOutput::parse_variable_data(const 
 	return variables;
 }
 
-static void normalize_route(const std::shared_ptr<Randomizer> & randomizer, Engine * engine) {
-	randomizer->reset();
-
+static void normalize_route(const std::shared_ptr<Variables> & variables, Engine * engine) {
 	engine->reset();
 	engine->run();
 
 	Milliframes frames = engine->get_frames();
 
-	for (std::size_t i = 0; i < randomizer->data.size(); i++) {
+	for (auto & [key, variable] : *variables) {
 		for (int value = 0; value <= engine->get_maximum_steps(); value++) {
-			randomizer->reset();
-			randomizer->data[i] = value;
+			variable.value = value;
 
 			engine->reset();
 			engine->run();
@@ -108,12 +104,14 @@ static void normalize_route(const std::shared_ptr<Randomizer> & randomizer, Engi
 	}
 }
 
-bool RouteOutput::write_route(const std::string & filename, const std::shared_ptr<Randomizer> & randomizer, Engine * engine, const Engine & base_engine, bool normalize) {
+bool RouteOutput::write_route(const std::string & filename, const std::shared_ptr<Variables> & variables, Engine * engine, const Engine & base_engine, bool normalize) {
 	std::ifstream route_output_file{filename, std::ios_base::in};
 	RouteOutput route_output_data{route_output_file};
 	route_output_file.close();
 
-	normalize_route(randomizer, engine);
+	if (normalize) {
+		normalize_route(variables, engine);
+	}
 
 	Milliframes best_frames = 0_mf;
 
@@ -136,8 +134,6 @@ bool RouteOutput::write_route(const std::string & filename, const std::shared_pt
 	}
 
 	if (do_output) {
-		std::vector<int> saved_data{randomizer->data};
-
 		std::time_t t = std::time(nullptr);
 
 		std::cout << "\r                                                                                                                                                                      ";
@@ -155,10 +151,6 @@ bool RouteOutput::write_route(const std::string & filename, const std::shared_pt
 
 		std::ofstream output{filename, std::ofstream::out};
 		output << engine->format_output(base_engine);
-
-		if (!normalize) {
-			randomizer->data = saved_data;
-		}
 
 		return true;
 	}

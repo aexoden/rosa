@@ -5,14 +5,15 @@
 #include "engine.hh"
 #include "optimizer.hh"
 #include "options.hh"
-#include "randomizer.hh"
 #include "route_output.hh"
+#include "variable.hh"
 
-void optimize_ils(std::size_t start_index, Milliframes * best_frames, double * best_score, const Options & options, const std::shared_ptr<Randomizer> & randomizer, Engine * engine, const Engine & base_engine, const std::string & output_filename) {
+/*
+void optimize_ils(std::size_t start_index, Milliframes * best_frames, double * best_score, const Options & options, const std::shared_ptr<Variables> & variables, Engine * engine, const Engine & base_engine, const std::string & output_filename) {
 	std::random_device rd;
 	std::default_random_engine random_engine{rd()};
 
-	optimize_local(start_index, best_frames, best_score, options, randomizer, engine, base_engine, output_filename, false);
+	optimize_local(start_index, best_frames, best_score, options, variables, engine, base_engine, output_filename, false);
 
 	Milliframes search_best_frames = engine->get_frames();
 
@@ -20,14 +21,11 @@ void optimize_ils(std::size_t start_index, Milliframes * best_frames, double * b
 		std::cout << "\rSeed: " << std::right << std::setw(4) << options.seed;
 		std::cout << "   Algorithm: " << std::left << std::setw(15) << "ILS";
 		std::cout << "   Index: " << std::right << std::setw(2) << i;
-		std::cout << "   Variables: (" << std::setw(2) << randomizer->get_minimum_variables() << ", " << randomizer->get_maximum_variables() << ")";
 		std::cout << "   Best: " << std::setw(10) << Seconds{*best_frames}.count();
 		std::cout << "   Current: " << std::setw(10) << Seconds{search_best_frames}.count();
 		std::cout << "   Search Best: " << std::setw(10) << Seconds{search_best_frames}.count();
 		std::cout << "   Iteration: " << std::setw(10) << (i + 1);
 		std::cout << std::flush;
-
-		std::vector<int> current_data{randomizer->data};
 
 		std::uniform_int_distribution<std::size_t> index_dist{start_index, randomizer->data.size() - 1};
 
@@ -284,3 +282,4 @@ void optimize_sequential(std::size_t start_index, Milliframes * best_frames, dou
 
 	std::cout << std::endl;
 }
+*/

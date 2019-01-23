@@ -7,6 +7,14 @@
 #include "engine.hh"
 #include "version.hh"
 
+static int read_variable(const Parameters & parameters, int variable) {
+	if (parameters.variables->count(variable) > 0) {
+		return parameters.variables->at(variable).value;
+	}
+
+	return 0;
+}
+
 Engine::Engine(Parameters parameters, std::vector<std::shared_ptr<const Instruction>> instructions, Encounters encounters, Maps maps) :
 		_parameters{std::move(parameters)}, _instructions{std::move(instructions)}, _encounters{std::move(encounters)}, _maps{std::move(maps)} {
 	_reset(_parameters.seed);
@@ -58,10 +66,9 @@ std::string Engine::format_output(const Engine & base_engine) const {
 
 	bool output_var = false;
 
-	for (std::size_t i = 0; i < _parameters.randomizer->data.size(); i++) {
-		if (_parameters.randomizer->data[i] > 0) {
-			output << boost::format("%s%d:%d") % (output_var ? " " : "") % i % _parameters.randomizer->data[i];
-
+	for (const auto & [key, variable] : *(_parameters.variables)) {
+		if (variable.value > 0) {
+			output << boost::format("%s%07X:%d") % (output_var ? " " : "") % key % variable.value;
 			output_var = true;
 		}
 	}
@@ -161,10 +168,6 @@ int Engine::get_maximum_steps() const {
 	return _parameters.maximum_extra_steps;
 }
 
-int Engine::get_variable_count() const {
-	return _parameters.randomizer->get_set_variable_count();
-}
-
 double Engine::get_score() const {
 	return _score;
 }
@@ -182,11 +185,7 @@ void Engine::_cycle() {
 
 	switch (instruction->type) {
 		case InstructionType::CHOICE: {
-			if (_parameters.randomizer->is_implicit()) {
-				_full_minimum = false;
-			}
-
-			int choice = _parameters.randomizer->get_int(0, instruction->number - 1);
+			int choice{read_variable(_parameters, instruction->variable)};
 
 			if (_parameters.maximum_extra_steps == 0) {
 				choice = 0;
@@ -215,10 +214,6 @@ void Engine::_cycle() {
 			_minimum_frames += Frames{instruction->number};
 			break;
 		case InstructionType::NOOP:
-			for (int i = 0; i < instruction->number; i++) {
-				_parameters.randomizer->get_int(0, 1);
-			}
-
 			break;
 		case InstructionType::NOTE:
 			_transition(instruction);
@@ -247,11 +242,7 @@ void Engine::_cycle() {
 					maximum_extra_steps = instruction->optional_steps;
 				}
 
-				if (_parameters.randomizer->is_implicit()) {
-					_full_minimum = false;
-				}
-
-				int steps = _parameters.randomizer->get_int(0, maximum_extra_steps);
+				int steps{read_variable(_parameters, instruction->variable)};
 				int optional_steps = std::min(instruction->optional_steps, steps);
 				int extra_steps = steps - optional_steps;
 				int tiles = 0;
@@ -266,9 +257,6 @@ void Engine::_cycle() {
 				}
 
 				_score -= steps * 1000;
-				_score += (_parameters.randomizer->get_index() * static_cast<double>(optional_steps) * 0.5 * 0.001);
-				_score += (_parameters.randomizer->get_index() * static_cast<double>(static_cast<int>(extra_steps / 2)) * 0.001);
-				_score += (_parameters.randomizer->get_index() * (extra_steps % 2 == 1 ? 0.0000001 : 0));
 
 				if (instruction->can_double_step) {
 					tiles = extra_steps;
@@ -291,11 +279,7 @@ void Engine::_cycle() {
 		case InstructionType::SAVE: {
 			_transition(instruction);
 
-			if (_parameters.randomizer->is_implicit()) {
-				_full_minimum = false;
-			}
-
-			int value = _parameters.randomizer->get_int(0, 256);
+			int value{read_variable(_parameters, instruction->variable)};
 
 			if (value > 0) {
 				int seed = value - 1;
