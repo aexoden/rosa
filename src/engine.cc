@@ -7,8 +7,8 @@
 #include "engine.hh"
 #include "version.hh"
 
-Engine::Engine(Parameters parameters, std::vector<std::shared_ptr<const Instruction>> instructions, Encounters encounters) :
-		_parameters{std::move(parameters)}, _instructions{std::move(instructions)}, _encounters{std::move(encounters)} {
+Engine::Engine(Parameters parameters, std::vector<std::shared_ptr<const Instruction>> instructions, Encounters encounters, Maps maps) :
+		_parameters{std::move(parameters)}, _instructions{std::move(instructions)}, _encounters{std::move(encounters)}, _maps{std::move(maps)} {
 	_reset(_parameters.seed);
 }
 
@@ -70,12 +70,17 @@ std::string Engine::format_output(const Engine & base_engine) const {
 
 	for (auto & entry : _log) {
 		std::string indent;
+		std::string text{entry.instruction->text};
+
+		if (entry.instruction->map >= 0) {
+			text = _maps.get_map(entry.instruction->map).description;
+		}
 
 		for (int i = 0; i < entry.indent; i++) {
 			indent.append("  ");
 		}
 
-		output << boost::format("%-58sSeed: %3d   Index: %3d\n") % (indent + entry.instruction->text) % entry.seed_start % entry.index_start;
+		output << boost::format("%-58sSeed: %3d   Index: %3d\n") % (indent + text) % entry.seed_start % entry.index_start;
 
 		int optional_steps = std::min(entry.instruction->optional_steps, entry.steps - entry.instruction->required_steps);
 		int extra_steps = entry.steps - entry.instruction->required_steps - optional_steps;
@@ -229,9 +234,9 @@ void Engine::_cycle() {
 		case InstructionType::PARTY:
 			_party = instruction->text;
 			break;
-		case InstructionType::PATH:
-			_encounter_rate = instruction->encounter_rate;
-			_encounter_group = instruction->encounter_group;
+		case InstructionType::PATH: {
+			_encounter_rate = _maps.get_map(instruction->map).encounter_rate;
+			_encounter_group = _maps.get_map(instruction->map).encounter_group;
 			_transition(instruction);
 			_step(instruction->tiles, instruction->required_steps, false);
 
@@ -279,6 +284,7 @@ void Engine::_cycle() {
 			}
 
 			break;
+		}
 		case InstructionType::ROUTE:
 			_title = instruction->text;
 			break;

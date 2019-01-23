@@ -16,8 +16,6 @@ not a very general-use application.
 
 ### Minor Changes ###
 
-* Load all map data from the map database, instead of redundantly storing this
-  information in the route definitions.
 * Add explicitly named variables, to make referencing a particular variable more
   easy than with the current automatically-indexed ones.
 

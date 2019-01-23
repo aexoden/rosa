@@ -1,90 +1,90 @@
 ROUTE	Final Fantasy IV Paladin%
-VERSION	12
+VERSION	13
 PARTY	3G+K11---C11------10
-PATH	Overworld (Mist)			1	1	0	8	1	0	-	-	+	+
+PATH	0002	1	1	0	0	-	-	+	+
 PARTY	3G+------C11------11
-PATH	Overworld (Kaipo)			37	36	0	8	1	1	-	-	+	+
+PATH	0002	37	36	0	1	-	-	+	+
 NOTE	Kaipo
 PARTY	3G+---D04C11------06
-PATH	Overworld (Kaipo)			33	32	0	8	1	1	-	-	+	+
+PATH	0002	33	32	0	1	-	-	+	+
 PARTY	3G----D04C11------06
-PATH	Watery Pass-South B1F			32	32	0	7	17	1	-	-	+	-
+PATH	306F	32	32	0	1	-	-	+	-
 NOTE	Recruit Tellah
 PARTY	3G-T08D04C11------10
-PATH	Watery Pass-South B1F			21	20	0	7	17	0	-	-	+	-
-PATH	Watery Pass-South B2F			91	90	0	7	17	1	-	-	+	-
-PATH	Watery Pass-South Save Room		5	4	0	0	0	1	+	-	+	-
-PATH	Watery Pass-South B2F			40	39	0	7	17	1	+	-	+	-
-PATH	Watery Pass-South B3F			35	34	0	7	18	1	+	-	+	-
-PATH	Watery Pass-North B2F			22	21	0	8	18	1	+	-	+	-
-PATH	Watery Pass-North B1F			62	60	0	8	19	1	+	+	+	-
+PATH	306F	21	20	0	0	-	-	+	-
+PATH	3070	91	90	0	1	-	-	+	-
+PATH	3054	5	4	0	1	+	-	+	-
+PATH	3070	40	39	0	1	+	-	+	-
+PATH	3071	35	34	0	1	+	-	+	-
+PATH	3072	22	21	0	1	+	-	+	-
+PATH	3073	62	60	0	1	+	+	+	-
 PARTY	3G+T08D04C11------10
-PATH	Overworld (Kaipo)			10	9	0	8	1	1	+	-	+	+
+PATH	0002	10	9	0	1	+	-	+	+
 PARTY	3G-T08D04C11------10
-PATH	Waterfalls B1F				2	1	0	0	0	1	+	-	+	-
-PATH	Waterfalls B2F				46	45	0	8	20	1	+	-	+	-
-PATH	Waterfalls Lake				38	37	0	8	20	1	+	-	+	-
+PATH	3074	2	1	0	1	+	-	+	-
+PATH	3075	46	45	0	1	+	-	+	-
+PATH	3076	38	37	0	1	+	-	+	-
 NOTE	Battle: Octomamm
 PARTY	2G-D06T08---C11---11
-PATH	Waterfalls Lake				2	1	0	8	20	0	+	+	-	-
+PATH	3076	2	1	0	0	+	+	-	-
 PARTY	2G+D06T08---C11---11
-PATH	Overworld (Kaipo)			11	11	0	8	1	1	+	-	+	+
-PATH	Overworld (Damcyan)			6	4	0	8	2	0	+	-	+	+
-PATH	Damcyan					17	7	1	0	0	3	+	+	+	-
+PATH	0002	11	11	0	1	+	-	+	+
+PATH	0003	6	4	0	0	+	-	+	+
+PATH	3025	17	7	1	3	+	+	+	-
 PARTY	2G-D06---E09C11---06
-PATH	Antlion B1F				39	38	0	8	21	1	+	-	+	-
+PATH	3077	39	38	0	1	+	-	+	-
 CHOICE	2
 OPTION	Antlion B2F Inward Direct
-PATH	Antlion B2F				83	80	0	8	22	1	+	+	+	-
+PATH	3078	83	80	0	1	+	+	+	-
 NOOP	2
 OPTION	Antlion B2F Inward Charm Room Steps
-PATH	Antlion B2F				34	33	0	8	22	1	+	-	+	-
-PATH	Antlion Charm Room			1	0	0	0	0	1	+	-	+	-
-PATH	Antlion B2F				55	52	0	8	22	1	+	+	+	-
+PATH	3078	34	33	0	1	+	-	+	-
+PATH	307B	1	0	0	1	+	-	+	-
+PATH	3078	55	52	0	1	+	+	+	-
 END
-PATH	Antlion's Nest				15	14	0	8	22	1	+	-	+	-
+PATH	3079	15	14	0	1	+	-	+	-
 NOTE	Battle: Antlion
 PARTY	2G-D07---E10C12---08
-PATH	Antlion's Nest				17	15	0	8	22	0	+	+	+	-
+PATH	3079	17	15	0	0	+	+	+	-
 CHOICE	2
 OPTION	Antlion B2F Outward Direct
 NOOP	2
-PATH	Antlion B2F				83	80	0	8	22	1	+	+	+	-
+PATH	3078	83	80	0	1	+	+	+	-
 OPTION	Antlion B2F Outward Charm Room Steps
-PATH	Antlion B2F				54	51	0	8	22	1	+	+	+	-
-PATH	Antlion Charm Room			1	0	0	0	0	1	+	-	+	-
-PATH	Antlion B2F				35	34	0	8	22	1	+	-	+	-
+PATH	3078	54	51	0	1	+	+	+	-
+PATH	307B	1	0	0	1	+	-	+	-
+PATH	3078	35	34	0	1	+	-	+	-
 END
-PATH	Antlion B1F				39	38	0	8	21	1	+	-	+	-
+PATH	3077	39	38	0	1	+	-	+	-
 NOTE	Kaipo Revisited
 PARTY	2G-D07---E11C12R0809
-PATH	Mt.Hobs-West				41	39	0	8	23	1	+	+	+	-
-PATH	Mt.Hobs Summit				16	15	0	8	24	1	+	-	+	-
+PATH	307E	41	39	0	1	+	+	+	-
+PATH	307F	16	15	0	1	+	-	+	-
 NOTE	Battle: MomBomb
 PARTY	2G-D07Y08E11C12R0809
-PATH	Mt.Hobs Summit				7	6	0	8	24	0	+	-	+	-
-PATH	Mt.Hobs-East				55	46	0	8	25	1	+	+	+	-
+PATH	307F	7	6	0	0	+	-	+	-
+PATH	3080	55	46	0	1	+	+	+	-
 PARTY	2G+D07Y08E11C12R0809
-PATH	Overworld (Fabul)			86	84	0	10	3	1	+	+	+	+
-PATH	Fabul					101	60	10	0	0	10	+	+	+	-
+PATH	0004	86	84	0	1	+	+	+	+
+PATH	3026	101	60	10	10	+	+	+	-
 PARTY	2G+D07Y09E12C17---10
-PATH	Overworld (Fabul)			9	7	0	10	3	1	+	+	+	+
+PATH	0004	9	7	0	1	+	+	+	+
 NOTE	Fabul Boat and Leviatan
 PARTY	2G+---------C17---13
-PATH	Overworld (Mysidia)			10	9	0	8	4	0	+	-	+	+
+PATH	0005	10	9	0	0	+	-	+	+
 NOTE	Mysidia
 PARTY	2G+O07---P08C17---11
-PATH	Overworld (Mysidia)			10	10	0	8	4	1	+	-	+	+
-PATH	Overworld (Mt.Ordeals)			95	94	0	10	4	0	+	-	+	+
+PATH	0005	10	10	0	1	+	-	+	+
+PATH	0006	95	94	0	0	+	-	+	+
 PARTY	2G-O07---P08C17---11
-PATH	Mt.Ordeals				45	43	0	8	26	1	+	-	+	-
-PATH	Mt.Ordeals-3rd station			24	23	0	8	27	1	+	-	+	-
+PATH	3084	45	43	0	1	+	-	+	-
+PATH	3085	24	23	0	1	+	-	+	-
 NOTE	Recruit Tellah
 PARTY	2G-O07---P08C17T0813
-PATH	Mt.Ordeals-3rd station			6	5	0	8	27	0	+	-	+	-
-PATH	Mt.Ordeals-7th station			44	42	0	8	28	1	+	+	+	-
-PATH	Mt.Ordeals Summit			21	17	1	8	28	1	+	+	+	-
+PATH	3085	6	5	0	0	+	-	+	-
+PATH	3086	44	42	0	1	+	+	+	-
+PATH	3087	21	17	1	1	+	+	+	-
 NOTE	Battle: Milon and Milon Z
 PARTY	3G-T08---P08C18o0814
-PATH	Mt.Ordeals Summit			5	4	0	8	28	0	+	+	+	-
+PATH	3087	5	4	0	0	+	+	+	-
 NOTE	Paladin

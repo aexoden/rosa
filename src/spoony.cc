@@ -28,6 +28,7 @@
 #include "encounter.hh"
 #include "engine.hh"
 #include "instruction.hh"
+#include "map.hh"
 #include "optimizer.hh"
 #include "options.hh"
 #include "parameters.hh"
@@ -95,6 +96,16 @@ int main (int argc, char ** argv) {
 
 	Encounters encounters{encounters_file};
 
+	std::string maps_filename{"data/maps/ff2us.txt"};
+	std::ifstream maps_file{maps_filename, std::ios_base::in};
+
+	if (!maps_file.is_open()) {
+		std::cerr << "ERROR: Failed to open " << maps_filename << '\n';
+		return EXIT_FAILURE;
+	}
+
+	Maps maps{maps_file};
+
 	std::string route_source_filename{"data/routes/" + options.route + ".txt"};
 	std::ifstream route_source_file{route_source_filename, std::ios_base::in};
 
@@ -106,7 +117,7 @@ int main (int argc, char ** argv) {
 	auto instructions = read_instructions(route_source_file);
 	auto randomizer = std::make_shared<Randomizer>();
 
-	Engine base_engine{Parameters{options.tas_mode, options.step_output, options.seed, 0, "none", randomizer}, instructions, encounters};
+	Engine base_engine{Parameters{options.tas_mode, options.step_output, options.seed, 0, "none", randomizer}, instructions, encounters, maps};
 	base_engine.run();
 
 	auto route_output_directory = options.output_directory + "/" + options.route;
@@ -144,7 +155,7 @@ int main (int argc, char ** argv) {
 	 * Optimization
 	 */
 
-	Engine engine{Parameters{options.tas_mode, options.step_output, options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters};
+	Engine engine{Parameters{options.tas_mode, options.step_output, options.seed, options.maximum_steps, options.algorithm, randomizer}, instructions, encounters, maps};
 
 	randomizer->reset();
 

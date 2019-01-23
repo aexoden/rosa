@@ -8,6 +8,7 @@
 #include "duration.hh"
 #include "encounter.hh"
 #include "instruction.hh"
+#include "map.hh"
 #include "parameters.hh"
 
 struct LogEntry {
@@ -31,7 +32,7 @@ struct LogEntry {
 
 class Engine {
 	public:
-		Engine(Parameters parameters, std::vector<std::shared_ptr<const Instruction>> instructions, Encounters encounters);
+		Engine(Parameters parameters, std::vector<std::shared_ptr<const Instruction>> instructions, Encounters encounters, Maps maps);
 
 		void reset();
 		void run();
@@ -93,6 +94,7 @@ class Engine {
 		double _score = 0;
 
 		Encounters _encounters;
+		Maps _maps;
 
 		int _encounter_count = 0;
 

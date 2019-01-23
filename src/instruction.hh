@@ -39,8 +39,7 @@ class Instruction {
 		int required_steps = 0;
 		int optional_steps = 0;
 
-		int encounter_rate = 0;
-		int encounter_group = 0;
+		int map = -1;
 
 		int transition_count = 0;
 
