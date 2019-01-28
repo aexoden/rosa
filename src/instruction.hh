@@ -7,26 +7,25 @@
 #include <vector>
 
 enum class InstructionType {
-	NOOP,
-	CHOICE,
-	DELAY,
-	END,
-	NOTE,
-	OPTION,
-	PARTY,
-	PATH,
-	ROUTE,
-	SAVE,
-	SEARCH,
-	VERSION,
-	WAIT
+	Choice,
+	Delay,
+	End,
+	Note,
+	Option,
+	Party,
+	Path,
+	Route,
+	Save,
+	Search,
+	Version,
+	Wait
 };
 
 class Instruction {
 	public:
 		explicit Instruction(const std::string & line);
 
-		InstructionType type = InstructionType::NOOP;
+		InstructionType type = InstructionType::Note;
 		std::string text;
 		std::string party;
 
@@ -45,12 +44,13 @@ class Instruction {
 
 		int transition_count = 0;
 
-		bool take_extra_steps = false;
 		bool can_single_step = false;
 		bool can_double_step = false;
-		bool is_world_map = false;
+		bool can_step_during_save = false;
 };
 
-std::vector<std::shared_ptr<const Instruction>> read_instructions(std::istream & input);
+using Route = std::vector<Instruction>;
+
+Route read_route(std::istream & input);
 
 #endif // SPOONY_INSTRUCTION_HH

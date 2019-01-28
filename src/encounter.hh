@@ -28,8 +28,8 @@ class Encounters {
 	public:
 		explicit Encounters(std::istream & input);
 
-		std::shared_ptr<const Encounter> get_encounter(std::size_t id);
-		std::shared_ptr<const Encounter> get_encounter_from_group(std::size_t group_index, std::size_t encounter_index);
+		std::shared_ptr<const Encounter> get_encounter(std::size_t id) const;
+		std::shared_ptr<const Encounter> get_encounter_from_group(std::size_t group_index, std::size_t encounter_index) const;
 
 	private:
 		std::vector<std::shared_ptr<Encounter>> _encounters;

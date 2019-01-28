@@ -8,15 +8,13 @@
 
 struct Parameters {
 	public:
-		const bool tas_mode = false;
-		const bool step_output = false;
+		const Route route;
 
-		const int seed = 0;
+		const Encounters encounters;
+		const Maps maps;
+
 		const int maximum_extra_steps = 256;
-
-		std::string algorithm = "ils+pair";
-
-		std::shared_ptr<Variables> variables;
+		const bool tas_mode = false;
 };
 
 #endif // SPOONY_PARAMETERS_HH

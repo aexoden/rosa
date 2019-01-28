@@ -1,52 +1,297 @@
-#include <iomanip>
 #include <iostream>
-#include <map>
 
 #include <boost/format.hpp>
 
 #include "engine.hh"
 #include "version.hh"
 
-static int read_variable(const Parameters & parameters, int variable) {
-	if (parameters.variables->count(variable) > 0) {
-		return parameters.variables->at(variable).value;
-	}
-
-	return 0;
-}
-
-Engine::Engine(Parameters parameters, std::vector<std::shared_ptr<const Instruction>> instructions, Encounters encounters, Maps maps) :
-		_parameters{std::move(parameters)}, _instructions{std::move(instructions)}, _encounters{std::move(encounters)}, _maps{std::move(maps)} {
-	_reset(_parameters.seed);
-}
-
-void Engine::reset() {
-	_instruction_index = 0;
-
-	_frames = 0_mf;
-	_encounter_frames = 0_mf;
-	_minimum_frames = 0_mf;
-	_score = 0.0;
-
-	_encounter_count = 0;
-
-	_encounter_search.clear();
-	_encounter_search_area = false;
-
-	_indent = 0;
-
-	_full_minimum = true;
-
-	_log.clear();
-	_reset(_parameters.seed);
-}
-
-void Engine::run() {
-	while (_instruction_index < _instructions.size()) {
-		_cycle();
+Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
+	for (const auto & instruction : _parameters.route) {
+		if (instruction.variable >= 0) {
+			switch (instruction.type) {
+				case InstructionType::Choice:
+					_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Choice, 0, 0, instruction.number}));
+					break;
+				case InstructionType::Path:
+					_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Step, 0, 0, _parameters.maximum_extra_steps}));
+					break;
+				case InstructionType::Delay:
+				case InstructionType::End:
+				case InstructionType::Note:
+				case InstructionType::Option:
+				case InstructionType::Party:
+				case InstructionType::Route:
+				case InstructionType::Save:
+				case InstructionType::Search:
+				case InstructionType::Version:
+				case InstructionType::Wait:
+					break;
+			}
+		}
 	}
 }
 
+void Engine::set_variable_minimum(int variable, int value) {
+	_variables[variable].minimum = value;
+}
+
+void Engine::set_variable_maximum(int variable, int value) {
+	_variables[variable].maximum = value;
+}
+
+void Engine::optimize(int seed) {
+	State state{seed};
+
+	_optimize(state);
+	_finalize(state);
+}
+
+void Engine::_finalize(State state) {
+	while (state.index < _parameters.route.size()) {
+		auto instruction = _parameters.route[state.index];
+		auto [value, frames] = _cache.get(state);
+
+		_cycle(&state, value);
+
+		if (value > 0) {
+			_variables[instruction.variable].value = value;
+		}
+	}
+}
+
+std::string Engine::generate_output_text(int seed, const Engine & base_engine) {
+	State state{seed};
+	std::string output;
+
+	auto mframes{_optimize(state)};
+
+	output += (boost::format("ROUTE\t%s\n") % _route_title).str();
+	output += (boost::format("VERSION\t%d\n") % _route_version).str();
+	output += (boost::format("SPOONY\t%s\n") % SPOONY_VERSION).str();
+	output += (boost::format("SEED\t%d\n") % seed).str();
+	output += (boost::format("MAXSTEP\t%d\n") % _parameters.maximum_extra_steps).str();
+	output += (boost::format("TASMODE\t%d\n") % (_parameters.tas_mode ? 1 : 0)).str();
+	output += (boost::format("FRAMES\t%d\n") % mframes.count()).str();
+
+	std::string variable_output;
+
+	for (const auto & [key, value] : _variables) {
+		if (value.value > 0) {
+			variable_output += (variable_output.empty() ? "" : " ") + (boost::format("%07X:%d") % key % value.value).str();
+		}
+	}
+
+	output += (boost::format("VARS\t%s\n\n") % variable_output).str();
+
+	// TODO: Actual output
+
+	output += (boost::format("Total Time: %0.3fs\n") % Seconds(mframes).count()).str();
+
+	return output;
+}
+
+Milliframes Engine::_optimize(const State & state) {
+	if (state.index == _parameters.route.size()) {
+		return 0_mf;
+	}
+
+	auto [value, frames] = _cache.get(state);
+
+	if (value >= 0) {
+		return frames;
+	}
+
+	auto instruction{_parameters.route[state.index]};
+
+	int minimum{0};
+	int maximum{0};
+
+	if (instruction.variable > 0) {
+		minimum = _variables.at(instruction.variable).minimum;
+		maximum = _variables.at(instruction.variable).maximum;
+	}
+
+	value = -1;
+	frames = Milliframes::max();
+
+	for (int i = minimum; i <= maximum; i++) {
+		State work_state{state};
+		auto result{_cycle(&work_state, i)};
+
+		if (result < Milliframes::max()) {
+			result += _optimize(work_state);
+		}
+
+		if (result < frames) {
+			value = i;
+			frames = result;
+		}
+	}
+
+	_cache.set(state, value, frames);
+
+	return frames;
+}
+
+Milliframes Engine::_cycle(State * state, int value) {
+	Milliframes frames{0};
+	auto & instruction{_parameters.route[state->index]};
+
+	switch (instruction.type) {
+		case InstructionType::Choice:
+			while (value >= 0) {
+				while (_parameters.route[state->index].type != InstructionType::Option) {
+					state->index++;
+				}
+
+				value--;
+			}
+
+			frames += instruction.transition_count * 82_f;
+
+			break;
+		case InstructionType::Delay:
+			frames += Frames{instruction.number};
+			break;
+		case InstructionType::End:
+			break;
+		case InstructionType::Note:
+			break;
+		case InstructionType::Option:
+			while (_parameters.route[state->index].type != InstructionType::End) {
+				state->index++;
+			}
+
+			break;
+		case InstructionType::Party:
+			state->party = instruction.text;
+			break;
+		case InstructionType::Path:
+			frames += instruction.transition_count * 82_f;
+			frames += _step(state, instruction.tiles, instruction.required_steps);
+
+			if (value > 0) {
+				int optional_steps{std::min(instruction.optional_steps, value)};
+				int extra_steps{value - optional_steps};
+
+				if (extra_steps % 2 == 1 && optional_steps > 0) {
+					extra_steps++;
+					optional_steps--;
+				}
+
+				if (extra_steps % 2 == 1 && !instruction.can_single_step) {
+					extra_steps--;
+				}
+
+				int tiles{instruction.can_double_step ? extra_steps : extra_steps * 2};
+
+				if (tiles % 2 == 1) {
+					tiles++;
+				}
+
+				frames += _step(state, tiles, optional_steps + extra_steps);
+			}
+
+			break;
+		case InstructionType::Route:
+			_route_title = instruction.text;
+			break;
+		case InstructionType::Save:
+			// TODO: This needs to be implemented, but it can wait for TAS mode.
+			//       A reset is defined as 697 frames minus the number in the instruction.
+			break;
+		case InstructionType::Search:
+			for (const auto & number : instruction.numbers) {
+				if (state->search_targets.count(static_cast<std::size_t>(number)) > 0) {
+					state->search_targets[static_cast<std::size_t>(number)]++;
+				} else {
+					state->search_targets[static_cast<std::size_t>(number)] = 1;
+				}
+			}
+
+			state->search_party = instruction.party;
+
+			break;
+		case InstructionType::Version:
+			_route_version = instruction.number;
+			break;
+		case InstructionType::Wait:
+			if (state->search_targets.size() > 0) {
+				return Milliframes::max();
+			}
+
+			state->search_targets.clear();
+			state->search_party = "";
+			break;
+	}
+
+	state->index++;
+
+	return frames;
+}
+
+Milliframes Engine::_step(State * state, int tiles, int steps) {
+	const auto & instruction{_parameters.route[state->index]};
+	const auto & map{_parameters.maps.get_map(instruction.map)};
+
+	Milliframes frames{tiles * 16_f};
+
+	for (auto i{0}; i < steps; i++) {
+		state->step_index = (state->step_index + 1) % 256;
+
+		if (state->step_index == 0) {
+			state->step_seed = (state->step_seed + 17) % 256;
+		}
+
+		if ((_rng_data[static_cast<std::size_t>(state->step_index)] + state->step_seed) % 256 < map.encounter_rate) {
+			auto encounter_rng{(_rng_data[static_cast<std::size_t>(state->encounter_index)] + state->encounter_seed) % 256};
+			std::size_t encounter_group_index{7};
+
+			if (encounter_rng < 43) {
+				encounter_group_index = 0;
+			} else if (encounter_rng < 86) {
+				encounter_group_index = 1;
+			} else if (encounter_rng < 129) {
+				encounter_group_index = 2;
+			} else if (encounter_rng < 172) {
+				encounter_group_index = 3;
+			} else if (encounter_rng < 204) {
+				encounter_group_index = 4;
+			} else if (encounter_rng < 236) {
+				encounter_group_index = 5;
+			} else if (encounter_rng < 252) {
+				encounter_group_index = 6;
+			}
+
+			auto encounter{_parameters.encounters.get_encounter_from_group(static_cast<std::size_t>(map.encounter_group), encounter_group_index)};
+			auto encounter_id{encounter->get_id()};
+
+			frames += encounter->get_duration(state->party, _parameters.tas_mode);
+
+			if (!state->search_targets.empty() && state->search_targets.count(encounter_id) > 0) {
+				state->search_targets[encounter_id]--;
+
+				if (state->search_targets[encounter_id] == 0) {
+					state->search_targets.erase(encounter_id);
+				}
+
+				if (state->search_targets.empty()) {
+					state->party = state->search_party;
+				}
+			}
+
+			state->encounter_index = (state->encounter_index + 1) % 256;
+
+			if (state->encounter_index == 0) {
+				state->encounter_seed = (state->encounter_seed + 17) % 256;
+			}
+		}
+	}
+
+	return frames;
+}
+
+/*
 std::string Engine::format_output(const Engine & base_engine) const {
 	std::stringstream output;
 
@@ -176,286 +421,5 @@ int Engine::get_initial_seed() const {
 	return _parameters.seed;
 }
 
-void Engine::_cycle() {
-	if (_instruction_index == _instructions.size()) {
-		return;
-	}
 
-	auto instruction = _instructions[_instruction_index];
-
-	switch (instruction->type) {
-		case InstructionType::CHOICE: {
-			int choice{read_variable(_parameters, instruction->variable)};
-
-			if (_parameters.maximum_extra_steps == 0) {
-				choice = 0;
-			}
-
-			while (true) {
-				while (_instructions[_instruction_index]->type != InstructionType::OPTION) {
-					_instruction_index++;
-				}
-
-				if (choice == 0) {
-					break;
-				}
-
-				_instruction_index++;
-				choice--;
-			}
-
-			_transition(_instructions[_instruction_index]);
-			_indent++;
-
-			break;
-		}
-		case InstructionType::DELAY:
-			_frames += Frames{instruction->number};
-			_minimum_frames += Frames{instruction->number};
-			break;
-		case InstructionType::NOOP:
-			break;
-		case InstructionType::NOTE:
-			_transition(instruction);
-			break;
-		case InstructionType::OPTION:
-		case InstructionType::END:
-			while (_instructions[_instruction_index]->type != InstructionType::END) {
-				_instruction_index++;
-			}
-
-			_indent--;
-			break;
-		case InstructionType::PARTY:
-			_party = instruction->text;
-			break;
-		case InstructionType::PATH: {
-			_encounter_rate = _maps.get_map(instruction->map).encounter_rate;
-			_encounter_group = _maps.get_map(instruction->map).encounter_group;
-			_transition(instruction);
-			_step(instruction->tiles, instruction->required_steps, false);
-
-			if (instruction->optional_steps > 0 || (instruction->take_extra_steps && (instruction->can_single_step || instruction->can_double_step))) {
-				int maximum_extra_steps = 65535;
-
-				if (!instruction->take_extra_steps) {
-					maximum_extra_steps = instruction->optional_steps;
-				}
-
-				int steps{read_variable(_parameters, instruction->variable)};
-				int optional_steps = std::min(instruction->optional_steps, steps);
-				int extra_steps = steps - optional_steps;
-				int tiles = 0;
-
-				if (extra_steps % 2 == 1 && optional_steps > 0) {
-					extra_steps++;
-					optional_steps--;
-				}
-
-				if (extra_steps % 2 == 1 && !instruction->can_single_step) {
-					extra_steps--;
-				}
-
-				_score -= steps * 1000;
-
-				if (instruction->can_double_step) {
-					tiles = extra_steps;
-				} else {
-					tiles = extra_steps * 2;
-				}
-
-				if (tiles % 2 == 1) {
-					tiles++;
-				}
-
-				_step(tiles, optional_steps + extra_steps, false);
-			}
-
-			break;
-		}
-		case InstructionType::ROUTE:
-			_title = instruction->text;
-			break;
-		case InstructionType::SAVE: {
-			_transition(instruction);
-
-			int value{read_variable(_parameters, instruction->variable)};
-
-			if (value > 0) {
-				int seed = value - 1;
-				Milliframes new_frames = 697_f - Frames{instruction->number};
-
-				_reset(seed);
-
-				_frames += new_frames;
-				_minimum_frames += new_frames;
-
-				_log.back().save_reset = true;
-				_log.back().new_seed = seed;
-			}
-
-			break;
-		}
-		case InstructionType::SEARCH:
-			_encounter_search = instruction->numbers;
-			_encounter_search_area = true;
-			_encounter_search_party = instruction->party;
-
-			_transition(instruction);
-			_indent++;
-			break;
-		case InstructionType::VERSION:
-			_version = instruction->number;
-			break;
-		case InstructionType::WAIT:
-			while (!_encounter_search.empty()) {
-				_step(2, 2, false);
-			}
-
-			_encounter_search_area = false;
-
-			_indent -= 1;
-
-			break;
-	}
-
-	_instruction_index++;
-}
-
-std::shared_ptr<const Encounter> Engine::_get_encounter() {
-	if ((rng_data[static_cast<std::size_t>(_step_index)] + _step_seed) % 256 < _encounter_rate) {
-		int value = (rng_data[static_cast<std::size_t>(_encounter_index)] + _encounter_seed) % 256;
-		std::size_t i;
-
-		if (value < 43) {
-			i = 0;
-		} else if (value < 86) {
-			i = 1;
-		} else if (value < 129) {
-			i = 2;
-		} else if (value < 172) {
-			i = 3;
-		} else if (value < 204) {
-			i = 4;
-		} else if (value < 236) {
-			i = 5;
-		} else if (value < 252) {
-			i = 6;
-		} else {
-			i = 7;
-		}
-
-		return _encounters.get_encounter_from_group(static_cast<std::size_t>(_encounter_group), i);
-	}
-
-	return nullptr;
-}
-
-void Engine::_reset(int seed) {
-	_step_seed = seed;
-	_encounter_seed = (seed * 2) % 256;
-
-	_step_index = 0;
-	_encounter_index = 0;
-
-	_encounter_rate = 0;
-	_encounter_group = 0;
-}
-
-
-
-void Engine::_step(int tiles, int steps, bool simulate) {
-	Milliframes output_frames = _frames;
-
-	if (!simulate) {
-		_frames += tiles * 16_f;
-		_minimum_frames += tiles * 16_f;
-	}
-
-	int log_steps = _log.back().steps;
-
-	int step_index = _step_index;
-	int step_seed = _step_seed;
-
-	int encounter_index = _encounter_index;
-	int encounter_seed = _encounter_seed;
-
-	for (int i = 0; i < steps; i++) {
-		output_frames += 16_f;
-		_log.back().steps++;
-
-		_step_index++;
-
-		if (_step_index == 256) {
-			_step_index = 0;
-			_step_seed += 17;
-
-			if (_step_seed > 255) {
-				_step_seed -= 256;
-			}
-		}
-
-		auto encounter = _get_encounter();
-
-		if (!simulate && encounter && !_encounter_search.empty() && _encounter_search.count(static_cast<int>(encounter->get_id())) > 0) {
-			_party = _encounter_search_party;
-			_encounter_search.clear();
-		}
-
-		if (encounter) {
-			if (simulate) {
-				_log.back().potential_encounters[_log.back().steps] = std::make_pair(_encounter_index + 1, encounter);
-			} else {
-				_log.back().encounters[_log.back().steps] = std::make_pair(_encounter_index + 1, encounter);
-			}
-
-			Milliframes duration = encounter->get_duration(_party, _parameters.tas_mode);
-
-			if (!simulate) {
-				_frames += duration;
-				_encounter_frames += duration;
-				output_frames += duration;
-				_encounter_count++;
-			}
-
-			if (!simulate && _full_minimum) {
-				_minimum_frames += duration;
-			}
-
-			_encounter_index = (_encounter_index + 1) % 256;
-
-			if (_encounter_index == 0) {
-				_encounter_seed = (_encounter_seed + 17) % 256;
-			}
-
-		}
-
-		if (!simulate && _parameters.step_output) {
-			_log.back().step_details[_log.back().steps] = output_frames;
-		}
-	}
-
-	if (simulate) {
-		_log.back().steps = log_steps;
-
-		_step_index = step_index;
-		_step_seed = step_seed;
-
-		_encounter_index = encounter_index;
-		_encounter_seed = encounter_seed;
-	}
-}
-
-void Engine::_transition(const std::shared_ptr<const Instruction> & instruction) {
-	_frames += instruction->transition_count * 82_f;
-	_minimum_frames += instruction->transition_count * 82_f;
-	_log.push_back(LogEntry{instruction, _indent});
-
-	_log.back().seed_start = _step_seed;
-	_log.back().index_start = _step_index;
-	_log.back().party = _party;
-
-	if (_encounter_search_area && instruction->type == InstructionType::PATH) {
-		_step(256, 256, true);
-	}
-}
+*/

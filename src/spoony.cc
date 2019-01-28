@@ -29,10 +29,8 @@
 #include "engine.hh"
 #include "instruction.hh"
 #include "map.hh"
-#include "optimizer.hh"
 #include "options.hh"
 #include "parameters.hh"
-#include "route_output.hh"
 #include "version.hh"
 
 /*
@@ -114,89 +112,24 @@ int main (int argc, char ** argv) {
 		return EXIT_FAILURE;
 	}
 
-	auto instructions = read_instructions(route_source_file);
-	auto variables = std::make_shared<Variables>();
+	auto route{read_route(route_source_file)};
 
-	Engine base_engine{Parameters{options.tas_mode, options.step_output, options.seed, 0, "none", variables}, instructions, encounters, maps};
-	base_engine.run();
-
-	auto route_output_directory = options.output_directory + "/" + options.route;
-	auto route_output_filename = (boost::format("%s/%s/%03d.txt") % options.output_directory % options.route % options.seed).str();
-
-	std::filesystem::create_directories(std::filesystem::path(route_output_directory));
-
-	/*
-	 * Variable Processing
-	 */
-
-	/*
-	std::size_t optimization_index = 0;
-
-
-	auto loaded_variables = RouteOutput::parse_variable_data(options.variables);
-
-	std::ifstream route_output_file{route_output_filename, std::ios_base::in};
-	RouteOutput route_output_data{route_output_file};
-	route_output_file.close();
-
-	if (options.load_existing_variables) {
-		loaded_variables = route_output_data.get_variables();
-	}
-
-	for (const auto & pair : variables) {
-		if (pair.first < randomizer->data.size()) {
-			if (!options.full_optimization && pair.first + 1 > optimization_index) {
-				optimization_index = pair.first + 1;
-			}
-
-			randomizer->data[pair.first] = pair.second;
-		}
-	}
-	*/
+	Engine base_engine{Parameters{route, encounters, maps, 0, false}};
+	base_engine.optimize(options.seed);
 
 	/*
 	 * Optimization
 	 */
 
-	Engine engine{Parameters{options.tas_mode, options.step_output, options.seed, options.maximum_steps, options.algorithm, variables}, instructions, encounters, maps};
+	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode}};
 
- 	engine.reset();
- 	engine.run();
-
-	/*
-	Milliframes best_frames = base_engine.get_frames();
-	double best_score = base_engine.get_score();
-
-	std::vector<std::string> algorithms;
-	boost::algorithm::split(algorithms, options.algorithm, boost::is_any_of("+"));
-
-
-	for (const auto & algorithm : algorithms) {
-		if (algorithm == "ils") {
-			optimize_ils(optimization_index, &best_frames, &best_score, options, randomizer, &engine, base_engine, route_output_filename);
-		} else if (algorithm == "local") {
-			optimize_local(optimization_index, &best_frames, &best_score, options, randomizer, &engine, base_engine, route_output_filename, true);
-		} else if (algorithm == "pair") {
-			optimize_local_pair(optimization_index, &best_frames, &best_score, options, randomizer, &engine, base_engine, route_output_filename, true);
-		} else if (algorithm == "sequential") {
-			optimize_sequential(optimization_index, &best_frames, &best_score, options, randomizer, &engine, base_engine, route_output_filename);
-		} else if (algorithm == "none") {
-		} else {
-			std::cerr << "Algorithm \"" << algorithm << "\" is unknown" << std::endl;
-		}
-	}
-	*/
+ 	engine.optimize(options.seed);
 
 	/*
 	 * Output
 	 */
 
-	engine.reset();
-	engine.run();
+	std::cout << engine.generate_output_text(options.seed, base_engine);
 
-	std::cout << engine.format_output(base_engine);
-
-	//RouteOutput::write_route(route_output_filename, variables, &engine, base_engine, true);
-
-	return 0;
+	return EXIT_SUCCESS;
 }

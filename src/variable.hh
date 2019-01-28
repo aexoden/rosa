@@ -3,17 +3,13 @@
 
 #include <unordered_map>
 
-enum class VariableType {
-	CHOICE,
-	STEP
-};
+enum class VariableType {Step, Choice};
 
 struct Variable {
-	const VariableType type;
-	int value;
-	int minimum;
-	int maximum;
-	int implicit_value = 0;
+	const VariableType type{VariableType::Step};
+	int value{0};
+	int minimum{0};
+	int maximum{0};
 };
 
 using Variables = std::unordered_map<int, Variable>;

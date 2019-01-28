@@ -1,54 +1,43 @@
 #ifndef SPOONY_ENGINE_HH
 #define SPOONY_ENGINE_HH
 
-#include <map>
-#include <memory>
 #include <vector>
 
-#include "duration.hh"
+#include "cache.hh"
 #include "encounter.hh"
 #include "instruction.hh"
 #include "map.hh"
 #include "parameters.hh"
-
-struct LogEntry {
-	const std::shared_ptr<const Instruction> instruction;
-	const int indent = 0;
-
-	int steps = 0;
-
-	bool save_reset = false;
-	int new_seed = 0;
-
-	int seed_start = 0;
-	int index_start = 0;
-
-	std::string party = "";
-
-	std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> encounters{};
-	std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> potential_encounters{};
-	std::map<int, Milliframes> step_details{};
-};
+#include "state.hh"
 
 class Engine {
 	public:
-		Engine(Parameters parameters, std::vector<std::shared_ptr<const Instruction>> instructions, Encounters encounters, Maps maps);
+		Engine(Parameters parameters);
 
-		void reset();
-		void run();
+		void set_variable_minimum(int variable, int minimum);
+		void set_variable_maximum(int variable, int maximum);
 
-		std::string format_output(const Engine & base_engine) const;
-		Milliframes get_frames() const;
-		Milliframes get_minimum_frames() const;
-		int get_initial_seed() const;
-		std::string get_title() const;
-		int get_version() const;
-		int get_maximum_steps() const;
+		void optimize(int seed);
 
-		int get_variable_count() const;
-		double get_score() const;
+		std::string generate_output_text(int seed, const Engine & base_engine);
 
-		const std::vector<int> rng_data{
+	private:
+		Milliframes _optimize(const State & state);
+		void _finalize(State state);
+
+		Milliframes _cycle(State * state, int value);
+		Milliframes _step(State * state, int tiles, int steps);
+
+		const Parameters _parameters;
+
+		Variables _variables;
+
+		Cache _cache;
+
+		std::string _route_title;
+		int _route_version;
+
+		const std::vector<int> _rng_data{
 			0x07, 0xB6, 0xF0, 0x1F, 0x55, 0x5B, 0x37, 0xE3, 0xAE, 0x4F, 0xB2, 0x5E, 0x99, 0xF6, 0x77, 0xCB,
 			0x60, 0x8F, 0x43, 0x3E, 0xA7, 0x4C, 0x2D, 0x88, 0xC7, 0x68, 0xD7, 0xD1, 0xC2, 0xF2, 0xC1, 0xDD,
 			0xAA, 0x93, 0x16, 0xF7, 0x26, 0x04, 0x36, 0xA1, 0x46, 0x4E, 0x56, 0xBE, 0x6C, 0x6E, 0x80, 0xD5,
@@ -66,6 +55,26 @@ class Engine {
 			0xEE, 0x08, 0x91, 0x18, 0x20, 0xB1, 0xA5, 0xBB, 0xC6, 0x48, 0x50, 0x9A, 0xD6, 0x7F, 0x7B, 0xE9,
 			0x76, 0xDF, 0x32, 0x6F, 0x34, 0xA8, 0xD0, 0xB8, 0x63, 0xC8, 0xC0, 0xEC, 0x4B, 0xE8, 0x17, 0xF8
 		};
+};
+
+/*
+class Engine {
+	public:
+		Engine(Parameters parameters, std::vector<std::shared_ptr<const Instruction>> instructions, Encounters encounters, Maps maps);
+
+		void reset();
+		void run();
+
+		std::string format_output(const Engine & base_engine) const;
+		Milliframes get_frames() const;
+		Milliframes get_minimum_frames() const;
+		int get_initial_seed() const;
+		std::string get_title() const;
+		int get_version() const;
+		int get_maximum_steps() const;
+
+		int get_variable_count() const;
+		double get_score() const;
 
 	private:
 		void _cycle();
@@ -113,5 +122,36 @@ class Engine {
 
 		bool _full_minimum = false;
 };
+
+#include <map>
+#include <memory>
+#include <vector>
+
+#include "duration.hh"
+#include "encounter.hh"
+#include "instruction.hh"
+#include "map.hh"
+#include "parameters.hh"
+
+struct LogEntry {
+	const std::shared_ptr<const Instruction> instruction;
+	const int indent = 0;
+
+	int steps = 0;
+
+	bool save_reset = false;
+	int new_seed = 0;
+
+	int seed_start = 0;
+	int index_start = 0;
+
+	std::string party = "";
+
+	std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> encounters{};
+	std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> potential_encounters{};
+	std::map<int, Milliframes> step_details{};
+};
+
+*/
 
 #endif // SPOONY_ENGINE_HH
