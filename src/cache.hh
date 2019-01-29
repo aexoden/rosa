@@ -12,6 +12,8 @@ class Cache {
 		std::pair<int, Milliframes> get(const State & state);
 		void set(const State & state, int value, Milliframes frames);
 
+		int get_count() const;
+
 	private:
 		std::string _get_key(const State & state);
 

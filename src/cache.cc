@@ -17,6 +17,10 @@ void Cache::set(const State & state, int value, Milliframes frames) {
 	_cache[_get_key(state)] = std::make_pair(value, frames);
 }
 
+int Cache::get_count() const {
+	return static_cast<int>(_cache.size());
+}
+
 std::string Cache::_get_key(const State & state) {
 	std::string targets;
 

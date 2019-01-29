@@ -178,27 +178,31 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 
 	output += (boost::format("VARS\t%s\n\n") % variable_output).str();
 	output += raw_output + '\n';
-	output += (boost::format("%-19s%0.3fs\n") % "Encounter Time:" % Seconds(encounter_frames).count()).str();
-	output += (boost::format("%-19s%0.3fs\n") % "Other Time:" % Seconds(total_frames - encounter_frames).count()).str();
-	output += (boost::format("%-19s%0.3fs\n\n") % "Total Time:" % Seconds(total_frames).count()).str();
+	output += (boost::format("%-21s%0.3fs\n") % "Encounter Time:" % Seconds(encounter_frames).count()).str();
+	output += (boost::format("%-21s%0.3fs\n") % "Other Time:" % Seconds(total_frames - encounter_frames).count()).str();
+	output += (boost::format("%-21s%0.3fs\n\n") % "Total Time:" % Seconds(total_frames).count()).str();
 
 	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode}};
 	auto base_frames{base_engine._optimize(state)};
 	auto base_log{base_engine._finalize(state)};
 
-	output += (boost::format("%-19s%0.3fs\n") % "Base Total Time:" % Seconds(base_frames).count()).str();
-	output += (boost::format("%-19s%0.3fs\n\n") % "Time Saved:" % Seconds(base_frames - total_frames).count()).str();
+	output += (boost::format("%-21s%0.3fs\n") % "Base Total Time:" % Seconds(base_frames).count()).str();
+	output += (boost::format("%-21s%0.3fs\n\n") % "Time Saved:" % Seconds(base_frames - total_frames).count()).str();
 
-	output += (boost::format("%-19s%d\n") % "Optional Steps:" % total_optional_steps).str();
-	output += (boost::format("%-19s%d\n") % "Extra Steps:" % total_extra_steps).str();
-	output += (boost::format("%-19s%d\n\n") % "Encounters:" % total_encounters).str();
+	output += (boost::format("%-21s%d\n") % "Optional Steps:" % total_optional_steps).str();
+	output += (boost::format("%-21s%d\n") % "Extra Steps:" % total_extra_steps).str();
+	output += (boost::format("%-21s%d\n\n") % "Encounters:" % total_encounters).str();
 
 	auto base_encounters{std::accumulate(base_log.begin(), base_log.end(), std::size_t{0}, [](const auto a, const auto & entry) {
 		return a + entry.encounters.size();
 	})};
 
-	output += (boost::format("%-19s%d\n") % "Base Encounters:" % base_encounters).str();
-	output += (boost::format("%-19s%d\n") % "Encounters Saved:" % (base_encounters - total_encounters)).str();
+	output += (boost::format("%-21s%d\n") % "Base Encounters:" % base_encounters).str();
+	output += (boost::format("%-21s%d\n\n") % "Encounters Saved:" % (base_encounters - total_encounters)).str();
+
+	output += (boost::format("%-21s%d\n") % "Number of Variables:" % _variables.size()).str();
+	output += (boost::format("%-21s%d\n") % "Number of States:" % _cache.get_count()).str();
+
 
 	return output;
 }
