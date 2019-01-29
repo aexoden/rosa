@@ -26,7 +26,7 @@ Instruction::Instruction(const std::string & line) {
 
 	if (!tokens.empty()) {
 		try {
-			if (tokens[0] == "CHOICE" && tokens.size() == 2) {
+			if (tokens[0] == "CHOICE" && tokens.size() == 3) {
 				type = InstructionType::Choice;
 				variable = parse_variable(tokens[1]);
 				number = std::stoi(tokens[2]);
