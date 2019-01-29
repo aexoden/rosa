@@ -184,7 +184,7 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 
 	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode}};
 	auto base_frames{base_engine._optimize(state)};
-	auto base_log{_finalize(state)};
+	auto base_log{base_engine._finalize(state)};
 
 	output += (boost::format("%-19s%0.3fs\n") % "Base Total Time:" % Seconds(base_frames).count()).str();
 	output += (boost::format("%-19s%0.3fs\n\n") % "Time Saved:" % Seconds(base_frames - total_frames).count()).str();
