@@ -4,29 +4,40 @@
 #include <vector>
 
 #include "cache.hh"
+#include "duration.hh"
 #include "encounter.hh"
 #include "instruction.hh"
 #include "map.hh"
 #include "parameters.hh"
 #include "state.hh"
 
+struct LogEntry {
+	const State state;
+
+	int steps{0};
+	Milliframes frames{0};
+
+	std::vector<std::tuple<int, int, int, Milliframes>> encounters{};
+};
+
+using Log = std::vector<LogEntry>;
+
 class Engine {
 	public:
-		Engine(Parameters parameters);
+		explicit Engine(Parameters parameters);
 
-		void set_variable_minimum(int variable, int minimum);
-		void set_variable_maximum(int variable, int maximum);
+		void set_variable_minimum(int variable, int value);
+		void set_variable_maximum(int variable, int value);
 
-		void optimize(int seed);
-
-		std::string generate_output_text(int seed, const Engine & base_engine);
+		std::string optimize(int seed);
 
 	private:
 		Milliframes _optimize(const State & state);
-		void _finalize(State state);
+		Log _finalize(State state);
+		std::string _generate_output_text(const State & state, const Log & log);
 
-		Milliframes _cycle(State * state, int value);
-		Milliframes _step(State * state, int tiles, int steps);
+		Milliframes _cycle(State * state, LogEntry * log, int value);
+		Milliframes _step(State * state, LogEntry * log, int tiles, int steps);
 
 		const Parameters _parameters;
 
@@ -35,7 +46,7 @@ class Engine {
 		Cache _cache;
 
 		std::string _route_title;
-		int _route_version;
+		int _route_version{0};
 
 		const std::vector<int> _rng_data{
 			0x07, 0xB6, 0xF0, 0x1F, 0x55, 0x5B, 0x37, 0xE3, 0xAE, 0x4F, 0xB2, 0x5E, 0x99, 0xF6, 0x77, 0xCB,
@@ -56,102 +67,5 @@ class Engine {
 			0x76, 0xDF, 0x32, 0x6F, 0x34, 0xA8, 0xD0, 0xB8, 0x63, 0xC8, 0xC0, 0xEC, 0x4B, 0xE8, 0x17, 0xF8
 		};
 };
-
-/*
-class Engine {
-	public:
-		Engine(Parameters parameters, std::vector<std::shared_ptr<const Instruction>> instructions, Encounters encounters, Maps maps);
-
-		void reset();
-		void run();
-
-		std::string format_output(const Engine & base_engine) const;
-		Milliframes get_frames() const;
-		Milliframes get_minimum_frames() const;
-		int get_initial_seed() const;
-		std::string get_title() const;
-		int get_version() const;
-		int get_maximum_steps() const;
-
-		int get_variable_count() const;
-		double get_score() const;
-
-	private:
-		void _cycle();
-		std::shared_ptr<const Encounter> _get_encounter();
-		void _reset(int seed);
-		void _step(int tiles, int steps, bool simulate);
-		void _transition(const std::shared_ptr<const Instruction> & instruction);
-
-		Parameters _parameters;
-
-		int _step_seed = 0;
-		int _step_index = 0;
-
-		int _encounter_seed = 0;
-		int _encounter_index = 0;
-
-		int _encounter_rate = 0;
-		int _encounter_group = 0;
-
-		std::vector<std::shared_ptr<const Instruction>> _instructions;
-		std::vector<std::shared_ptr<const Instruction>>::size_type _instruction_index = 0;
-
-		Milliframes _frames = 0_mf;
-		Milliframes _encounter_frames = 0_mf;
-		Milliframes _minimum_frames = 0_mf;
-		double _score = 0;
-
-		Encounters _encounters;
-		Maps _maps;
-
-		int _encounter_count = 0;
-
-		std::set<int> _encounter_search;
-		bool _encounter_search_area = false;
-		std::string _encounter_search_party;
-
-		std::string _party;
-
-		std::vector<LogEntry> _log;
-
-		std::string _title;
-		int _version = 0;
-
-		int _indent = 0;
-
-		bool _full_minimum = false;
-};
-
-#include <map>
-#include <memory>
-#include <vector>
-
-#include "duration.hh"
-#include "encounter.hh"
-#include "instruction.hh"
-#include "map.hh"
-#include "parameters.hh"
-
-struct LogEntry {
-	const std::shared_ptr<const Instruction> instruction;
-	const int indent = 0;
-
-	int steps = 0;
-
-	bool save_reset = false;
-	int new_seed = 0;
-
-	int seed_start = 0;
-	int index_start = 0;
-
-	std::string party = "";
-
-	std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> encounters{};
-	std::map<int, std::pair<int, std::shared_ptr<const Encounter>>> potential_encounters{};
-	std::map<int, Milliframes> step_details{};
-};
-
-*/
 
 #endif // SPOONY_ENGINE_HH

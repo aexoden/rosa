@@ -6,11 +6,11 @@
 std::pair<int, Milliframes> Cache::get(const State & state) {
 	auto key{_get_key(state)};
 
-	if (_cache.count(key) > 0) {
-		return _cache.at(key);
-	} else {
+	if (_cache.count(key) == 0) {
 		return std::make_pair(-1, std::numeric_limits<Milliframes>::max());
 	}
+
+	return _cache.at(key);
 }
 
 void Cache::set(const State & state, int value, Milliframes frames) {

@@ -4,16 +4,6 @@ The current goal is to write several key important features, rename the project
 to ROSA, and then implement any additional features needed for my projects. It's
 not a very general-use application.
 
-## 1.0.0 Requirements ##
-
-### Major Changes ###
-
-* Generate complete output comparable to the output of the previous version.
-* Refactor the code to eliminate oddities (route scores being calculated in
-  multiple places, determining when to output modified routes, etc.)
-
-### Minor Changes ###
-
 ## Future Changes ##
 
 * Add the necessary features to support TAS routes. In particular, it needs to
@@ -35,4 +25,12 @@ not a very general-use application.
 * Allow for sequential encounter searches. The current code simply lumps them
   all into one bucket and ensures that the correct number of each is
   encountered, but doesn't enforce the ordering. No vanilla route would use this
-  feature at this time, but it's possible a route for a romhack would.
+  feature at this time, but it's possible a route for a romhack would. To be
+  truly useful, it would also need to allow for specifying a new party after
+  each fight.
+* Handle the extra penalty for single extra steps done at save points.
+* Handle the ability to take three extra steps in Cecil's room with only a two
+  tile penalty.
+* See if some seeds could benefit from a save/reset cycle instead of endlessly
+  pacing until they find the grind fight. The problem is that your reset seed is
+  effectively random, so it'd be completely up to chance.

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <numeric>
 
 #include <boost/format.hpp>
 
@@ -38,39 +39,129 @@ void Engine::set_variable_maximum(int variable, int value) {
 	_variables[variable].maximum = value;
 }
 
-void Engine::optimize(int seed) {
+std::string Engine::optimize(int seed) {
 	State state{seed};
 
 	_optimize(state);
-	_finalize(state);
+	auto log{_finalize(state)};
+
+	return _generate_output_text(state, log);
 }
 
-void Engine::_finalize(State state) {
+Log Engine::_finalize(State state) {
+	Log log;
+
 	while (state.index < _parameters.route.size()) {
 		auto instruction = _parameters.route[state.index];
 		auto [value, frames] = _cache.get(state);
 
-		_cycle(&state, value);
+		log.emplace_back(LogEntry{state});
+		_cycle(&state, &log[log.size() - 1], value);
 
 		if (value > 0) {
 			_variables[instruction.variable].value = value;
 		}
 	}
+
+	return log;
 }
 
-std::string Engine::generate_output_text(int seed, const Engine & base_engine) {
-	State state{seed};
-	std::string output;
+std::string Engine::_generate_output_text(const State & state, const Log & log) {
+	Milliframes total_frames{0_mf};
+	Milliframes encounter_frames{0_mf};
 
-	auto mframes{_optimize(state)};
+	int total_optional_steps{0};
+	int total_extra_steps{0};
+	std::size_t total_encounters{0};
+
+	std::string raw_output;
+	std::size_t indent_level{0};
+
+	for (const auto & entry : log) {
+		auto instruction{_parameters.route[entry.state.index]};
+		std::string description;
+		std::size_t new_indent_level{indent_level};
+
+		switch (instruction.type) {
+			case InstructionType::Path:
+				description = _parameters.maps.get_map(instruction.map).description;
+
+				if (instruction.end_search) {
+					new_indent_level = indent_level - 1;
+				}
+
+				break;
+			case InstructionType::Choice:
+			case InstructionType::Search:
+				new_indent_level = indent_level + 1;
+				description = instruction.text;
+				break;
+			case InstructionType::Note:
+				description = instruction.text;
+				break;
+			case InstructionType::End:
+				new_indent_level = indent_level - 1;
+				break;
+			case InstructionType::Delay:
+			case InstructionType::Option:
+			case InstructionType::Party:
+			case InstructionType::Route:
+			case InstructionType::Save:
+			case InstructionType::Version:
+				break;
+		}
+
+		if (!description.empty()) {
+			raw_output += (boost::format("%s%-58sSeed: %3d   Index: %3d\n") % std::string(indent_level * 2, ' ') % description % entry.state.step_seed % entry.state.step_index).str();
+		}
+
+		if (entry.steps > 0 || instruction.optional_steps > 0) {
+			auto steps{entry.steps - instruction.required_steps};
+			auto optional_steps{std::min(instruction.optional_steps, steps)};
+			auto extra_steps{steps - optional_steps};
+
+			if (extra_steps % 2 == 1 && optional_steps > 0) {
+				optional_steps--;
+				extra_steps++;
+			}
+
+			total_optional_steps += optional_steps;
+			total_extra_steps += extra_steps;
+
+			if (instruction.optional_steps > 0) {
+				raw_output += (boost::format("%sOptional Steps: %d\n") % std::string((indent_level + 1) * 2, ' ') % optional_steps).str();
+			}
+
+			if (extra_steps > 0) {
+				raw_output += (boost::format("%sExtra Steps: %d\n") % std::string((indent_level + 1) * 2, ' ') % extra_steps).str();
+			}
+		}
+
+		for (const auto & [step, encounter_index, encounter_id, frames] : entry.encounters) {
+			auto encounter{_parameters.encounters.get_encounter(static_cast<std::size_t>(encounter_id))};
+			if (step > entry.steps) {
+				raw_output += (boost::format("%s(Step %3d: %d / %s)\n") % std::string((indent_level + 1) * 2 - 1, ' ') % step % (encounter_index + 1) % encounter->get_description()).str();
+			} else {
+				raw_output += (boost::format("%sStep %3d: %d / %s (%0.3fs)\n") % std::string((indent_level + 1) * 2, ' ') % step % (encounter_index + 1) % encounter->get_description() % Seconds(frames).count()).str();
+			}
+
+			encounter_frames += frames;
+			total_encounters++;
+		}
+
+		total_frames += entry.frames;
+		indent_level = new_indent_level;
+	}
+
+	std::string output;
 
 	output += (boost::format("ROUTE\t%s\n") % _route_title).str();
 	output += (boost::format("VERSION\t%d\n") % _route_version).str();
 	output += (boost::format("SPOONY\t%s\n") % SPOONY_VERSION).str();
-	output += (boost::format("SEED\t%d\n") % seed).str();
+	output += (boost::format("SEED\t%d\n") % state.step_seed).str();
 	output += (boost::format("MAXSTEP\t%d\n") % _parameters.maximum_extra_steps).str();
 	output += (boost::format("TASMODE\t%d\n") % (_parameters.tas_mode ? 1 : 0)).str();
-	output += (boost::format("FRAMES\t%d\n") % mframes.count()).str();
+	output += (boost::format("FRAMES\t%d\n") % total_frames.count()).str();
 
 	std::string variable_output;
 
@@ -81,10 +172,28 @@ std::string Engine::generate_output_text(int seed, const Engine & base_engine) {
 	}
 
 	output += (boost::format("VARS\t%s\n\n") % variable_output).str();
+	output += raw_output + '\n';
+	output += (boost::format("%-19s%0.3fs\n") % "Encounter Time:" % Seconds(encounter_frames).count()).str();
+	output += (boost::format("%-19s%0.3fs\n") % "Other Time:" % Seconds(total_frames - encounter_frames).count()).str();
+	output += (boost::format("%-19s%0.3fs\n\n") % "Total Time:" % Seconds(total_frames).count()).str();
 
-	// TODO: Actual output
+	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode}};
+	auto base_frames{base_engine._optimize(state)};
+	auto base_log{_finalize(state)};
 
-	output += (boost::format("Total Time: %0.3fs\n") % Seconds(mframes).count()).str();
+	output += (boost::format("%-19s%0.3fs\n") % "Base Total Time:" % Seconds(base_frames).count()).str();
+	output += (boost::format("%-19s%0.3fs\n\n") % "Time Saved:" % Seconds(base_frames - total_frames).count()).str();
+
+	output += (boost::format("%-19s%d\n") % "Optional Steps:" % total_optional_steps).str();
+	output += (boost::format("%-19s%d\n") % "Extra Steps:" % total_extra_steps).str();
+	output += (boost::format("%-19s%d\n\n") % "Encounters:" % total_encounters).str();
+
+	auto base_encounters{std::accumulate(base_log.begin(), base_log.end(), std::size_t{0}, [](const auto a, const auto & entry) {
+		return a + entry.encounters.size();
+	})};
+
+	output += (boost::format("%-19s%d\n") % "Base Encounters:" % base_encounters).str();
+	output += (boost::format("%-19s%d\n") % "Encounters Saved:" % (base_encounters - total_encounters)).str();
 
 	return output;
 }
@@ -115,7 +224,7 @@ Milliframes Engine::_optimize(const State & state) {
 
 	for (int i = minimum; i <= maximum || frames == Milliframes::max(); i++) {
 		State work_state{state};
-		auto result{_cycle(&work_state, i)};
+		auto result{_cycle(&work_state, nullptr, i)};
 
 		if (result < Milliframes::max()) {
 			result += _optimize(work_state);
@@ -132,7 +241,7 @@ Milliframes Engine::_optimize(const State & state) {
 	return frames;
 }
 
-Milliframes Engine::_cycle(State * state, int value) {
+Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 	Milliframes frames{0};
 	auto & instruction{_parameters.route[state->index]};
 
@@ -167,7 +276,7 @@ Milliframes Engine::_cycle(State * state, int value) {
 			break;
 		case InstructionType::Path:
 			frames += instruction.transition_count * 82_f;
-			frames += _step(state, instruction.tiles, instruction.required_steps);
+			frames += _step(state, log, instruction.tiles, instruction.required_steps);
 
 			if (value > 0) {
 				int optional_steps{std::min(instruction.optional_steps, value)};
@@ -188,11 +297,11 @@ Milliframes Engine::_cycle(State * state, int value) {
 					tiles++;
 				}
 
-				frames += _step(state, tiles, optional_steps + extra_steps);
+				frames += _step(state, log, tiles, optional_steps + extra_steps);
 			}
 
 			if (instruction.end_search) {
-				if (state->search_targets.size() > 0) {
+				if (!state->search_targets.empty()) {
 					return Milliframes::max();
 				}
 
@@ -226,10 +335,14 @@ Milliframes Engine::_cycle(State * state, int value) {
 
 	state->index++;
 
+	if (log) {
+		log->frames = frames;
+	}
+
 	return frames;
 }
 
-Milliframes Engine::_step(State * state, int tiles, int steps) {
+Milliframes Engine::_step(State * state, LogEntry * log, int tiles, int steps) {
 	const auto & instruction{_parameters.route[state->index]};
 	const auto & map{_parameters.maps.get_map(instruction.map)};
 
@@ -264,8 +377,14 @@ Milliframes Engine::_step(State * state, int tiles, int steps) {
 
 			auto encounter{_parameters.encounters.get_encounter_from_group(static_cast<std::size_t>(map.encounter_group), encounter_group_index)};
 			auto encounter_id{encounter->get_id()};
+			auto encounter_frames{encounter->get_duration(state->party, _parameters.tas_mode)};
 
-			frames += encounter->get_duration(state->party, _parameters.tas_mode);
+			frames += encounter_frames;
+
+			if (log) {
+				auto encounter_step{(((state->step_seed - log->state.step_seed) % 256) / 17) * 256 + ((state->step_index - log->state.step_index) % 256)};
+				log->encounters.emplace_back(std::make_tuple(encounter_step, state->encounter_index, encounter_id, encounter_frames));
+			}
 
 			if (!state->search_targets.empty() && state->search_targets.count(encounter_id) > 0) {
 				state->search_targets[encounter_id]--;
@@ -287,138 +406,9 @@ Milliframes Engine::_step(State * state, int tiles, int steps) {
 		}
 	}
 
+	if (log) {
+		log->steps += steps;
+	}
+
 	return frames;
 }
-
-/*
-std::string Engine::format_output(const Engine & base_engine) const {
-	std::stringstream output;
-
-	int total_optional_steps = 0;
-	int total_extra_steps = 0;
-
-	output << boost::format("ROUTE\t%1%\n") % _title;
-	output << boost::format("VERSION\t%1%\n") % _version;
-	output << boost::format("SPOONY\t%1%\n") % SPOONY_VERSION;
-	output << boost::format("SEED\t%1%\n") % _parameters.seed;
-	output << boost::format("METHOD\t%1%\n") % _parameters.algorithm;
-	output << boost::format("MAXSTEP\t%1%\n") % _parameters.maximum_extra_steps;
-	output << boost::format("FRAMES\t%d\n") % _frames.count();
-	output << boost::format("SCORE\t%0.20f\n") % _score;
-
-	output << "VARS\t";
-
-	bool output_var = false;
-
-	for (const auto & [key, variable] : *(_parameters.variables)) {
-		if (variable.value > 0) {
-			output << boost::format("%s%07X:%d") % (output_var ? " " : "") % key % variable.value;
-			output_var = true;
-		}
-	}
-
-	output << "\n\n";
-
-	for (auto & entry : _log) {
-		std::string indent;
-		std::string text{entry.instruction->text};
-
-		if (entry.instruction->map >= 0) {
-			text = _maps.get_map(entry.instruction->map).description;
-		}
-
-		for (int i = 0; i < entry.indent; i++) {
-			indent.append("  ");
-		}
-
-		output << boost::format("%-58sSeed: %3d   Index: %3d\n") % (indent + text) % entry.seed_start % entry.index_start;
-
-		int optional_steps = std::min(entry.instruction->optional_steps, entry.steps - entry.instruction->required_steps);
-		int extra_steps = entry.steps - entry.instruction->required_steps - optional_steps;
-
-		if (extra_steps % 2 == 1 && optional_steps > 0) {
-			extra_steps++;
-			optional_steps--;
-		}
-
-		total_optional_steps += optional_steps;
-		total_extra_steps += extra_steps;
-
-		if (entry.instruction->optional_steps > 0) {
-			output << indent << "  Optional Steps: " << optional_steps << '\n';
-		}
-
-		if (extra_steps > 0) {
-			output << indent << "  Extra Steps: " << extra_steps << '\n';
-		}
-
-		if (entry.save_reset) {
-			output << indent << "  Save and reset to seed " << entry.new_seed << '\n';
-		}
-
-		for (auto & pair : entry.encounters) {
-			output << boost::format("%s  Step %3d: %d / %s (%0.3fs)\n") % indent % pair.first % pair.second.first % pair.second.second->get_description() % Seconds(pair.second.second->get_duration(entry.party, _parameters.tas_mode)).count();
-		}
-
-		for (auto & pair : entry.potential_encounters) {
-			if (entry.encounters.count(pair.first) == 0) {
-				output << boost::format("%s (Step %3d: %3d / %s)\n") % indent % pair.first % pair.second.first % pair.second.second->get_description();
-			}
-		}
-
-		if (_parameters.step_output) {
-			for (auto & pair : entry.step_details) 	{
-				output << boost::format("%s  :: Step %3d :: %0.3f elapsed :: %0.3f remaining\n") % indent % pair.first % Seconds(pair.second).count() % Seconds(_frames - pair.second).count();
-			}
-		}
-	}
-
-	output << '\n';
-
-	output << boost::format("%-18s %0.3fs\n") % "Encounter Time:" % Seconds(_encounter_frames).count();
-	output << boost::format("%-18s %0.3fs\n") % "Other Time:" % Seconds(_frames - _encounter_frames).count();
-	output << boost::format("%-18s %0.3fs\n") % "Total Time:" % Seconds(_frames).count();
-	output << '\n';
-	output << boost::format("%-18s %0.3fs\n") % "Base Total Time:" % Seconds(base_engine._frames).count();
-	output << boost::format("%-18s %0.3fs\n") % "Time Saved:" % Seconds(base_engine._frames - _frames).count();
-	output << '\n';
-	output << boost::format("%-18s %d\n") % "Optional Steps:" % total_optional_steps;
-	output << boost::format("%-18s %d\n") % "Extra Steps:" % total_extra_steps;
-	output << boost::format("%-18s %d\n") % "Encounters:" % _encounter_count;
-	output << '\n';
-	output << boost::format("%-18s %d\n") % "Base Encounters:" % base_engine._encounter_count;
-	output << boost::format("%-18s %d\n") % "Encounters Saved:" % (base_engine._encounter_count - _encounter_count);
-
-	return output.str();
-}
-
-Milliframes Engine::get_frames() const {
-	return _frames;
-}
-
-Milliframes Engine::get_minimum_frames() const {
-	return _minimum_frames;
-}
-
-std::string Engine::get_title() const {
-	return _title;
-}
-
-int Engine::get_version() const {
-	return _version;
-}
-
-int Engine::get_maximum_steps() const {
-	return _parameters.maximum_extra_steps;
-}
-
-double Engine::get_score() const {
-	return _score;
-}
-
-int Engine::get_initial_seed() const {
-	return _parameters.seed;
-}
-
-
-*/

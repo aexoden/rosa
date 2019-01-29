@@ -1,18 +1,3 @@
-/*
- * Known TODO:
- *   - Single extra steps at save points are slightly more costly.
- *   - You can take three extra steps in Cecil's room with only a two tile penalty.
- *
- * Code Improvements:
- *   - Calculate encounter counts without forcing the grind fight and see if some seeds could benefit from a save/reset cycle. Given the uncertainty they'd have to be pretty bad.
- *   - Output variable counts when outputting during writes.
- *
- * Route Improvements:
- *   - Variable optimization (combine Ordeals into one variable, improve Toroia, remove dependent variables with choices)
- *   - Do something about indistinguishable seeds (41/42)
- *   - Figure out Damcyan reset seeds.
- */
-
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -114,22 +99,13 @@ int main (int argc, char ** argv) {
 
 	auto route{read_route(route_source_file)};
 
-	Engine base_engine{Parameters{route, encounters, maps, 0, false}};
-	base_engine.optimize(options.seed);
-
 	/*
 	 * Optimization
 	 */
 
 	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode}};
 
- 	engine.optimize(options.seed);
-
-	/*
-	 * Output
-	 */
-
-	std::cout << engine.generate_output_text(options.seed, base_engine);
+	std::cout << engine.optimize(options.seed);
 
 	return EXIT_SUCCESS;
 }
