@@ -15,9 +15,7 @@ class Cache {
 		int get_count() const;
 
 	private:
-		std::string _get_key(const State & state);
-
-		std::unordered_map<std::string, std::pair<int, Milliframes>> _cache;
+		std::unordered_map<State, std::pair<int, Milliframes>> _cache;
 };
 
 #endif // SPOONY_CACHE_HH
