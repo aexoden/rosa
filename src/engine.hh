@@ -17,6 +17,8 @@ struct LogEntry {
 	int steps{0};
 	Milliframes frames{0};
 
+	std::string extra_text{""};
+
 	std::vector<std::tuple<int, int, int, Milliframes>> encounters{};
 };
 

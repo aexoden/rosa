@@ -87,20 +87,23 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 				description = _parameters.maps.get_map(instruction.map).description;
 
 				if (instruction.end_search) {
-					new_indent_level = indent_level - 1;
+					new_indent_level--;
 				}
 
 				break;
 			case InstructionType::Choice:
+				description = entry.extra_text;
+				new_indent_level++;
+				break;
 			case InstructionType::Search:
-				new_indent_level = indent_level + 1;
 				description = instruction.text;
+				new_indent_level++;
 				break;
 			case InstructionType::Note:
 				description = instruction.text;
 				break;
 			case InstructionType::End:
-				new_indent_level = indent_level - 1;
+				new_indent_level--;
 				break;
 			case InstructionType::Delay:
 			case InstructionType::Option:
@@ -112,7 +115,7 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 		}
 
 		if (!description.empty()) {
-			raw_output += (boost::format("%s%-58sSeed: %3d   Index: %3d\n") % std::string(indent_level * 2, ' ') % description % entry.state.step_seed % entry.state.step_index).str();
+			raw_output += (boost::format("%-58sSeed: %3d   Index: %3d\n") % (boost::format("%s%s") % std::string(indent_level * 2, ' ') % description).str() % entry.state.step_seed % entry.state.step_index).str();
 		}
 
 		if (entry.steps > 0 || instruction.optional_steps > 0) {
@@ -257,6 +260,10 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 
 			frames += instruction.transition_count * 82_f;
 
+			if (log) {
+				log->extra_text = _parameters.route[state->index].text;
+			}
+
 			break;
 		case InstructionType::Delay:
 			frames += Frames{instruction.number};
@@ -266,7 +273,7 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 		case InstructionType::Note:
 			break;
 		case InstructionType::Option:
-			while (_parameters.route[state->index].type != InstructionType::End) {
+			while (_parameters.route[state->index + 1].type != InstructionType::End) {
 				state->index++;
 			}
 
