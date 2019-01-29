@@ -9,6 +9,10 @@
 Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
 	for (const auto & instruction : _parameters.route) {
 		if (instruction.variable >= 0) {
+			if (_variables.count(instruction.variable) > 0) {
+				std::cerr << (boost::format("WARNING: Variable '%07X' encountered twice\n") % instruction.variable).str();
+			}
+
 			switch (instruction.type) {
 				case InstructionType::Choice:
 					_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Choice, 0, 0, instruction.number}));
