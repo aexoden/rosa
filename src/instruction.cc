@@ -75,15 +75,13 @@ Instruction::Instruction(const std::string & line) {
 				boost::algorithm::split(temp_numbers, tokens[2], boost::is_any_of("+"), boost::token_compress_on);
 
 				for (const auto & temp_number : temp_numbers) {
-					numbers.insert(std::stoi(temp_number));
+					numbers.push_back(std::stoi(temp_number));
 				}
 
 				party = tokens[3];
 			} else if (tokens[0] == "VERSION" && tokens.size() == 2) {
 				type = InstructionType::Version;
 				number = std::stoi(tokens[1]);
-			} else if (tokens[0] == "WAIT" && tokens.size() == 1) {
-				type = InstructionType::Wait;
 			} else {
 				std::cerr << "WARNING: Unrecognized instruction: " << line << std::endl;
 			}
@@ -98,7 +96,14 @@ Route read_route(std::istream & input) {
 	Route route;
 
 	while (std::getline(input, line)) {
-		route.emplace_back(line);
+		std::vector<std::string> tokens;
+		boost::algorithm::split(tokens, line, boost::is_any_of("\t"), boost::token_compress_on);
+
+		if (tokens[0] == "WAIT") {
+			route[route.size() - 1].end_search = true;
+		} else {
+			route.emplace_back(line);
+		}
 	}
 
 	return route;

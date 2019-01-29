@@ -24,7 +24,6 @@ Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
 				case InstructionType::Save:
 				case InstructionType::Search:
 				case InstructionType::Version:
-				case InstructionType::Wait:
 					break;
 			}
 		}
@@ -114,7 +113,7 @@ Milliframes Engine::_optimize(const State & state) {
 	value = -1;
 	frames = Milliframes::max();
 
-	for (int i = minimum; i <= maximum; i++) {
+	for (int i = minimum; i <= maximum || frames == Milliframes::max(); i++) {
 		State work_state{state};
 		auto result{_cycle(&work_state, i)};
 
@@ -192,6 +191,14 @@ Milliframes Engine::_cycle(State * state, int value) {
 				frames += _step(state, tiles, optional_steps + extra_steps);
 			}
 
+			if (instruction.end_search) {
+				if (state->search_targets.size() > 0) {
+					return Milliframes::max();
+				}
+
+				state->search_party = "";
+			}
+
 			break;
 		case InstructionType::Route:
 			_route_title = instruction.text;
@@ -214,14 +221,6 @@ Milliframes Engine::_cycle(State * state, int value) {
 			break;
 		case InstructionType::Version:
 			_route_version = instruction.number;
-			break;
-		case InstructionType::Wait:
-			if (state->search_targets.size() > 0) {
-				return Milliframes::max();
-			}
-
-			state->search_targets.clear();
-			state->search_party = "";
 			break;
 	}
 

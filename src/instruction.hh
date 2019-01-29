@@ -4,7 +4,6 @@
 #include <istream>
 #include <memory>
 #include <set>
-#include <vector>
 
 enum class InstructionType {
 	Choice,
@@ -17,8 +16,7 @@ enum class InstructionType {
 	Route,
 	Save,
 	Search,
-	Version,
-	Wait
+	Version
 };
 
 class Instruction {
@@ -29,7 +27,7 @@ class Instruction {
 		std::string text;
 		std::string party;
 
-		std::set<int> numbers;
+		std::vector<int> numbers;
 
 		int variable = -1;
 
@@ -47,6 +45,8 @@ class Instruction {
 		bool can_single_step = false;
 		bool can_double_step = false;
 		bool can_step_during_save = false;
+
+		bool end_search = false;
 };
 
 using Route = std::vector<Instruction>;
