@@ -37,32 +37,17 @@ int main (int argc, char ** argv) {
 
 	CLI::App app{"Spoony " SPOONY_VERSION};
 
-	app.add_option("-a,--algorithm", options.algorithm, "Optimization algorithm");
 	app.add_option("-r,--route", options.route, "Route to process");
-	app.add_option("-o,--output-directory", options.output_directory, "Directory to output routes to");
 	app.add_option("-s,--seed", options.seed, "Seed to process");
-	app.add_option("-c,--maximum-comparisons", options.maximum_comparisons, "Maximum number of pairwise comparisons per variable");
-	app.add_option("-m,--maximum-steps", options.maximum_steps, "Maximum number of extra steps per area");
-	app.add_option("-i,--maximum-iterations", options.maximum_iterations, "Maximum number of iterations to attempt");
-	app.add_option("-p,--perturbation-strength", options.perturbation_strength, "Strength of perturbations for ILS");
-	app.add_option("-w,--perturbation-wobble", options.perturbation_wobble, "initial wobble range added to the perturbation for ILS");
-	app.add_option("-v,--variables", options.variables, "Explicitly set variables in the form index:value");
+	app.add_option("-m,--maximum-steps", options.maximum_steps, "Maximum number of extra steps per segment");
+	app.add_option("-v,--variables", options.variables, "Explicitly set variable constraints in the form variable:value[-max_value]");
 
-	app.add_flag("-d,--output-result", options.output_result, "Print the result to the standard output");
-	app.add_flag("-f,--full-optimization", options.full_optimization, "Optimize all variables instead of only variables after input data");
-	app.add_flag("-l,--load-existing-variables", options.load_existing_variables, "Use the existing variable data in the best route as seed data");
-	app.add_flag("-z,--pairwise-shift", options.pairwise_shift, "Shift steps instead of testing all possibilities in local pairwise search");
 	app.add_flag("-t,--tas-mode", options.tas_mode, "Use options appropriate for TAS Routing");
-	app.add_flag("-x,--step-output", options.step_output, "Output detailed information per step");
 
 	try {
 		app.parse(argc, argv);
 	} catch (const CLI::ParseError & e) {
 		return app.exit(e);
-	}
-
-	if (options.load_existing_variables) {
-		options.full_optimization = true;
 	}
 
 	/*
@@ -104,6 +89,34 @@ int main (int argc, char ** argv) {
 	 */
 
 	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode}};
+
+	if (!options.variables.empty()) {
+		std::vector<std::string> variables;
+		boost::algorithm::split(variables, options.variables, boost::is_any_of(" "), boost::token_compress_on);
+
+		try {
+			for (const auto & variable : variables) {
+				std::vector<std::string> tokens;
+				boost::algorithm::split(tokens, variable, boost::is_any_of(":"));
+
+				std::vector<std::string> values;
+				boost::algorithm::split(values, tokens[1], boost::is_any_of("-"));
+
+				auto index{std::stoi(tokens[0], nullptr, 16)};
+				auto minimum{std::stoi(values[0])};
+				auto maximum{minimum};
+
+				if (values.size() > 1) {
+					maximum = std::stoi(values[1]);
+				}
+
+				engine.set_variable_minimum(index, minimum);
+				engine.set_variable_maximum(index, maximum);
+			}
+		} catch (...) {
+			std::cerr << "WARNING: Invalid variable data supplied\n";
+		}
+	}
 
 	std::cout << engine.optimize(options.seed);
 
