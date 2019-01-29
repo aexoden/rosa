@@ -9,27 +9,25 @@
 Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
 	for (const auto & instruction : _parameters.route) {
 		if (instruction.variable >= 0) {
-			if (_variables.count(instruction.variable) > 0) {
-				std::cerr << (boost::format("WARNING: Variable '%07X' encountered twice\n") % instruction.variable).str();
-			}
-
-			switch (instruction.type) {
-				case InstructionType::Choice:
-					_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Choice, 0, 0, instruction.number}));
-					break;
-				case InstructionType::Path:
-					_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Step, 0, 0, _parameters.maximum_extra_steps}));
-					break;
-				case InstructionType::Delay:
-				case InstructionType::End:
-				case InstructionType::Note:
-				case InstructionType::Option:
-				case InstructionType::Party:
-				case InstructionType::Route:
-				case InstructionType::Save:
-				case InstructionType::Search:
-				case InstructionType::Version:
-					break;
+			if (_variables.count(instruction.variable) == 0) {
+				switch (instruction.type) {
+					case InstructionType::Choice:
+						_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Choice, 0, 0, instruction.number}));
+						break;
+					case InstructionType::Path:
+						_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Step, 0, 0, _parameters.maximum_extra_steps}));
+						break;
+					case InstructionType::Delay:
+					case InstructionType::End:
+					case InstructionType::Note:
+					case InstructionType::Option:
+					case InstructionType::Party:
+					case InstructionType::Route:
+					case InstructionType::Save:
+					case InstructionType::Search:
+					case InstructionType::Version:
+						break;
+				}
 			}
 		}
 	}
