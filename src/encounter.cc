@@ -4,6 +4,7 @@
 #include <boost/algorithm/string/split.hpp>
 
 #include "encounter.hh"
+#include "state.hh"
 
 using namespace std::chrono_literals;
 
@@ -17,11 +18,11 @@ std::string Encounter::get_description() const {
 	return _description;
 }
 
-void Encounter::add_duration(const std::string & party, const Duration & duration) {
+void Encounter::add_duration(const Party & party, const Duration & duration) {
 	_durations[party] = duration;
 }
 
-Milliframes Encounter::get_duration(const std::string & party, bool minimum) const {
+Milliframes Encounter::get_duration(const Party & party, bool minimum) const {
 	if (_durations.count(party) == 0) {
 		std::cerr << "WARNING: Party '" << party << "' not found for encounter " << _id << "... assuming 30 seconds\n";
 		return std::chrono::duration_cast<Milliframes>(30s);
@@ -42,7 +43,7 @@ Encounters::Encounters(std::istream & input) : _encounters{512}, _encounter_grou
 				std::size_t id{std::stoul(tokens[1])};
 
 				std::string description{tokens[2]};
-				std::string party{tokens[3]};
+				Party party{tokens[3]};
 
 				Milliframes average_duration{static_cast<int>(std::stod(tokens[4]) * 1000)};
 				Milliframes minimum_duration{static_cast<int>(std::stod(tokens[5]) * 1000)};

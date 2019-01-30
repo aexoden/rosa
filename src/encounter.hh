@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "duration.hh"
+#include "party.hh"
 
 class Encounter {
 	public:
@@ -14,14 +15,14 @@ class Encounter {
 		std::size_t get_id() const;
 		std::string get_description() const;
 
-		void add_duration(const std::string & party, const Duration & duration);
-		Milliframes get_duration(const std::string & party, bool minimum) const;
+		void add_duration(const Party & party, const Duration & duration);
+		Milliframes get_duration(const Party & party, bool minimum) const;
 
 	private:
 		const std::size_t _id;
 		const std::string _description;
 
-		std::unordered_map<std::string, Duration> _durations;
+		std::unordered_map<Party, Duration> _durations;
 };
 
 class Encounters {

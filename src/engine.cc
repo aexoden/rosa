@@ -287,7 +287,7 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 
 			break;
 		case InstructionType::Party:
-			state->party = instruction.text;
+			state->party = Party{instruction.text};
 			break;
 		case InstructionType::Path: {
 			bool extra_encounters{!state->search_targets.empty()};
@@ -332,7 +332,7 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 					return Milliframes::max();
 				}
 
-				state->search_party = "";
+				state->search_party = Party{""};
 			}
 
 			break;
@@ -353,7 +353,7 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 				}
 			}
 
-			state->search_party = instruction.party;
+			state->search_party = Party{instruction.party};
 
 			break;
 		case InstructionType::Version:
