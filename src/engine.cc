@@ -12,7 +12,7 @@ Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
 			if (_variables.count(instruction.variable) == 0) {
 				switch (instruction.type) {
 					case InstructionType::Choice:
-						_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Choice, 0, 0, instruction.number}));
+						_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Choice, 0, 0, instruction.number - 1}));
 						break;
 					case InstructionType::Path:
 						_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Step, 0, 0, _parameters.maximum_extra_steps}));
@@ -74,7 +74,7 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 
 	int total_optional_steps{0};
 	int total_extra_steps{0};
-	std::size_t total_encounters{0};
+	int total_encounters{0};
 
 	std::string raw_output;
 	std::size_t indent_level{0};
@@ -193,8 +193,8 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	output += (boost::format("%-21s%d\n") % "Extra Steps:" % total_extra_steps).str();
 	output += (boost::format("%-21s%d\n\n") % "Encounters:" % total_encounters).str();
 
-	auto base_encounters{std::accumulate(base_log.begin(), base_log.end(), std::size_t{0}, [](const auto a, const auto & entry) {
-		return a + entry.encounters.size();
+	auto base_encounters{std::accumulate(base_log.begin(), base_log.end(), 0, [](const auto a, const auto & entry) {
+		return a + static_cast<int>(entry.encounters.size());
 	})};
 
 	output += (boost::format("%-21s%d\n") % "Base Encounters:" % base_encounters).str();
@@ -257,6 +257,8 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 	switch (instruction.type) {
 		case InstructionType::Choice:
 			while (value >= 0) {
+				state->index++;
+
 				while (_parameters.route[state->index].type != InstructionType::Option) {
 					state->index++;
 				}
