@@ -35,9 +35,9 @@ Party::Party(std::string party) : _party{std::move(party)} {
 		}
 	}
 
-	_key1 += _three_front ? 1ull << 31 : 0;
-	_key1 += _has_gp ? 1ull << 30 : 0;
-	_key1 += _on_world_map ? 1ull << 29 : 0;
+	_key1 += _three_front ? 1ull << 31u : 0;
+	_key1 += _has_gp ? 1ull << 30u : 0;
+	_key1 += _on_world_map ? 1ull << 29u : 0;
 
 	_key1 += static_cast<uint32_t>(_level);
 
@@ -45,11 +45,11 @@ Party::Party(std::string party) : _party{std::move(party)} {
 	uint64_t agilities{0};
 
 	for (const auto & [character, agility] : _characters) {
-		characters = (characters << 6) + static_cast<uint64_t>(character);
+		characters = (characters << 6u) + static_cast<uint64_t>(character);
 		agilities = agilities * 100 + static_cast<uint64_t>(agility);
 	}
 
-	_key2 = (characters << 34) + agilities;
+	_key2 = (characters << 34u) + agilities;
 }
 
 std::pair<uint32_t, uint64_t> Party::get_keys() const {

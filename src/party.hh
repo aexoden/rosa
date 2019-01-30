@@ -40,6 +40,6 @@ namespace std {
 			return hash<uint32_t>()(key1) * 31 + hash<uint64_t>()(key2);
 		}
 	};
-}
+} // namespace std
 
 #endif // SPOONY_PARTY_HH

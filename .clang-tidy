@@ -1,5 +1,5 @@
 ---
-Checks:          '*,-fuchsia-default-arguments,-llvm-header-guard'
+Checks:          '*,-fuchsia-default-arguments,-fuchsia-overloaded-operator,-llvm-header-guard'
 WarningsAsErrors: ''
 HeaderFilterRegex: 'src/.*hh'
 AnalyzeTemporaryDtors: false

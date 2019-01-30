@@ -23,18 +23,18 @@ struct State {
 	std::tuple<uint64_t, uint64_t, uint64_t> get_keys() const {
 		const auto [party_key1, party_key2] = party.get_keys();
 
-		uint64_t key1{static_cast<uint64_t>(party_key1) << 32};
+		uint64_t key1{static_cast<uint64_t>(party_key1) << 32u};
 		uint64_t key2{static_cast<uint64_t>(index)};
 		uint64_t key3{static_cast<uint64_t>(party_key2)};
 
-		key1 += static_cast<uint64_t>(step_seed) << 24;
-		key1 += static_cast<uint64_t>(step_index) << 16;
-		key1 += static_cast<uint64_t>(encounter_seed) << 8;
+		key1 += static_cast<uint64_t>(step_seed) << 24u;
+		key1 += static_cast<uint64_t>(step_index) << 16u;
+		key1 += static_cast<uint64_t>(encounter_seed) << 8u;
 		key1 += static_cast<uint64_t>(encounter_index);
 
 		for (const auto & [id, count] : search_targets) {
-			key2 = (key2 << 9) + static_cast<uint64_t>(id);
-			key2 = (key2 << 3) + static_cast<uint64_t>(count);
+			key2 = (key2 << 9u) + static_cast<uint64_t>(id);
+			key2 = (key2 << 3u) + static_cast<uint64_t>(count);
 		}
 
 		return std::make_tuple(key1, key2, key3);
@@ -44,27 +44,5 @@ struct State {
 		return get_keys() == other.get_keys();
 	}
 };
-
-namespace std {
-	template <>
-	struct hash<State>
-	{
-		std::size_t operator()(const State & state) const
-		{
-			size_t res = 17;
-
-			res = res * 31 + hash<int>()(state.step_seed);
-			res = res * 31 + hash<int>()(state.step_index);
-			res = res * 31 + hash<int>()(state.encounter_seed);
-			res = res * 31 + hash<int>()(state.encounter_index);
-			res = res * 31 + hash<size_t>()(state.index);
-			res = res * 31 + hash<Party>()(state.party);
-			res = res * 31 + hash<size_t>()(state.search_targets.size());
-
-			return res;
-
-		}
-	};
-}
 
 #endif // SPOONY_STATE_HH
