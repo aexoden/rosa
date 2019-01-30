@@ -20,8 +20,28 @@ struct State {
 
 	std::unordered_map<std::size_t, int> search_targets{};
 
+	std::tuple<uint64_t, uint64_t, uint64_t> get_keys() const {
+		const auto [party_key1, party_key2] = party.get_keys();
+
+		uint64_t key1{static_cast<uint64_t>(party_key1) << 32};
+		uint64_t key2{static_cast<uint64_t>(index)};
+		uint64_t key3{static_cast<uint64_t>(party_key2)};
+
+		key1 += static_cast<uint64_t>(step_seed) << 24;
+		key1 += static_cast<uint64_t>(step_index) << 16;
+		key1 += static_cast<uint64_t>(encounter_seed) << 8;
+		key1 += static_cast<uint64_t>(encounter_index);
+
+		for (const auto & [id, count] : search_targets) {
+			key2 = (key2 << 9) + static_cast<uint64_t>(id);
+			key2 = (key2 << 3) + static_cast<uint64_t>(count);
+		}
+
+		return std::make_tuple(key1, key2, key3);
+	}
+
 	bool operator==(const State & other) const {
-		return step_seed == other.step_seed && step_index == other.step_index && encounter_seed == other.encounter_seed && encounter_index == other.encounter_index && index == other.index && party == other.party && search_targets == other.search_targets;
+		return get_keys() == other.get_keys();
 	}
 };
 
