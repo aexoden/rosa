@@ -289,7 +289,9 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 		case InstructionType::Party:
 			state->party = instruction.text;
 			break;
-		case InstructionType::Path:
+		case InstructionType::Path: {
+			bool extra_encounters{!state->search_targets.empty()};
+
 			frames += instruction.transition_count * 82_f;
 			frames += _step(state, log, instruction.tiles, instruction.required_steps);
 
@@ -315,6 +317,16 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 				frames += _step(state, log, tiles, optional_steps + extra_steps);
 			}
 
+			if (log && extra_encounters) {
+				int extra_steps{256 - instruction.required_steps - value};
+
+				if (extra_steps > 0) {
+					State work_state{*state};
+					_step(&work_state, log, 0, extra_steps);
+					log->steps -= extra_steps;
+				}
+			}
+
 			if (instruction.end_search) {
 				if (!state->search_targets.empty()) {
 					return Milliframes::max();
@@ -324,6 +336,7 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 			}
 
 			break;
+		}
 		case InstructionType::Route:
 			_route_title = instruction.text;
 			break;
