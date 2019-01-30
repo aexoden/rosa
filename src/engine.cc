@@ -203,7 +203,6 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	output += (boost::format("%-21s%d\n") % "Number of Variables:" % _variables.size()).str();
 	output += (boost::format("%-21s%d\n") % "Number of States:" % _cache.get_count()).str();
 
-
 	return output;
 }
 
