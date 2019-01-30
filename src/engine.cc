@@ -12,7 +12,7 @@ Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
 			if (_variables.count(instruction.variable) == 0) {
 				switch (instruction.type) {
 					case InstructionType::Choice:
-						_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Choice, 0, 0, instruction.number - 1}));
+						_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Choice, 0, 0, _parameters.maximum_extra_steps > 0 ? instruction.number - 1 : 0}));
 						break;
 					case InstructionType::Path:
 						_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Step, 0, 0, _parameters.maximum_extra_steps}));
