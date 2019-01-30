@@ -10,7 +10,7 @@ struct State {
 	int step_seed;
 	int step_index{0};
 
-	int encounter_seed{step_seed * 2};
+	int encounter_seed{(step_seed * 2) % 256};
 	int encounter_index{0};
 
 	std::size_t index{0};
