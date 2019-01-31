@@ -4,11 +4,13 @@
 #include "state.hh"
 
 std::pair<int, Milliframes> Cache::get(const State & state) {
-	if (_cache.count(state.get_keys()) == 0) {
-		return std::make_pair(-1, std::numeric_limits<Milliframes>::max());
+	auto keys{state.get_keys()};
+
+	if (_cache.count(keys) == 0) {
+		return std::make_pair(-1, Milliframes::max());
 	}
 
-	return _cache.at(state.get_keys());
+	return _cache.at(keys);
 }
 
 void Cache::set(const State & state, int value, Milliframes frames) {
