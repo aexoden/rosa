@@ -38,7 +38,9 @@ not a very general-use application.
 * Handle the extra penalty for single extra steps done at save points.
 
 * Handle the ability to take three extra steps in Cecil's room with only a two
-  tile penalty.
+  tile penalty. This is similar to the potential single extra step before
+  entering Bab-il, which can be done with a one tile penalty, versus most single
+  extra steps which require a 2 tile penalty.
 
 * See if some seeds could benefit from a save/reset cycle instead of endlessly
   pacing until they find the grind fight. The problem is that your reset seed is
