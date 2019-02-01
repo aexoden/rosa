@@ -1,5 +1,5 @@
-#ifndef SPOONY_ENCOUNTER_HH
-#define SPOONY_ENCOUNTER_HH
+#ifndef ROSA_ENCOUNTER_HH
+#define ROSA_ENCOUNTER_HH
 
 #include <memory>
 #include <unordered_map>
@@ -37,4 +37,4 @@ class Encounters {
 		std::vector<std::vector<std::size_t>> _encounter_groups;
 };
 
-#endif // SPOONY_ENCOUNTER_HH
+#endif // ROSA_ENCOUNTER_HH

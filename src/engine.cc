@@ -162,7 +162,7 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 
 	output += (boost::format("ROUTE\t%s\n") % _route_title).str();
 	output += (boost::format("VERSION\t%d\n") % _route_version).str();
-	output += (boost::format("SPOONY\t%s\n") % SPOONY_VERSION).str();
+	output += (boost::format("ROSA\t%s\n") % ROSA_VERSION).str();
 	output += (boost::format("SEED\t%d\n") % state.step_seed).str();
 	output += (boost::format("MAXSTEP\t%d\n") % _parameters.maximum_extra_steps).str();
 	output += (boost::format("TASMODE\t%d\n") % (_parameters.tas_mode ? 1 : 0)).str();

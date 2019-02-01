@@ -1,5 +1,5 @@
-#ifndef SPOONY_MAP_HH
-#define SPOONY_MAP_HH
+#ifndef ROSA_MAP_HH
+#define ROSA_MAP_HH
 
 #include <string>
 #include <unordered_map>
@@ -24,4 +24,4 @@ class Maps {
 		std::unordered_map<int, const Map> _maps;
 };
 
-#endif // SPOONY_MAP_HH
+#endif // ROSA_MAP_HH

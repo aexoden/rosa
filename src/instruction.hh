@@ -1,5 +1,5 @@
-#ifndef SPOONY_INSTRUCTION_HH
-#define SPOONY_INSTRUCTION_HH
+#ifndef ROSA_INSTRUCTION_HH
+#define ROSA_INSTRUCTION_HH
 
 #include <istream>
 #include <memory>
@@ -53,4 +53,4 @@ using Route = std::vector<Instruction>;
 
 Route read_route(std::istream & input);
 
-#endif // SPOONY_INSTRUCTION_HH
+#endif // ROSA_INSTRUCTION_HH

@@ -1,5 +1,5 @@
-#ifndef SPOONY_OPTIONS_HH
-#define SPOONY_OPTIONS_HH
+#ifndef ROSA_OPTIONS_HH
+#define ROSA_OPTIONS_HH
 
 class Options {
 	public:

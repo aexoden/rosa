@@ -1,5 +1,5 @@
-#ifndef SPOONY_CACHE_HH
-#define SPOONY_CACHE_HH
+#ifndef ROSA_CACHE_HH
+#define ROSA_CACHE_HH
 
 #include <cstdint>
 #include <string>
@@ -22,4 +22,4 @@ class Cache {
 		std::unordered_map<std::tuple<uint64_t, uint64_t, uint64_t>, std::pair<int, Milliframes>, boost::hash<std::tuple<uint64_t, uint64_t, uint64_t>>> _cache;
 };
 
-#endif // SPOONY_CACHE_HH
+#endif // ROSA_CACHE_HH

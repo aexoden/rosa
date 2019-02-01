@@ -1,5 +1,5 @@
-#ifndef SPOONY_ENGINE_HH
-#define SPOONY_ENGINE_HH
+#ifndef ROSA_ENGINE_HH
+#define ROSA_ENGINE_HH
 
 #include <vector>
 
@@ -70,4 +70,4 @@ class Engine {
 		};
 };
 
-#endif // SPOONY_ENGINE_HH
+#endif // ROSA_ENGINE_HH

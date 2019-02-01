@@ -1,5 +1,5 @@
-#ifndef SPOONY_STATE_HH
-#define SPOONY_STATE_HH
+#ifndef ROSA_STATE_HH
+#define ROSA_STATE_HH
 
 #include <unordered_map>
 
@@ -45,4 +45,4 @@ struct State {
 	}
 };
 
-#endif // SPOONY_STATE_HH
+#endif // ROSA_STATE_HH

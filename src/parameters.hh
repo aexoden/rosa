@@ -1,5 +1,5 @@
-#ifndef SPOONY_PARAMETERS_HH
-#define SPOONY_PARAMETERS_HH
+#ifndef ROSA_PARAMETERS_HH
+#define ROSA_PARAMETERS_HH
 
 #include <memory>
 #include <unordered_map>
@@ -17,4 +17,4 @@ struct Parameters {
 		const bool tas_mode = false;
 };
 
-#endif // SPOONY_PARAMETERS_HH
+#endif // ROSA_PARAMETERS_HH

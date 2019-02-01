@@ -1,5 +1,5 @@
-#ifndef SPOONY_VARIABLE_HH
-#define SPOONY_VARIABLE_HH
+#ifndef ROSA_VARIABLE_HH
+#define ROSA_VARIABLE_HH
 
 #include <unordered_map>
 
@@ -14,4 +14,4 @@ struct Variable {
 
 using Variables = std::unordered_map<int, Variable>;
 
-#endif // SPOONY_VARIABLE_HH
+#endif // ROSA_VARIABLE_HH

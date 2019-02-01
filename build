@@ -11,7 +11,7 @@ if [ -z "$VERSION" ] ; then
 fi
 
 if [ ! -f src/version.hh ] || ! grep -q \"$VERSION\" src/version.hh ; then
-	echo "#define SPOONY_VERSION \"$VERSION\"" > src/version.hh
+	echo "#define ROSA_VERSION \"$VERSION\"" > src/version.hh
 fi
 
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ .

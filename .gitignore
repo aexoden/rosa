@@ -6,6 +6,5 @@ Makefile
 /.vscode
 /compile_commands.json
 /output
-/src/spoony
-/src/spoony-*
+/src/rosa
 /src/version.hh

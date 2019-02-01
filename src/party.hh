@@ -1,5 +1,5 @@
-#ifndef SPOONY_PARTY_HH
-#define SPOONY_PARTY_HH
+#ifndef ROSA_PARTY_HH
+#define ROSA_PARTY_HH
 
 #include <cstdint>
 #include <string>
@@ -42,4 +42,4 @@ namespace std {
 	};
 } // namespace std
 
-#endif // SPOONY_PARTY_HH
+#endif // ROSA_PARTY_HH

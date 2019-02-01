@@ -1,5 +1,5 @@
-#ifndef SPOONY_DURATION_HH
-#define SPOONY_DURATION_HH
+#ifndef ROSA_DURATION_HH
+#define ROSA_DURATION_HH
 
 #include <chrono>
 
@@ -26,4 +26,4 @@ struct Duration {
 	Milliframes minimum;
 };
 
-#endif // SPOONY_DURATION_HH
+#endif // ROSA_DURATION_HH
