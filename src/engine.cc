@@ -409,7 +409,15 @@ Milliframes Engine::_step(State * state, LogEntry * log, int tiles, int steps) {
 			frames += encounter_frames;
 
 			if (log) {
-				auto encounter_step{(((state->step_seed - log->state.step_seed) % 256) / 17) * 256 + ((state->step_index - log->state.step_index) % 256)};
+				auto encounter_step{state->step_index - log->state.step_index};
+				auto step_seed_delta{state->step_seed - log->state.step_seed};
+
+				if (step_seed_delta > 0) {
+					encounter_step += (step_seed_delta / 17) * 256;
+				} else if (step_seed_delta < 0) {
+					encounter_step += ((step_seed_delta + 256) / 17) * 256;
+				}
+
 				log->encounters.emplace_back(std::make_tuple(encounter_step, state->encounter_index, encounter_id, encounter_frames));
 			}
 
