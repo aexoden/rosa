@@ -1,0 +1,16 @@
+#!/bin/bash
+
+ROUTE=$1
+MAXSTEP=$2
+TARGET=$3
+
+mkdir -p $TARGET && echo "Created target directory"
+
+for i in $(seq -w 000 255) ; do
+	filename=$TARGET/$i.txt
+	seed=$(expr $i + 0)
+
+	echo -n "[$(date +'%Y-%m-%d %H:%M:%S')] Generating seed $seed..."
+	src/rosa -r $ROUTE -s $seed -m $MAXSTEP > $filename
+	echo " done!"
+done
