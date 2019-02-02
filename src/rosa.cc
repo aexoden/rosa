@@ -43,6 +43,9 @@ int main (int argc, char ** argv) {
 
 	app.add_flag("-t,--tas-mode", options.tas_mode, "Use options appropriate for TAS Routing");
 
+	app.add_set("-c,--cache-type", options.cache_type, {"dynamic", "fixed"}, "The type of cache to use");
+	app.add_option("--cache-size", options.cache_size, "The number of states to cache if the cache type if using a fixed-size cache")->check(CLI::Range(std::numeric_limits<std::size_t>::max()));
+
 	try {
 		app.parse(argc, argv);
 	} catch (const CLI::ParseError & e) {
@@ -83,11 +86,17 @@ int main (int argc, char ** argv) {
 
 	auto route{read_route(route_source_file)};
 
+	auto cache_type{CacheType::Dynamic};
+
+	if (options.cache_type == "fixed") {
+		cache_type = CacheType::Fixed;
+	}
+
 	/*
 	 * Optimization
 	 */
 
-	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode}};
+	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, cache_type, options.cache_size}};
 
 	if (!options.variables.empty()) {
 		std::vector<std::string> variables;

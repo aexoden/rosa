@@ -45,7 +45,7 @@ class Engine {
 
 		Variables _variables;
 
-		Cache _cache;
+		std::unique_ptr<Cache> _cache;
 
 		std::string _route_title;
 		int _route_version{0};

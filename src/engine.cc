@@ -7,6 +7,15 @@
 #include "version.hh"
 
 Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
+	switch (parameters.cache_type) {
+		case CacheType::Dynamic:
+			_cache = std::make_unique<DynamicCache>();
+			break;
+		case CacheType::Fixed:
+			_cache = std::make_unique<FixedCache>(parameters.cache_size);
+			break;
+	}
+
 	for (const auto & instruction : _parameters.route) {
 		if (instruction.variable >= 0) {
 			if (_variables.count(instruction.variable) == 0) {
@@ -55,7 +64,7 @@ Log Engine::_finalize(State state) {
 
 	while (state.index < _parameters.route.size()) {
 		auto instruction = _parameters.route[state.index];
-		auto [value, frames] = _cache.get(state);
+		auto [value, frames] = _cache->get(state);
 
 		log.emplace_back(LogEntry{state});
 		_cycle(&state, &log[log.size() - 1], value);
@@ -201,7 +210,7 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	output += (boost::format("%-21s%d\n\n") % "Encounters Saved:" % (base_encounters - total_encounters)).str();
 
 	output += (boost::format("%-21s%d\n") % "Number of Variables:" % _variables.size()).str();
-	output += (boost::format("%-21s%d\n") % "Number of States:" % _cache.get_count()).str();
+	output += (boost::format("%-21s%d\n") % "Number of States:" % _cache->get_count()).str();
 
 	return output;
 }
@@ -211,7 +220,7 @@ Milliframes Engine::_optimize(const State & state) {
 		return 0_mf;
 	}
 
-	auto [value, frames] = _cache.get(state);
+	auto [value, frames] = _cache->get(state);
 
 	if (value >= 0) {
 		return frames;
@@ -244,7 +253,7 @@ Milliframes Engine::_optimize(const State & state) {
 		}
 	}
 
-	_cache.set(state, value, frames);
+	_cache->set(state, value, frames);
 
 	return frames;
 }

@@ -61,6 +61,21 @@ Adjusts the optimization to use TAS-specific features. This currently only uses
 the minimum encounter timings instead of the average, but additional features
 are planned.
 
+#### `-c, --cache-type`
+
+Sets the type of cache used. There are currently two options available:
+`dynamic` or `fixed`. The default is `dynamic`, which will cache all states.
+This will use lots of memory on complicated routes. Using `fixed` will trade
+some of that memory usage for reduced performance. Depending on how close the
+cache size is to the number of states, the performance may be drastically
+reduced.
+
+#### `--cache-size`
+
+Allows the user to fine tune the size of the cache (in states). The default is
+one million, but this is substantially too low for most routes. It is, however,
+relatively light on memory usage.
+
 ## File Formats
 
 ### Field Definitions

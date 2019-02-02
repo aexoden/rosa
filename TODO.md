@@ -2,9 +2,7 @@
 
 ## 1.1.0
 
-* The dynamic programming cache currently requires large amounts of memory for
-  more complicated routes. Optionally allow either a fixed-size cache or to
-  store the cache on disk.
+* Add a persistent disk-backed cache option.
 
 ## 1.2.0
 
