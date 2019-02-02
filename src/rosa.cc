@@ -34,7 +34,7 @@ int main (int argc, char ** argv) {
 	 * Option Parsing
 	 */
 
-	CLI::App app{"Spoony " ROSA_VERSION};
+	CLI::App app{"Rosa " ROSA_VERSION};
 
 	app.add_option("-r,--route", options.route, "Route to process");
 	app.add_option("-s,--seed", options.seed, "Seed to process");

@@ -1,4 +1,4 @@
-# Spoony Twin Seed Resolution Notes #
+# Rosa Twin Seed Resolution Notes #
 
 The following summarizes the changes and comprimises that have been made to the
 routes in order to solve the problem of so-called twin seeds. In general, the
