@@ -17,15 +17,15 @@ Maps::Maps(std::istream & input) {
 			if (tokens[0] == "MAP" && tokens.size() == 6) {
 				int id{std::stoi(tokens[1], nullptr, 16)};
 
-				int encounter_rate{std::stoi(tokens[2])};
-				int encounter_group{std::stoi(tokens[3])};
-
-				std::string title{tokens[4]};
-				std::string description{tokens[5]};
-
 				if (_maps.count(id) > 0) {
 					std::cerr << "WARNING: Ignoring duplicate map ID in map data: " << boost::format("%04X") % id << '\n';
 				} else {
+					int encounter_rate{std::stoi(tokens[2])};
+					int encounter_group{std::stoi(tokens[3])};
+
+					std::string title{tokens[4]};
+					std::string description{tokens[5]};
+
 					_maps.emplace(id, Map{encounter_rate, encounter_group, title, description});
 				}
 			} else {
