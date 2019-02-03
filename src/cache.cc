@@ -7,8 +7,6 @@
 #include "cache.hh"
 #include "state.hh"
 
-Cache::Cache() {}
-
 Cache::~Cache() {}
 
 std::pair<int, Milliframes> DynamicCache::get(const State & state) {
@@ -49,13 +47,12 @@ std::size_t FixedCache::_get_index(const std::tuple<uint64_t, uint64_t, uint64_t
 }
 
 PersistentCache::PersistentCache(const std::string & filename) {
-	leveldb::Options options;
-	options.create_if_missing = true;
-	options.max_open_files = 524288;
-	options.block_cache = leveldb::NewLRUCache(1024 * 1048576);
-	options.filter_policy = leveldb::NewBloomFilterPolicy(10);
+	_options.create_if_missing = true;
+	_options.max_open_files = 524288;
+	_options.block_cache = leveldb::NewLRUCache(1024 * 1048576);
+	_options.filter_policy = leveldb::NewBloomFilterPolicy(10);
 
-	auto status{leveldb::DB::Open(options, filename, &_db)};
+	auto status{leveldb::DB::Open(_options, filename, &_db)};
 
 	if (!status.ok()) {
 		std::cerr << "WARNING: Cache error: " << status.ToString() << '\n';
@@ -63,9 +60,9 @@ PersistentCache::PersistentCache(const std::string & filename) {
 }
 
 PersistentCache::~PersistentCache() {
-	if (_db) {
-		delete _db;
-	}
+	delete _db;
+	delete _options.block_cache;
+	delete _options.filter_policy;
 }
 
 std::pair<int, Milliframes> PersistentCache::get(const State & state) {
@@ -106,9 +103,9 @@ std::string PersistentCache::_encode_key(const State & state) const {
 	auto [key1, key2, key3] = state.get_keys();
 	std::string result{sizeof(key1) + sizeof(key2) + sizeof(key3), 0, std::string::allocator_type{}};
 
-	std::copy_n(reinterpret_cast<char*>(&key1), sizeof(key1), result.begin());
-	std::copy_n(reinterpret_cast<char*>(&key2), sizeof(key2), result.begin() + sizeof(key1));
-	std::copy_n(reinterpret_cast<char*>(&key3), sizeof(key3), result.begin() + sizeof(key1) + sizeof(key2));
+	std::copy_n(reinterpret_cast<char*>(&key1), sizeof(key1), result.begin()); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+	std::copy_n(reinterpret_cast<char*>(&key2), sizeof(key2), result.begin() + sizeof(key1)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+	std::copy_n(reinterpret_cast<char*>(&key3), sizeof(key3), result.begin() + sizeof(key1) + sizeof(key2)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
 
 	return result;
 }
@@ -119,8 +116,8 @@ std::string PersistentCache::_encode_value(int value, Milliframes frames) const 
 
 	std::string result{sizeof(int64_t) * 2, 0, std::string::allocator_type{}};
 
-	std::copy(reinterpret_cast<char*>(&value1), reinterpret_cast<char*>(&value1) + sizeof(value1), result.begin());
-	std::copy(reinterpret_cast<char*>(&value2), reinterpret_cast<char*>(&value2) + sizeof(value2), result.begin() + sizeof(value1));
+	std::copy(reinterpret_cast<char*>(&value1), reinterpret_cast<char*>(&value1) + sizeof(value1), result.begin()); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-bounds-pointer-arithmetic)
+	std::copy(reinterpret_cast<char*>(&value2), reinterpret_cast<char*>(&value2) + sizeof(value2), result.begin() + sizeof(value1)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
 	return result;
 }
@@ -129,8 +126,8 @@ std::pair<int, Milliframes> PersistentCache::_decode_value(const std::string & d
 	int64_t value1{0};
 	int64_t value2{0};
 
-	std::copy(data.begin(), data.begin() + sizeof(value1), reinterpret_cast<char*>(&value1));
-	std::copy(data.begin() + sizeof(value1), data.begin() + sizeof(value1) + sizeof(value2), reinterpret_cast<char*>(&value2));
+	std::copy(data.begin(), data.begin() + sizeof(value1), reinterpret_cast<char*>(&value1)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+	std::copy(data.begin() + sizeof(value1), data.begin() + sizeof(value1) + sizeof(value2), reinterpret_cast<char*>(&value2)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
 	return std::make_pair(static_cast<int>(value1), Milliframes{value2});
 }

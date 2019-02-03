@@ -20,7 +20,7 @@ enum class CacheType {
 
 class Cache {
 	public:
-		Cache();
+		Cache() = default;
 		Cache(const Cache &) = delete;
 		Cache & operator=(const Cache &) = delete;
 
@@ -41,7 +41,7 @@ class DynamicCache : public Cache {
 
 class FixedCache : public Cache {
 	public:
-		FixedCache(std::size_t size);
+		explicit FixedCache(std::size_t size);
 
 		std::pair<int, Milliframes> get(const State & state) override;
 		void set(const State & state, int value, Milliframes frames) override;
@@ -56,7 +56,7 @@ class FixedCache : public Cache {
 
 class PersistentCache : public Cache {
 	public:
-		PersistentCache(const std::string & filename);
+		explicit PersistentCache(const std::string & filename);
 		~PersistentCache() override;
 
 		std::pair<int, Milliframes> get(const State & state) override;
@@ -67,8 +67,9 @@ class PersistentCache : public Cache {
 		std::string _encode_value(int value, Milliframes frames) const;
 		std::pair<int, Milliframes> _decode_value(const std::string & data) const;
 
-		leveldb::DB * _db;
-		std::size_t _states;
+		leveldb::Options _options{};
+		leveldb::DB * _db{nullptr};
+		std::size_t _states{0};
 };
 
 #endif // ROSA_CACHE_HH
