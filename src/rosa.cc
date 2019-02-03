@@ -36,15 +36,16 @@ int main (int argc, char ** argv) {
 
 	CLI::App app{"Rosa " ROSA_VERSION};
 
-	app.add_option("-r,--route", options.route, "Route to process");
-	app.add_option("-s,--seed", options.seed, "Seed to process");
-	app.add_option("-m,--maximum-steps", options.maximum_steps, "Maximum number of extra steps per segment");
-	app.add_option("-v,--variables", options.variables, "Explicitly set variable constraints in the form variable:value[-max_value]");
+	app.add_option("-r,--route", options.route, "Route to process", true);
+	app.add_option("-s,--seed", options.seed, "Seed to process", true);
+	app.add_option("-m,--maximum-steps", options.maximum_steps, "Maximum number of extra steps per segment", true);
+	app.add_option("-v,--variables", options.variables, "Explicitly set variable constraints in the form variable:value[-max_value]", false);
 
 	app.add_flag("-t,--tas-mode", options.tas_mode, "Use options appropriate for TAS Routing");
 
-	app.add_set("-c,--cache-type", options.cache_type, {"dynamic", "fixed"}, "The type of cache to use");
-	app.add_option("--cache-size", options.cache_size, "The number of states to cache if the cache type if using a fixed-size cache")->check(CLI::Range(std::numeric_limits<std::size_t>::max()));
+	app.add_set("-c,--cache-type", options.cache_type, {"dynamic", "fixed", "persistent"}, "The type of cache to use", true);
+	app.add_option("-x,--cache-size", options.cache_size, "The number of states to cache if the cache type if using a fixed-size cache")->check(CLI::Range(std::numeric_limits<std::size_t>::max()));
+	app.add_option("-l,--cache-location", options.cache_location, "The location for the cache if using a persistent cache");
 
 	try {
 		app.parse(argc, argv);
@@ -87,16 +88,23 @@ int main (int argc, char ** argv) {
 	auto route{read_route(route_source_file)};
 
 	auto cache_type{CacheType::Dynamic};
+	auto cache_location{options.cache_location};
 
 	if (options.cache_type == "fixed") {
 		cache_type = CacheType::Fixed;
+	} else if (options.cache_type == "persistent") {
+		cache_type = CacheType::Persistent;
+
+		if (cache_location.empty()) {
+			cache_location = "cache/" + options.route;
+		}
 	}
 
 	/*
 	 * Optimization
 	 */
 
-	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, cache_type, options.cache_size}};
+	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, cache_type, options.cache_size, cache_location}};
 
 	if (!options.variables.empty()) {
 		std::vector<std::string> variables;

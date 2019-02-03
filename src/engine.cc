@@ -12,7 +12,10 @@ Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
 			_cache = std::make_unique<DynamicCache>();
 			break;
 		case CacheType::Fixed:
-			_cache = std::make_unique<FixedCache>(parameters.cache_size);
+			_cache = std::make_unique<FixedCache>(_parameters.cache_size);
+			break;
+		case CacheType::Persistent:
+			_cache = std::make_unique<PersistentCache>(_parameters.cache_location);
 			break;
 	}
 
@@ -191,7 +194,7 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	output += (boost::format("%-21s%0.3fs\n") % "Other Time:" % Seconds(total_frames - encounter_frames).count()).str();
 	output += (boost::format("%-21s%0.3fs\n\n") % "Total Time:" % Seconds(total_frames).count()).str();
 
-	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode}};
+	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode, CacheType::Dynamic, 0, ""}};
 	auto base_frames{base_engine._optimize(state)};
 	auto base_log{base_engine._finalize(state)};
 
@@ -210,7 +213,6 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	output += (boost::format("%-21s%d\n\n") % "Encounters Saved:" % (base_encounters - total_encounters)).str();
 
 	output += (boost::format("%-21s%d\n") % "Number of Variables:" % _variables.size()).str();
-	output += (boost::format("%-21s%d\n") % "Number of States:" % _cache->get_count()).str();
 
 	return output;
 }

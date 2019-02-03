@@ -4,6 +4,7 @@ CMakeFiles
 cmake_install.cmake
 Makefile
 /.vscode
+/cache
 /compile_commands.json
 /output
 /src/rosa

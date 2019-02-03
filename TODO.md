@@ -1,9 +1,5 @@
 # Rosa TODO
 
-## 1.1.0
-
-* Add a persistent disk-backed cache option.
-
 ## 1.2.0
 
 * Add the necessary features to support TAS routes. In particular, handle a

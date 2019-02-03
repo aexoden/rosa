@@ -7,7 +7,7 @@ game. Additional details can be found at [ff4.aexoden.com](https://ff4.aexoden.c
 
 ## Prerequisites
 
-Rosa requires Boost to be installed on your system.
+Rosa requires Boost and LevelDB to be installed on your system.
 
 ## Building
 
@@ -63,18 +63,31 @@ are planned.
 
 #### `-c, --cache-type`
 
-Sets the type of cache used. There are currently two options available:
-`dynamic` or `fixed`. The default is `dynamic`, which will cache all states.
+Sets the type of cache used. There are three options available: `dynamic`,
+`fixed` or `persistent`. The default is `dynamic`, which will cache all states.
 This will use lots of memory on complicated routes. Using `fixed` will trade
 some of that memory usage for reduced performance. Depending on how close the
 cache size is to the number of states, the performance may be drastically
 reduced.
 
-#### `--cache-size`
+The final option is `persistent`, which uses a persistent database on the disk.
+Early testing indicates a roughly 3x increase in execution time, but memory
+usage becomes much less of an issue. Rosa makes no attempt to manage the
+lifetime of this cache, and you are expected to know what you are doing. The
+cache should only be used to mitigate high memory usage or to spread a
+calculation across several runs. If the route definition changes or parameters
+are modified, using the old cache could result in suboptimal generated routes.
 
-Allows the user to fine tune the size of the cache (in states). The default is
-one million, but this is substantially too low for most routes. It is, however,
-relatively light on memory usage.
+#### `-x,--cache-size`
+
+If using a fixed-size cache, allows the user to fine tune the size of the cache
+(in states). The default is 1048576, but this is substantially too low for most
+routes. It is, however, relatively light on memory usage.
+
+#### `-l,--cache-location`
+
+If using a persistent cache, controls the location where the cache is located.
+The default is `cache/%ROUTE%` where `%ROUTE%` is the name of the route.
 
 ## File Formats
 
