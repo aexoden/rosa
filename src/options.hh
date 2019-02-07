@@ -10,6 +10,7 @@ class Options {
 		std::string cache_type{"dynamic"};
 		std::size_t cache_size{1048576};
 		std::string cache_location{""};
+		std::string cache_filename{""};
 
 		bool tas_mode{false};
 		int seed{0};

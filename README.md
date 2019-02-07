@@ -86,8 +86,19 @@ routes. It is, however, relatively light on memory usage.
 
 #### `-l,--cache-location`
 
-If using a persistent cache, controls the location where the cache is located.
-The default is `cache/%ROUTE%` where `%ROUTE%` is the name of the route.
+If using a persistent cache, controls the directory where the cache is located.
+The default is `cache/`. Each route/seed combination will automatically use its
+own individual cache. There is not expected to be significant overlap between
+seeds. If you wish to start with a fresh cache, you should delete the relevant
+directory manually.
+
+#### `-f,--cache-filename`
+
+If using a persistent cache, directly specify the name of the directory where
+the cache will be located. The directory will be created if it already exists.
+As with the previous option, this location will be created it if it doesn't
+exist, and will never be deleted automatically. If specified, this option
+overrides the previous option.
 
 ## File Formats
 

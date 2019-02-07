@@ -46,6 +46,7 @@ int main (int argc, char ** argv) {
 	app.add_set("-c,--cache-type", options.cache_type, {"dynamic", "fixed", "persistent"}, "The type of cache to use", true);
 	app.add_option("-x,--cache-size", options.cache_size, "The number of states to cache if the cache type if using a fixed-size cache")->check(CLI::Range(std::numeric_limits<std::size_t>::max()));
 	app.add_option("-l,--cache-location", options.cache_location, "The location for the cache if using a persistent cache");
+	app.add_option("-f,--cache-filename", options.cache_filename, "The filename for the cache if using a persistent cache");
 
 	try {
 		app.parse(argc, argv);
@@ -88,7 +89,7 @@ int main (int argc, char ** argv) {
 	auto route{read_route(route_source_file)};
 
 	auto cache_type{CacheType::Dynamic};
-	auto cache_location{options.cache_location};
+	auto cache_location{options.cache_filename};
 
 	if (options.cache_type == "fixed") {
 		cache_type = CacheType::Fixed;
@@ -96,7 +97,13 @@ int main (int argc, char ** argv) {
 		cache_type = CacheType::Persistent;
 
 		if (cache_location.empty()) {
-			cache_location = "cache/" + options.route + "-" + (boost::format("%03d") % options.seed).str() + ".mdb";
+			if (options.cache_location.empty()) {
+				cache_location = "cache";
+			} else {
+				cache_location = options.cache_location;
+			}
+
+			cache_location += (boost::format("/%s-%03d.mdb") % options.route % options.seed).str();
 		}
 	}
 
