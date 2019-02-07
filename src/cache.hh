@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 #include <boost/functional/hash.hpp>
-#include <leveldb/db.h>
+#include "lmdb++.h"
 
 #include "duration.hh"
 #include "state.hh"
@@ -57,7 +57,6 @@ class FixedCache : public Cache {
 class PersistentCache : public Cache {
 	public:
 		explicit PersistentCache(const std::string & filename);
-		~PersistentCache() override;
 
 		std::pair<int, Milliframes> get(const State & state) override;
 		void set(const State & state, int value, Milliframes frames) override;
@@ -65,11 +64,10 @@ class PersistentCache : public Cache {
 	private:
 		std::string _encode_key(const State & state) const;
 		std::string _encode_value(int value, Milliframes frames) const;
-		std::pair<int, Milliframes> _decode_value(const std::string & data) const;
+		std::pair<int, Milliframes> _decode_value(const std::string_view & data) const;
 
-		leveldb::Options _options{};
-		leveldb::DB * _db{nullptr};
-		std::size_t _states{0};
+		lmdb::env _env;
+		lmdb::dbi _dbi;
 };
 
 #endif // ROSA_CACHE_HH

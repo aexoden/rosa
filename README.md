@@ -7,7 +7,7 @@ game. Additional details can be found at [ff4.aexoden.com](https://ff4.aexoden.c
 
 ## Prerequisites
 
-Rosa requires Boost and LevelDB to be installed on your system.
+Rosa requires Boost and LMDB to be installed on your system.
 
 ## Building
 

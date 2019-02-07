@@ -1,8 +1,6 @@
 #include <iostream>
 
 #include <boost/format.hpp>
-#include <leveldb/cache.h>
-#include <leveldb/filter_policy.h>
 
 #include "cache.hh"
 #include "state.hh"
@@ -46,57 +44,40 @@ std::size_t FixedCache::_get_index(const std::tuple<uint64_t, uint64_t, uint64_t
 	return boost::hash<std::tuple<uint64_t, uint64_t, uint64_t>>{}(keys) % _size;
 }
 
-PersistentCache::PersistentCache(const std::string & filename) {
-	_options.create_if_missing = true;
-	_options.max_open_files = 524288;
-	_options.block_cache = leveldb::NewLRUCache(1024 * 1048576);
-	_options.filter_policy = leveldb::NewBloomFilterPolicy(10);
+PersistentCache::PersistentCache(const std::string & filename) : _env{lmdb::env::create()} {
+	_env.set_mapsize(1UL * 1024UL * 1024UL * 1024UL * 1024UL);
+	_env.open(filename.c_str(), MDB_NOSYNC, 0664);
 
-	auto status{leveldb::DB::Open(_options, filename, &_db)};
+	auto txn{lmdb::txn::begin(_env)};
+	_dbi = lmdb::dbi::open(txn, nullptr);
 
-	if (!status.ok()) {
-		std::cerr << "WARNING: Cache error: " << status.ToString() << '\n';
-	}
-}
-
-PersistentCache::~PersistentCache() {
-	delete _db;
-	delete _options.block_cache;
-	delete _options.filter_policy;
+	txn.abort();
 }
 
 std::pair<int, Milliframes> PersistentCache::get(const State & state) {
-	if (_db) {
-		auto key{_encode_key(state)};
-		std::string value;
+	auto txn{lmdb::txn::begin(_env, nullptr, MDB_RDONLY)};
+	auto result{std::make_pair(-1, Milliframes::max())};
 
-		auto status{_db->Get(leveldb::ReadOptions{}, key, &value)};
+	auto key{_encode_key(state)};
+	std::string_view value;
 
-		if (status.ok() && !status.IsNotFound()) {
-			return _decode_value(value);
-		}
-
-		if (!status.ok() && !status.IsNotFound()) {
-			std::cerr << "WARNING: Cache error: " << status.ToString() << '\n';
-		}
+	if (_dbi.get(txn, key, value)) {
+		result = _decode_value(value);
 	}
 
-	return std::make_pair(-1, Milliframes::max());
+	txn.abort();
+
+	return result;
 }
 
 void PersistentCache::set(const State & state, int value, Milliframes frames) {
-	if (_db) {
-		auto key{_encode_key(state)};
-		auto encoded_value{_encode_value(value, frames)};
+	auto key{_encode_key(state)};
+	auto encoded_value{_encode_value(value, frames)};
 
-		auto status = _db->Put(leveldb::WriteOptions{}, key, encoded_value);
+	auto txn{lmdb::txn::begin(_env)};
+	_dbi.put(txn, key, encoded_value);
 
-		if (!status.ok()) {
-			std::cerr << "WARNING: Cache error: " << status.ToString() << '\n';
-		}
-
-		_states++;
-	}
+	txn.commit();
 }
 
 std::string PersistentCache::_encode_key(const State & state) const {
@@ -122,7 +103,7 @@ std::string PersistentCache::_encode_value(int value, Milliframes frames) const 
 	return result;
 }
 
-std::pair<int, Milliframes> PersistentCache::_decode_value(const std::string & data) const {
+std::pair<int, Milliframes> PersistentCache::_decode_value(const std::string_view & data) const {
 	int64_t value1{0};
 	int64_t value2{0};
 

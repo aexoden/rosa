@@ -13,9 +13,9 @@ if(Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
-find_library(LEVELDB_LIBRARY NAMES leveldb)
+find_library(LMDB_LIBRARY NAMES lmdb)
 
-link_libraries(stdc++fs ${LEVELDB_LIBRARY})
+link_libraries(stdc++fs ${LMDB_LIBRARY})
 
 link_directories(${GLIBMM_LIBRARY_DIRS} ${GIOMM_LIBRARY_DIRS})
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
