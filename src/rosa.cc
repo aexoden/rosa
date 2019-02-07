@@ -96,7 +96,7 @@ int main (int argc, char ** argv) {
 		cache_type = CacheType::Persistent;
 
 		if (cache_location.empty()) {
-			cache_location = "cache/" + options.route;
+			cache_location = "cache/" + options.route + "-" + (boost::format("%03d") % options.seed).str() + ".mdb";
 		}
 	}
 

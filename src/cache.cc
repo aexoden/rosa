@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <iostream>
 
 #include <boost/format.hpp>
@@ -45,6 +46,13 @@ std::size_t FixedCache::_get_index(const std::tuple<uint64_t, uint64_t, uint64_t
 }
 
 PersistentCache::PersistentCache(const std::string & filename) : _env{lmdb::env::create()} {
+	if (std::filesystem::exists(filename)) {
+		std::cerr << "Using existing cache database...\n";
+	} else {
+		std::cerr << "Creating new cache database...\n";
+		std::filesystem::create_directories(filename);
+	}
+
 	_env.set_mapsize(1UL * 1024UL * 1024UL * 1024UL * 1024UL);
 	_env.open(filename.c_str(), MDB_NOSYNC, 0664);
 
