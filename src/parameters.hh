@@ -17,6 +17,8 @@ struct Parameters {
 		const int maximum_extra_steps{256};
 		const bool tas_mode = false;
 
+		const int maximum_step_segments{-1};
+
 		CacheType cache_type = CacheType::Dynamic;
 		std::size_t cache_size{1048576};
 		std::string cache_location;

@@ -48,6 +48,19 @@ integer from 0 to 255 (inclusive).
 Specifies the maximum number of extra steps a route can take in a given segment.
 Zero is a slightly special value that disables all optimizations.
 
+#### `-n, --maximum-step-segments`
+
+Specifying this parameter enables a special mode where the number of segments
+where extra steps can be taken is restricted to the given number. This will
+generally lower overall performance, especially once you start getting into the
+10+ range. However, it is faster for smaller values, and any persistent cache is
+reusable across runs, regardless of how the parameter is changed. This allows
+you to generate routes quickly that use a few locations, and then refine those
+into more complicated routes. Do note, however, that the total time taken by
+multiple runs in this fashion is slower than a single run. It is, however,
+faster to use a preexisting cache from a faster run than to go entirely from
+scratch.
+
 #### `-v, --variables`
 
 Specifies values for the given variable indices. The format is `a:b c:d...`

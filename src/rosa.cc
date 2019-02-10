@@ -39,6 +39,7 @@ int main (int argc, char ** argv) {
 	app.add_option("-r,--route", options.route, "Route to process", true);
 	app.add_option("-s,--seed", options.seed, "Seed to process", true);
 	app.add_option("-m,--maximum-steps", options.maximum_steps, "Maximum number of extra steps per segment", true);
+	app.add_option("-n,--maximum-step-segments", options.maximum_step_segments, "Maximum number of segments where extra steps can be taken", false);
 	app.add_option("-v,--variables", options.variables, "Explicitly set variable constraints in the form variable:value[-max_value]", false);
 
 	app.add_flag("-t,--tas-mode", options.tas_mode, "Use options appropriate for TAS Routing");
@@ -111,7 +112,7 @@ int main (int argc, char ** argv) {
 	 * Optimization
 	 */
 
-	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, cache_type, options.cache_size, cache_location}};
+	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, options.maximum_step_segments, cache_type, options.cache_size, cache_location}};
 
 	if (!options.variables.empty()) {
 		std::vector<std::string> variables;

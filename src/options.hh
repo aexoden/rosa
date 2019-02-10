@@ -15,6 +15,7 @@ class Options {
 		bool tas_mode{false};
 		int seed{0};
 		int maximum_steps{0};
+		int maximum_step_segments{-1};
 };
 
 #endif

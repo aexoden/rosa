@@ -56,6 +56,10 @@ void Engine::set_variable_maximum(int variable, int value) {
 std::string Engine::optimize(int seed) {
 	State state{seed};
 
+	if (_parameters.maximum_step_segments >= 0) {
+		state.remaining_segments = static_cast<uint16_t>(_parameters.maximum_step_segments);
+	}
+
 	_optimize(state);
 	auto log{_finalize(state)};
 
@@ -74,6 +78,10 @@ Log Engine::_finalize(State state) {
 
 		if (value > 0) {
 			_variables[instruction.variable].value = value;
+
+			if (instruction.type == InstructionType::Path && state.remaining_segments > 0 && _parameters.maximum_step_segments >= 0) {
+				state.remaining_segments--;
+			}
 		}
 	}
 
@@ -194,7 +202,7 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	output += (boost::format("%-21s%0.3fs\n") % "Other Time:" % Seconds(total_frames - encounter_frames).count()).str();
 	output += (boost::format("%-21s%0.3fs\n\n") % "Total Time:" % Seconds(total_frames).count()).str();
 
-	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode, CacheType::Dynamic, 0, ""}};
+	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode, -1, CacheType::Dynamic, 0, ""}};
 	auto base_frames{base_engine._optimize(state)};
 	auto base_log{base_engine._finalize(state)};
 
@@ -238,11 +246,20 @@ Milliframes Engine::_optimize(const State & state) {
 		maximum = _variables.at(instruction.variable).maximum;
 	}
 
+	if (instruction.type == InstructionType::Path && state.remaining_segments == 0) {
+		maximum = minimum;
+	}
+
 	value = -1;
 	frames = Milliframes::max();
 
 	for (int i = minimum; i <= maximum || frames == Milliframes::max(); i++) {
 		State work_state{state};
+
+		if (instruction.type == InstructionType::Path && i > 0 && _parameters.maximum_step_segments >= 0 && work_state.remaining_segments > 0) {
+			work_state.remaining_segments--;
+		}
+
 		auto result{_cycle(&work_state, nullptr, i)};
 
 		if (result < Milliframes::max()) {
