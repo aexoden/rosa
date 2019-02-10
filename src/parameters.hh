@@ -15,7 +15,8 @@ struct Parameters {
 		const Maps maps;
 
 		const int maximum_extra_steps{256};
-		const bool tas_mode = false;
+		const bool tas_mode{false};
+		const bool prefer_fewer_locations{false};
 
 		const int maximum_step_segments{-1};
 

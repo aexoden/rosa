@@ -74,6 +74,14 @@ Adjusts the optimization to use TAS-specific features. This currently only uses
 the minimum encounter timings instead of the average, but additional features
 are planned.
 
+#### `-p, --prefer-fewer-locations`
+
+When the `maximum-step-segments` option is configured, this option enforces that
+routes will always use the fewest locations possible to take steps that still
+gives the optimum result. The default behavior is instead to prefer taking every
+step as late as possible. Enabling this option will increase runtime to some
+degree, as it requires calculating additional states.
+
 #### `-c, --cache-type`
 
 Sets the type of cache used. There are three options available: `dynamic`,

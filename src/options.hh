@@ -13,6 +13,8 @@ class Options {
 		std::string cache_filename{""};
 
 		bool tas_mode{false};
+		bool prefer_fewer_locations{false};
+
 		int seed{0};
 		int maximum_steps{0};
 		int maximum_step_segments{-1};

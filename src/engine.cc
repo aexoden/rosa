@@ -56,11 +56,36 @@ void Engine::set_variable_maximum(int variable, int value) {
 std::string Engine::optimize(int seed) {
 	State state{seed};
 
+	int minimum_step_segments{-1};
+
 	if (_parameters.maximum_step_segments >= 0) {
-		state.remaining_segments = static_cast<uint16_t>(_parameters.maximum_step_segments);
+		if (_parameters.prefer_fewer_locations) {
+			minimum_step_segments = 0;
+		} else {
+			minimum_step_segments = _parameters.maximum_step_segments;
+		}
 	}
 
-	_optimize(state);
+	Milliframes best_result{Milliframes::max()};
+	int best_step_segments{-1};
+
+	for (auto i{minimum_step_segments}; i <= _parameters.maximum_step_segments; i++) {
+		if (i >= 0) {
+			state.remaining_segments = static_cast<uint16_t>(i);
+		}
+
+		auto result{_optimize(state)};
+
+		if (result < best_result) {
+			best_result = result;
+			best_step_segments = i;
+		}
+	}
+
+	if (best_step_segments >= 0) {
+		state.remaining_segments = static_cast<uint16_t>(best_step_segments);
+	}
+
 	auto log{_finalize(state)};
 
 	return _generate_output_text(state, log);
@@ -72,6 +97,10 @@ Log Engine::_finalize(State state) {
 	while (state.index < _parameters.route.size()) {
 		auto instruction = _parameters.route[state.index];
 		auto [value, frames] = _cache->get(state);
+
+		if (value < 0) {
+			std::cerr << "BUG: _finalize() attempted to use uncached state...\n";
+		}
 
 		log.emplace_back(LogEntry{state});
 		_cycle(&state, &log[log.size() - 1], value);
@@ -187,6 +216,7 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	output += (boost::format("MAXSTEP\t%d\n") % _parameters.maximum_extra_steps).str();
 	output += (boost::format("MAXSEG\t%d\n") % _parameters.maximum_step_segments).str();
 	output += (boost::format("TASMODE\t%d\n") % (_parameters.tas_mode ? 1 : 0)).str();
+	output += (boost::format("MINIMUM\t%d\n") % (_parameters.maximum_step_segments >= 0 && _parameters.prefer_fewer_locations ? 1 : 0)).str();
 	output += (boost::format("FRAMES\t%d\n") % total_frames.count()).str();
 
 	std::string variable_output;
@@ -203,7 +233,7 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	output += (boost::format("%-21s%0.3fs\n") % "Other Time:" % Seconds(total_frames - encounter_frames).count()).str();
 	output += (boost::format("%-21s%0.3fs\n\n") % "Total Time:" % Seconds(total_frames).count()).str();
 
-	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode, -1, CacheType::Dynamic, 0, ""}};
+	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode, false, -1, CacheType::Dynamic, 0, ""}};
 	auto base_frames{base_engine._optimize(state)};
 	auto base_log{base_engine._finalize(state)};
 

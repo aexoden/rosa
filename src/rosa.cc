@@ -43,6 +43,7 @@ int main (int argc, char ** argv) {
 	app.add_option("-v,--variables", options.variables, "Explicitly set variable constraints in the form variable:value[-max_value]", false);
 
 	app.add_flag("-t,--tas-mode", options.tas_mode, "Use options appropriate for TAS Routing");
+	app.add_flag("-p,--prefer-fewer-locations", options.prefer_fewer_locations, "Prefer fewer locations with extra steps when maximum step segments is set.");
 
 	app.add_set("-c,--cache-type", options.cache_type, {"dynamic", "fixed", "persistent"}, "The type of cache to use", true);
 	app.add_option("-x,--cache-size", options.cache_size, "The number of states to cache if the cache type if using a fixed-size cache")->check(CLI::Range(std::numeric_limits<std::size_t>::max()));
@@ -112,7 +113,7 @@ int main (int argc, char ** argv) {
 	 * Optimization
 	 */
 
-	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, options.maximum_step_segments, cache_type, options.cache_size, cache_location}};
+	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, options.prefer_fewer_locations, options.maximum_step_segments, cache_type, options.cache_size, cache_location}};
 
 	if (!options.variables.empty()) {
 		std::vector<std::string> variables;
