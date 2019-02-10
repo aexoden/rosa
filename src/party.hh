@@ -9,7 +9,7 @@ class Party {
 	public:
 		explicit Party(std::string party);
 
-		std::pair<uint32_t, uint64_t> get_keys() const;
+		std::pair<uint16_t, uint64_t> get_keys() const;
 
 		bool operator==(const Party & other) const {
 			return _key1 == other._key1 && _key2 == other._key2;
@@ -24,7 +24,7 @@ class Party {
 
 		int _level{1};
 
-		uint32_t _key1{0};
+		uint16_t _key1{0};
 		uint64_t _key2{0};
 
 		std::string _party;
@@ -37,7 +37,7 @@ namespace std {
 	struct hash<Party> {
 		size_t operator()(const Party & party) const {
 			const auto [key1, key2] = party.get_keys();
-			return hash<uint32_t>()(key1) * 31 + hash<uint64_t>()(key2);
+			return hash<uint16_t>()(key1) * 31 + hash<uint64_t>()(key2);
 		}
 	};
 } // namespace std
