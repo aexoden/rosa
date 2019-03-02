@@ -263,10 +263,6 @@ Milliframes Engine::_optimize(const State & state) {
 
 	auto [value, frames] = _cache->get(state);
 
-	if (value >= 0) {
-		return frames;
-	}
-
 	auto instruction{_parameters.route[state.index]};
 
 	int minimum{0};
@@ -279,6 +275,10 @@ Milliframes Engine::_optimize(const State & state) {
 
 	if (instruction.type == InstructionType::Path && state.remaining_segments == 0) {
 		maximum = minimum;
+	}
+
+	if (value >= 0 && minimum != maximum) {
+		return frames;
 	}
 
 	value = -1;
