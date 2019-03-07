@@ -233,7 +233,7 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	output += (boost::format("%-21s%0.3fs\n") % "Other Time:" % Seconds(total_frames - encounter_frames).count()).str();
 	output += (boost::format("%-21s%0.3fs\n\n") % "Total Time:" % Seconds(total_frames).count()).str();
 
-	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode, false, -1, CacheType::Dynamic, 0, ""}};
+	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode, false, true, -1, CacheType::Dynamic, 0, ""}};
 	auto base_frames{base_engine._optimize(state)};
 	auto base_log{base_engine._finalize(state)};
 
@@ -277,7 +277,7 @@ Milliframes Engine::_optimize(const State & state) {
 		maximum = minimum;
 	}
 
-	if (value >= 0 && minimum != maximum) {
+	if (value >= 0 && (minimum != maximum || _parameters.always_allow_cache)) {
 		return frames;
 	}
 

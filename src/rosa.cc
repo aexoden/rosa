@@ -113,7 +113,7 @@ int main (int argc, char ** argv) {
 	 * Optimization
 	 */
 
-	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, options.prefer_fewer_locations, options.maximum_step_segments, cache_type, options.cache_size, cache_location}};
+	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, options.prefer_fewer_locations, options.variables.empty(), options.maximum_step_segments, cache_type, options.cache_size, cache_location}};
 
 	if (!options.variables.empty()) {
 		std::vector<std::string> variables;

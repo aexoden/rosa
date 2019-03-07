@@ -17,6 +17,7 @@ struct Parameters {
 		const int maximum_extra_steps{256};
 		const bool tas_mode{false};
 		const bool prefer_fewer_locations{false};
+		const bool always_allow_cache{true};
 
 		const int maximum_step_segments{-1};
 
