@@ -102,6 +102,12 @@ Log Engine::_finalize(State state) {
 			std::cerr << "BUG: _finalize() attempted to use uncached state...\n";
 		}
 
+		if (instruction.variable > 0) {
+			if (_variables.at(instruction.variable).minimum == _variables.at(instruction.variable).maximum) {
+				value = _variables.at(instruction.variable).minimum;
+			}
+		}
+
 		log.emplace_back(LogEntry{state});
 		_cycle(&state, &log[log.size() - 1], value);
 
