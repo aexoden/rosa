@@ -262,6 +262,7 @@ Milliframes Engine::_optimize(const State & state) {
 	}
 
 	auto [value, frames] = _cache->get(state);
+	bool update_cache{value < 0};
 
 	auto instruction{_parameters.route[state.index]};
 
@@ -303,7 +304,9 @@ Milliframes Engine::_optimize(const State & state) {
 		}
 	}
 
-	_cache->set(state, value, frames);
+	if (update_cache) {
+		_cache->set(state, value, frames);
+	}
 
 	return frames;
 }
