@@ -225,11 +225,17 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	output += (boost::format("MINIMUM\t%d\n") % (_parameters.maximum_step_segments >= 0 && _parameters.prefer_fewer_locations ? 1 : 0)).str();
 	output += (boost::format("FRAMES\t%d\n") % total_frames.count()).str();
 
-	std::string variable_output;
+	std::set<int> keys;
 
 	for (const auto & [key, value] : _variables) {
-		if (value.value > 0) {
-			variable_output += (variable_output.empty() ? "" : " ") + (boost::format("%07X:%d") % key % value.value).str();
+		keys.insert(key);
+	}
+
+	std::string variable_output;
+
+	for (const auto & key : keys) {
+		if (_variables[key].value > 0) {
+			variable_output += (variable_output.empty() ? "" : " ") + (boost::format("%07X:%d") % key % _variables[key].value).str();
 		}
 	}
 
