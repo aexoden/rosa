@@ -13,7 +13,7 @@ Party::Party(std::string party) : _party{std::move(party)} {
 		_level = std::stoi(_party.substr(18, 2));
 
 		for (std::size_t i = 3; i < 18; i += 3) {
-			auto character{static_cast<int>(_party[i])};;
+			auto character{static_cast<int>(_party[i])};
 
 			if (character == 0x2D) {
 				character = 0;
