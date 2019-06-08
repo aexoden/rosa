@@ -45,8 +45,7 @@ int main (int argc, char ** argv) {
 	app.add_flag("-t,--tas-mode", options.tas_mode, "Use options appropriate for TAS Routing");
 	app.add_flag("-p,--prefer-fewer-locations", options.prefer_fewer_locations, "Prefer fewer locations with extra steps when maximum step segments is set.");
 
-	app.add_set("-c,--cache-type", options.cache_type, {"dynamic", "fixed", "persistent"}, "The type of cache to use", true);
-	app.add_option("-x,--cache-size", options.cache_size, "The number of states to cache if the cache type if using a fixed-size cache")->check(CLI::Range(std::numeric_limits<std::size_t>::max()));
+	app.add_set("-c,--cache-type", options.cache_type, {"dynamic", "persistent"}, "The type of cache to use", true);
 	app.add_option("-l,--cache-location", options.cache_location, "The location for the cache if using a persistent cache");
 	app.add_option("-f,--cache-filename", options.cache_filename, "The filename for the cache if using a persistent cache");
 
@@ -93,9 +92,7 @@ int main (int argc, char ** argv) {
 	auto cache_type{CacheType::Dynamic};
 	auto cache_location{options.cache_filename};
 
-	if (options.cache_type == "fixed") {
-		cache_type = CacheType::Fixed;
-	} else if (options.cache_type == "persistent") {
+	if (options.cache_type == "persistent") {
 		cache_type = CacheType::Persistent;
 
 		if (cache_location.empty()) {
@@ -113,7 +110,7 @@ int main (int argc, char ** argv) {
 	 * Optimization
 	 */
 
-	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, options.prefer_fewer_locations, options.variables.empty(), options.maximum_step_segments, cache_type, options.cache_size, cache_location}};
+	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, options.prefer_fewer_locations, options.variables.empty(), options.maximum_step_segments, cache_type, cache_location}};
 
 	if (!options.variables.empty()) {
 		std::vector<std::string> variables;

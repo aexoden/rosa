@@ -15,7 +15,6 @@
 
 enum class CacheType {
 	Dynamic,
-	Fixed,
 	Persistent
 };
 
@@ -38,21 +37,6 @@ class DynamicCache : public Cache {
 
 	private:
 		tsl::sparse_map<std::tuple<uint64_t, uint64_t, uint64_t>, std::pair<int, Milliframes>, boost::hash<std::tuple<uint64_t, uint64_t, uint64_t>>> _cache;
-};
-
-class FixedCache : public Cache {
-	public:
-		explicit FixedCache(std::size_t size);
-
-		std::pair<int, Milliframes> get(const State & state) override;
-		void set(const State & state, int value, Milliframes frames) override;
-
-	private:
-		std::size_t _get_index(const std::tuple<uint64_t, uint64_t, uint64_t> & keys);
-
-		std::size_t _size;
-
-		std::vector<std::pair<std::tuple<uint64_t, uint64_t, uint64_t>, std::pair<int, Milliframes>>> _cache;
 };
 
 class PersistentCache : public Cache {

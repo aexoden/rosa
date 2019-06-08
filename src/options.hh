@@ -8,7 +8,6 @@ class Options {
 		std::string variables{""};
 
 		std::string cache_type{"dynamic"};
-		std::size_t cache_size{1048576};
 		std::string cache_location{""};
 		std::string cache_filename{""};
 

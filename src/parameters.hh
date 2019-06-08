@@ -22,7 +22,6 @@ struct Parameters {
 		const int maximum_step_segments{-1};
 
 		CacheType cache_type = CacheType::Dynamic;
-		std::size_t cache_size{1048576};
 		std::string cache_location;
 };
 

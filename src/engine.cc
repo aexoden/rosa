@@ -11,9 +11,6 @@ Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
 		case CacheType::Dynamic:
 			_cache = std::make_unique<DynamicCache>();
 			break;
-		case CacheType::Fixed:
-			_cache = std::make_unique<FixedCache>(_parameters.cache_size);
-			break;
 		case CacheType::Persistent:
 			_cache = std::make_unique<PersistentCache>(_parameters.cache_location);
 			break;
@@ -245,7 +242,7 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	output += (boost::format("%-21s%0.3fs\n") % "Other Time:" % Seconds(total_frames - encounter_frames).count()).str();
 	output += (boost::format("%-21s%0.3fs\n\n") % "Total Time:" % Seconds(total_frames).count()).str();
 
-	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode, false, true, -1, CacheType::Dynamic, 0, ""}};
+	Engine base_engine{Parameters{_parameters.route, _parameters.encounters, _parameters.maps, 0, _parameters.tas_mode, false, true, -1, CacheType::Dynamic, ""}};
 	auto base_frames{base_engine._optimize(state)};
 	auto base_log{base_engine._finalize(state)};
 
