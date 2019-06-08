@@ -386,3 +386,8 @@ since been added, necessitating this release of Rosa.
 The entire FF4 speedrunning community has been incredibly supportive, not only
 by providing information and by helping with research, but also by actually
 using the generated routes in runs to help prove their viability and accuracy.
+
+## Included Third-Party Libraries
+
+* [tsl::sparse_map](https://github.com/Tessil/sparse-map), a memory efficient
+  replacement for std::unordered_map released under the MIT license.

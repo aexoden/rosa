@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include <boost/functional/hash.hpp>
+#include <tsl/sparse_map.h>
 #include "lmdb++.h"
 
 #include "duration.hh"
@@ -36,7 +37,7 @@ class DynamicCache : public Cache {
 		void set(const State & state, int value, Milliframes frames) override;
 
 	private:
-		std::unordered_map<std::tuple<uint64_t, uint64_t, uint64_t>, std::pair<int, Milliframes>, boost::hash<std::tuple<uint64_t, uint64_t, uint64_t>>> _cache;
+		tsl::sparse_map<std::tuple<uint64_t, uint64_t, uint64_t>, std::pair<int, Milliframes>, boost::hash<std::tuple<uint64_t, uint64_t, uint64_t>>> _cache;
 };
 
 class FixedCache : public Cache {
