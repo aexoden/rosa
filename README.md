@@ -389,5 +389,11 @@ using the generated routes in runs to help prove their viability and accuracy.
 
 ## Included Third-Party Libraries
 
+* [CLI11](https://github.com/CLIUtils/CLI11), a C++11 command line parser,
+  released under a 3-clause BSD license.
+
+* [LMDB++](https://github.com/hoytech/lmdbxx), a C++17 wrapper for LMDB released
+  under the Unlicense.
+
 * [tsl::sparse_map](https://github.com/Tessil/sparse-map), a memory efficient
   replacement for std::unordered_map released under the MIT license.
