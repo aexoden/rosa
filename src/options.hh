@@ -11,6 +11,8 @@ class Options {
 		std::string cache_location{""};
 		std::string cache_filename{""};
 
+		std::size_t cache_size{1048576};
+
 		bool tas_mode{false};
 		bool prefer_fewer_locations{false};
 

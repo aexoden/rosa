@@ -112,6 +112,12 @@ As with the previous option, this location will be created it if it doesn't
 exist, and will never be deleted automatically. If specified, this option
 overrides the previous option.
 
+#### `-x,--cache-size`
+
+If using a persistent cache, determines the size of the temporary in-memory
+cache before committing to the on-disk database. The default is 1048576, which
+should offer a good tradeoff between extra memory usage and performance.
+
 ## File Formats
 
 ### Field Definitions

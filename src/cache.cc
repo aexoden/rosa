@@ -22,7 +22,7 @@ void DynamicCache::set(const State & state, int value, Milliframes frames) {
 	_cache[state.get_keys()] = std::make_pair(value, frames);
 }
 
-PersistentCache::PersistentCache(const std::string & filename) : _env{lmdb::env::create()} {
+PersistentCache::PersistentCache(const std::string & filename, std::size_t cache_size) : _cache_size{cache_size}, _env{lmdb::env::create()} {
 	if (std::filesystem::exists(filename)) {
 		std::cerr << "Using existing cache database...\n";
 	} else {
@@ -39,11 +39,21 @@ PersistentCache::PersistentCache(const std::string & filename) : _env{lmdb::env:
 	txn.abort();
 }
 
+PersistentCache::~PersistentCache() {
+	_purge_cache();
+}
+
 std::pair<int, Milliframes> PersistentCache::get(const State & state) {
+	auto keys{state.get_keys()};
+
+	if (_cache.count(keys) > 0) {
+		return _cache.at(keys);
+	}
+
 	auto txn{lmdb::txn::begin(_env, nullptr, MDB_RDONLY)};
 	auto result{std::make_pair(-1, Milliframes::max())};
 
-	auto key{_encode_key(state)};
+	auto key{_encode_key(keys)};
 	std::string_view value;
 
 	if (_dbi.get(txn, key, value)) {
@@ -56,17 +66,15 @@ std::pair<int, Milliframes> PersistentCache::get(const State & state) {
 }
 
 void PersistentCache::set(const State & state, int value, Milliframes frames) {
-	auto key{_encode_key(state)};
-	auto encoded_value{_encode_value(value, frames)};
+	_cache[state.get_keys()] = std::make_pair(value, frames);
 
-	auto txn{lmdb::txn::begin(_env)};
-	_dbi.put(txn, key, encoded_value);
-
-	txn.commit();
+	if (_cache.size() > _cache_size) {
+		_purge_cache();
+	}
 }
 
-std::string PersistentCache::_encode_key(const State & state) const {
-	auto [key1, key2, key3] = state.get_keys();
+std::string PersistentCache::_encode_key(std::tuple<uint64_t, uint64_t, uint64_t> keys) const {
+	auto & [key1, key2, key3] = keys;
 	std::string result{sizeof(key1) + sizeof(key2) + sizeof(key3), 0, std::string::allocator_type{}};
 
 	std::copy_n(reinterpret_cast<char*>(&key1), sizeof(key1), result.begin()); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -96,4 +104,18 @@ std::pair<int, Milliframes> PersistentCache::_decode_value(const std::string_vie
 	std::copy(data.begin() + sizeof(value1), data.begin() + sizeof(value1) + sizeof(value2), reinterpret_cast<char*>(&value2)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
 	return std::make_pair(static_cast<int>(value1), Milliframes{value2});
+}
+
+void PersistentCache::_purge_cache() {
+	auto txn{lmdb::txn::begin(_env)};
+
+	for (const auto & [keys, value] : _cache) {
+		auto key{_encode_key(keys)};
+		auto encoded_value{_encode_value(value.first, value.second)};
+
+		_dbi.put(txn, key, encoded_value);
+	}
+
+	txn.commit();
+	_cache.clear();
 }

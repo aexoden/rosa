@@ -12,7 +12,7 @@ Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
 			_cache = std::make_unique<DynamicCache>();
 			break;
 		case CacheType::Persistent:
-			_cache = std::make_unique<PersistentCache>(_parameters.cache_location);
+			_cache = std::make_unique<PersistentCache>(_parameters.cache_location, _parameters.cache_size);
 			break;
 	}
 

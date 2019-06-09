@@ -23,6 +23,7 @@ struct Parameters {
 
 		CacheType cache_type = CacheType::Dynamic;
 		std::string cache_location;
+		const std::size_t cache_size{1048576};
 };
 
 #endif // ROSA_PARAMETERS_HH

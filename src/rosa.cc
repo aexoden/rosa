@@ -48,6 +48,7 @@ int main (int argc, char ** argv) {
 	app.add_set("-c,--cache-type", options.cache_type, {"dynamic", "persistent"}, "The type of cache to use", true);
 	app.add_option("-l,--cache-location", options.cache_location, "The location for the cache if using a persistent cache");
 	app.add_option("-f,--cache-filename", options.cache_filename, "The filename for the cache if using a persistent cache");
+	app.add_option("-x,--cache-size", options.cache_size, "The size of the temporary in-memory cache if using a persistent cache");
 
 	try {
 		app.parse(argc, argv);
@@ -110,7 +111,7 @@ int main (int argc, char ** argv) {
 	 * Optimization
 	 */
 
-	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, options.prefer_fewer_locations, options.variables.empty(), options.maximum_step_segments, cache_type, cache_location}};
+	Engine engine{Parameters{route, encounters, maps, options.maximum_steps, options.tas_mode, options.prefer_fewer_locations, options.variables.empty(), options.maximum_step_segments, cache_type, cache_location, options.cache_size}};
 
 	if (!options.variables.empty()) {
 		std::vector<std::string> variables;
