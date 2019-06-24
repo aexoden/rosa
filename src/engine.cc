@@ -200,10 +200,9 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 				raw_output += (boost::format("%s(Step %3d: %d / %s)\n") % std::string((indent_level + 1) * 2 - 1, ' ') % step % (encounter_index + 1) % encounter->get_description()).str();
 			} else {
 				raw_output += (boost::format("%sStep %3d: %d / %s (%0.3fs)\n") % std::string((indent_level + 1) * 2, ' ') % step % (encounter_index + 1) % encounter->get_description() % Seconds(frames).count()).str();
+				encounter_frames += frames;
+				total_encounters++;
 			}
-
-			encounter_frames += frames;
-			total_encounters++;
 		}
 
 		total_frames += entry.frames;
