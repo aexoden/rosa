@@ -28,12 +28,16 @@ class Cache {
 
 		virtual std::pair<int, Milliframes> get(const State & state) = 0;
 		virtual void set(const State & state, int value, Milliframes frames) = 0;
+
+		virtual std::size_t get_size() const = 0;
 };
 
 class DynamicCache : public Cache {
 	public:
 		std::pair<int, Milliframes> get(const State & state) override;
 		void set(const State & state, int value, Milliframes frames) override;
+
+		std::size_t get_size() const override;
 
 	private:
 		tsl::sparse_map<std::tuple<uint64_t, uint64_t, uint64_t>, std::pair<int, Milliframes>, boost::hash<std::tuple<uint64_t, uint64_t, uint64_t>>> _cache;
@@ -46,6 +50,8 @@ class PersistentCache : public Cache {
 
 		std::pair<int, Milliframes> get(const State & state) override;
 		void set(const State & state, int value, Milliframes frames) override;
+
+		std::size_t get_size() const override;
 
 	private:
 		std::string _encode_key(const std::tuple<uint64_t, uint64_t, uint64_t> keys) const;

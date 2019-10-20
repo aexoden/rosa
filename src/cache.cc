@@ -22,6 +22,10 @@ void DynamicCache::set(const State & state, int value, Milliframes frames) {
 	_cache[state.get_keys()] = std::make_pair(value, frames);
 }
 
+std::size_t DynamicCache::get_size() const {
+	return _cache.size();
+}
+
 PersistentCache::PersistentCache(const std::string & filename, std::size_t cache_size) : _cache_size{cache_size}, _env{lmdb::env::create()} {
 	if (std::filesystem::exists(filename)) {
 		std::cerr << "Using existing cache database...\n";
@@ -71,6 +75,10 @@ void PersistentCache::set(const State & state, int value, Milliframes frames) {
 	if (_cache.size() > _cache_size) {
 		_purge_cache();
 	}
+}
+
+std::size_t PersistentCache::get_size() const {
+	return _cache.size();
 }
 
 std::string PersistentCache::_encode_key(std::tuple<uint64_t, uint64_t, uint64_t> keys) const {
