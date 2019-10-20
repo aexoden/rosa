@@ -253,7 +253,15 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	output += (boost::format("%-21s%d\n\n") % "Encounters:" % total_encounters).str();
 
 	auto base_encounters{std::accumulate(base_log.begin(), base_log.end(), 0, [](const auto a, const auto & entry) {
-		return a + static_cast<int>(entry.encounters.size());
+		int encounters{0};
+
+		for (const auto & [step, encounter_index, encounter_id, frames] : entry.encounters) {
+			if (step <= entry.steps) {
+				encounters++;
+			}
+		}
+
+		return a + encounters;
 	})};
 
 	output += (boost::format("%-21s%d\n") % "Base Encounters:" % base_encounters).str();
