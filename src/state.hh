@@ -21,6 +21,7 @@ struct State {
 	Party search_party{""};
 
 	std::unordered_map<std::size_t, int> search_targets{};
+	bool search_active{false};
 
 	std::tuple<uint64_t, uint64_t, uint64_t> get_keys() const {
 		const auto [party_key1, party_key2] = party.get_keys();

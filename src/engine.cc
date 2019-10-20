@@ -360,8 +360,6 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 			state->party = Party{instruction.text};
 			break;
 		case InstructionType::Path: {
-			bool extra_encounters{!state->search_targets.empty()};
-
 			frames += instruction.transition_count * 82_f;
 			frames += _step(state, log, instruction.tiles, instruction.required_steps);
 
@@ -387,7 +385,7 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 				frames += _step(state, log, tiles, optional_steps + extra_steps);
 			}
 
-			if (log && extra_encounters) {
+			if (log && state->search_active) {
 				int extra_steps{256 - instruction.required_steps - value};
 
 				if (extra_steps > 0) {
@@ -403,6 +401,7 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 				}
 
 				state->search_party = Party{""};
+				state->search_active = false;
 			}
 
 			break;
@@ -424,6 +423,7 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 			}
 
 			state->search_party = Party{instruction.party};
+			state->search_active = true;
 
 			break;
 		case InstructionType::Version:
