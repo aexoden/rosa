@@ -266,7 +266,7 @@ NOTE	Return to Mysidia
 CHOICE	C000500	2
 OPTION	Walk to the Big Whale
 PATH	E000503	0005	3	3	0	0	-	+	-
-OPTION	Fly the Enterprise to the Big Whale
+OPTION	Fly the Falcon to the Big Whale
 DELAY	450
 PATH	E000503	0005	1	1	0	0	-	+	-
 END
