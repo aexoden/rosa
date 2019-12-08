@@ -1,5 +1,5 @@
 ROUTE	Final Fantasy IV Any% No64 (Rosa)
-VERSION	22
+VERSION	23
 PARTY	3G+K11---C11------10
 PATH	-	0002	1	1	0	0	-	+	-
 PARTY	3G+------C11------11
