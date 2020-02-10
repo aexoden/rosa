@@ -27,7 +27,7 @@ struct State {
 		const auto [party_key1, party_key2] = party.get_keys();
 
 		uint64_t key1{static_cast<uint64_t>(party_key1) << 48u};
-		uint64_t key2{static_cast<uint64_t>(index)};
+		uint64_t key2{static_cast<uint64_t>(0)};
 		uint64_t key3{static_cast<uint64_t>(party_key2)};
 
 		key1 += static_cast<uint64_t>(remaining_segments) << 32u;
@@ -40,6 +40,8 @@ struct State {
 			key2 = (key2 << 9u) + static_cast<uint64_t>(id);
 			key2 = (key2 << 3u) + static_cast<uint64_t>(count);
 		}
+
+		key2 += static_cast<uint64_t>(index) << 48u;
 
 		return std::make_tuple(key1, key2, key3);
 	}
