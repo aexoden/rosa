@@ -94,6 +94,11 @@ def subcommand_rate(args):
                     current_count += 1
                     current_time += float(matches.group('time'))
 
+                matches = re.search(r' +Extra Steps: (?P<steps>[0-9]+)', line.rstrip())
+
+                if matches:
+                    current_time += int(matches.group('steps')) * 16 * 655171 / 39375000
+
                 if line.startswith('Paladin'):
                     counts.append(current_count)
                     times.append(current_time)
