@@ -337,7 +337,15 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 			while (value >= 0) {
 				state->index++;
 
-				while (_parameters.route[state->index].type != InstructionType::Option) {
+				int level{0};
+
+				while (level > 0 || _parameters.route[state->index].type != InstructionType::Option) {
+					if (_parameters.route[state->index].type == InstructionType::Choice) {
+						level++;
+					} else if (_parameters.route[state->index].type == InstructionType::End) {
+						level--;
+					}
+
 					state->index++;
 				}
 
@@ -358,12 +366,21 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 			break;
 		case InstructionType::Note:
 			break;
-		case InstructionType::Option:
-			while (_parameters.route[state->index + 1].type != InstructionType::End) {
+		case InstructionType::Option: {
+			int level{0};
+
+			while (level > 0 || _parameters.route[state->index + 1].type != InstructionType::End) {
+				if (_parameters.route[state->index + 1].type == InstructionType::Choice) {
+					level++;
+				} else if (_parameters.route[state->index + 1].type == InstructionType::End) {
+					level--;
+				}
+
 				state->index++;
 			}
 
 			break;
+		}
 		case InstructionType::Party:
 			state->party = Party{instruction.text};
 			break;

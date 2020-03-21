@@ -238,7 +238,9 @@ short name for a route (e.g. `paladin.txt` for the Paladin% route).
 
 They consist of many lines which provide information about the route. Like the
 other files, each line is a tab-delimited line. In addition, the file is limited
-to a maximum of 65536 lines (not including empty lines and comments).
+to a maximum of 65536 lines (not including empty lines and comments). The
+program is not incredibly robust, and if your route description is malformed in
+some way, the program will likely crash.
 
 There are numerous different lines, which will be described in the following
 sections.
@@ -304,7 +306,8 @@ This is the primary line type. It consists of the following fields:
 #### Choices
 
 These three lines are used to define branching in the route. (For instance, to
-enter a side room and take extra steps. They cannot currently be nested.
+enter a side room and take extra steps. There is experimental support for
+nesting these, but this feature has not been thoroughly tested.
 
 ##### CHOICE
 
