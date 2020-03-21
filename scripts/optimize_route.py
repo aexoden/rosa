@@ -29,7 +29,7 @@ def format_log_entry(msg):
 
 
 def get_base_time_multiplier(current_processes):
-    return ((current_processes - 1) / 11) * 1.3 + 1
+    return (((current_processes - 1) ** 1.5) / 116.1895) + 1
 
 
 def get_time_multiplier(max_processes, current_processes):
@@ -248,7 +248,7 @@ class Optimizer(object):
                 processes.append(Process(self._args, seed))
                 last_dispatch = time.time()
 
-            self._window_info.clear()
+            self._window_info.erase()
             self._window_info.box()
 
             time_estimate = 0
@@ -286,7 +286,7 @@ class Optimizer(object):
                 elif seed not in seeds and seed in self._seeds:
                     self._window_seeds.chgat(y, x, 4, curses.color_pair(COLOR_GREEN))
 
-            self._window_log.clear()
+            self._window_log.erase()
             self._window_log.box()
 
             for i, entry in enumerate(log_entries[-(curses.LINES - 10 - 2):]):
@@ -296,7 +296,7 @@ class Optimizer(object):
             self._window_seeds.refresh()
             self._window_info.refresh()
             self._window_log.refresh()
-            time.sleep(1)
+            time.sleep(0.25)
 
         return log_entries
 
