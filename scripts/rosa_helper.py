@@ -69,6 +69,37 @@ def subcommand_checkvars(args):
             print(f'  {count} {var}')
 
 
+def subcommand_range(args):
+    frames = {}
+
+    for seed in range(256):
+        filename = os.path.join(args.directory, f'{seed:03d}.txt')
+
+        if not os.path.exists(filename):
+            continue
+
+        with open(filename) as f:
+            for line in f:
+                if line.startswith('FRAMES'):
+                    frames[seed] = int(line.strip().split('\t')[1])
+
+    range_averages = {}
+
+    for start in range(256):
+        range_frames = []
+        seed = start
+
+        for i in range(args.size):
+            seed = (start + i) % 256
+            range_frames.append(frames[seed])
+
+        average = statistics.mean(range_frames)
+        range_averages[start] = average
+
+    for start, average in sorted(range_averages.items(), key=lambda x: x[1]):
+        print(f'{start:3d} - {(start + args.size - 1) % 256:3d}: {average * 655171 / 39375000000:12.3f}')
+
+
 def subcommand_rate(args):
     selected_counts = None
     selected_times = None
@@ -199,6 +230,14 @@ def main():
             'help': 'checks variables in a route for potential errors',
             'arguments': {
                 'filename': {'metavar': 'FILENAME', 'type': str, 'help': 'filename of the route to check'}
+            }
+        },
+        'range': {
+            'function': subcommand_range,
+            'help': 'finds the best range of seeds of a given size',
+            'arguments': {
+                'directory': {'metavar': 'DIRECTORY', 'type': str, 'help': 'directory containing the routes to check'},
+                'size': {'type': int, 'help': 'size of the range'}
             }
         },
         'rate': {
