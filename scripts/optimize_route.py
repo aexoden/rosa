@@ -227,7 +227,7 @@ class Optimizer(object):
             if len(memory_values) > 0 and max(memory_values) > 0:
                 estimated_memory = max(memory_values)
                 if len(memory_values) < 16:
-                    estimated_memory = (46 - max(memory_values)) / 30
+                    estimated_memory = ((46 - len(memory_values)) / 30) * max(memory_values)
                 ideal_max_processes = int((self._args.max_memory * 2 - estimated_memory) / estimated_memory)
             else:
                 ideal_max_processes = 1
