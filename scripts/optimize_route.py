@@ -246,7 +246,7 @@ class Optimizer(object):
             else:
                 expected_time = 86400
 
-            while len(processes) < max_processes and time.time() > (last_dispatch + expected_time / ideal_max_processes) and len(seeds) > 0:
+            while len(processes) < max_processes and (time.time() > (last_dispatch + expected_time / ideal_max_processes) or len(processes) == 0) and len(seeds) > 0:
                 seed = seeds.pop(0)
                 processes.append(Process(self._args, seed))
                 last_dispatch = time.time()
