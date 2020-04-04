@@ -190,11 +190,18 @@ def subcommand_twins(args):
             print(f'WARNING: {filename_1} does not exist')
             continue
 
+        if len(lines_1) == 0:
+            print(f'WARNING: {filename_1} is empty')
+            continue
+
         try:
             with open(filename_2) as f:
                 lines_2 = f.readlines()
         except FileNotFoundError:
             print(f'WARNING: {filename_2} does not exist')
+            continue
+
+        if len(lines_2) == 0:
             continue
 
         for index in range(11, len(lines_1)):
