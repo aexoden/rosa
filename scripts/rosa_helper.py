@@ -69,6 +69,82 @@ def subcommand_checkvars(args):
             print(f'  {count} {var}')
 
 
+def subcommand_identification(args):
+    formations = {}
+    base = {}
+
+    for seed in range(256):
+        filename = os.path.join(args.directory, f'{seed:03d}.txt')
+
+        if not os.path.exists(filename):
+            print('WARNING: {filename} does not exist')
+            continue
+
+        with open(filename) as f:
+            current_seed = seed
+            index = 0
+            steps = 0
+            formations[seed] = []
+
+            for line in f:
+                matches = re.search(r'(?P<map>.*)Seed: *(?P<seed>[0-9]*) *Index: *(?P<index>[0-9]*)', line)
+
+                if matches:
+                    new_seed = int(matches.group('seed'))
+                    new_index = int(matches.group('index'))
+
+                    if current_seed == new_seed:
+                        steps += new_index - index
+                    else:
+                        steps += 256 + new_index - index
+
+                    if seed == 0:
+                        base[steps] = matches.group('map').strip()
+
+                    current_seed = new_seed
+                    index = new_index
+
+                matches = re.search(r' *Step *(?P<step>[0-9]*): [0-9]* / (?P<formation>.*) \(', line)
+
+                if matches:
+                    formations[seed].append((steps + int(matches.group('step')), matches.group('formation')))
+
+    all_divergence = []
+
+    for seed in range(256):
+        for i, (step, formation) in enumerate(formations[seed]):
+            other_seed = (seed + 1) % 256
+            other_step, other_formation = formations[other_seed][i]
+
+            if step != other_step or formation != other_formation:
+                divergence = min(step, other_step)
+                all_divergence.append(divergence)
+                break
+
+    remaining = set(range(256))
+
+    for step, map_name in base.items():
+        print(map_name)
+        for seed in list(remaining):
+            divergence = all_divergence[seed]
+
+            if divergence < step:
+                print(f'  {seed} and {(seed + 1) % 256}')
+                remaining.remove(seed)
+
+        if len(remaining) == 0:
+            break
+
+    print()
+    print(f'50% of pairs diverge by step {sorted(all_divergence)[127]}')
+    print(f'75% of pairs diverge by step {sorted(all_divergence)[191]}')
+    print(f'80% of pairs diverge by step {sorted(all_divergence)[204]}')
+    print(f'85% of pairs diverge by step {sorted(all_divergence)[217]}')
+    print(f'90% of pairs diverge by step {sorted(all_divergence)[230]}')
+    print(f'95% of pairs diverge by step {sorted(all_divergence)[243]}')
+    print(f'100% of pairs diverge by step {max(all_divergence)}')
+
+
 def subcommand_range(args):
     frames = {}
 
@@ -237,6 +313,13 @@ def main():
             'help': 'checks variables in a route for potential errors',
             'arguments': {
                 'filename': {'metavar': 'FILENAME', 'type': str, 'help': 'filename of the route to check'}
+            }
+        },
+        'identification': {
+            'function': subcommand_identification,
+            'help': 'extracts data useful for identifying which seed a run is on',
+            'arguments': {
+                'directory': {'metavar': 'DIRECTORY', 'type': str, 'help': 'directory containing the routes to process'},
             }
         },
         'range': {
