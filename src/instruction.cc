@@ -96,13 +96,15 @@ Route read_route(std::istream & input) {
 	Route route;
 
 	while (std::getline(input, line)) {
-		std::vector<std::string> tokens;
-		boost::algorithm::split(tokens, line, boost::is_any_of("\t"), boost::token_compress_on);
+		if (line.length() > 0 && line.at(0) != '#') {
+			std::vector<std::string> tokens;
+			boost::algorithm::split(tokens, line, boost::is_any_of("\t"), boost::token_compress_on);
 
-		if (tokens[0] == "WAIT") {
-			route[route.size() - 1].end_search = true;
-		} else {
-			route.emplace_back(line);
+			if (tokens[0] == "WAIT") {
+				route[route.size() - 1].end_search = true;
+			} else {
+				route.emplace_back(line);
+			}
 		}
 	}
 
