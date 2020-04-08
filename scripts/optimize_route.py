@@ -310,9 +310,9 @@ class Optimizer(object):
 
             time_estimate = 0
 
-            if len(time_values) > 0:
-                time_estimate = len(seeds) * statistics.mean(time_values) * get_time_multiplier(max_processes, min(len(time_values), max_processes), self._timings) / max_processes
-                time_estimate += statistics.mean(time_values)
+            if len(scaled_time_values) > 0:
+                time_estimate = len(seeds) * statistics.mean(scaled_time_values) * get_time_multiplier(max_processes, min(len(scaled_time_values), max_processes), self._timings) / max_processes
+                time_estimate += statistics.mean(scaled_time_values)
                 time_estimate -= time.time() - last_dispatch
                 eta = datetime.datetime.now() + datetime.timedelta(seconds=time_estimate)
 
