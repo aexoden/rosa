@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import json
 import os
 import re
 import statistics
@@ -121,28 +122,39 @@ def subcommand_identification(args):
                 all_divergence.append(divergence)
                 break
 
-    remaining = set(range(256))
+    if args.encounters is not None:
+        output_data = []
 
-    for step, map_name in base.items():
-        print(map_name)
-        for seed in list(remaining):
-            divergence = all_divergence[seed]
+        for seed in range(256):
+            output_data.append({})
+            for step, formation in formations[seed]:
+                if step <= args.encounters:
+                    output_data[seed][step] = formation
 
-            if divergence < step:
-                print(f'  {seed} and {(seed + 1) % 256}')
-                remaining.remove(seed)
+        print(json.dumps(output_data, sort_keys=True, indent=4, separators=(',', ': ')))
+    else:
+        remaining = set(range(256))
 
-        if len(remaining) == 0:
-            break
+        for step, map_name in base.items():
+            print(map_name)
+            for seed in list(remaining):
+                divergence = all_divergence[seed]
 
-    print()
-    print(f'50% of pairs diverge by step {sorted(all_divergence)[127]}')
-    print(f'75% of pairs diverge by step {sorted(all_divergence)[191]}')
-    print(f'80% of pairs diverge by step {sorted(all_divergence)[204]}')
-    print(f'85% of pairs diverge by step {sorted(all_divergence)[217]}')
-    print(f'90% of pairs diverge by step {sorted(all_divergence)[230]}')
-    print(f'95% of pairs diverge by step {sorted(all_divergence)[243]}')
-    print(f'100% of pairs diverge by step {max(all_divergence)}')
+                if divergence < step:
+                    print(f'  {seed} and {(seed + 1) % 256}')
+                    remaining.remove(seed)
+
+            if len(remaining) == 0:
+                break
+
+        print()
+        print(f'50% of pairs diverge by step {sorted(all_divergence)[127]}')
+        print(f'75% of pairs diverge by step {sorted(all_divergence)[191]}')
+        print(f'80% of pairs diverge by step {sorted(all_divergence)[204]}')
+        print(f'85% of pairs diverge by step {sorted(all_divergence)[217]}')
+        print(f'90% of pairs diverge by step {sorted(all_divergence)[230]}')
+        print(f'95% of pairs diverge by step {sorted(all_divergence)[243]}')
+        print(f'100% of pairs diverge by step {max(all_divergence)}')
 
 
 def subcommand_range(args):
@@ -320,6 +332,7 @@ def main():
             'help': 'extracts data useful for identifying which seed a run is on',
             'arguments': {
                 'directory': {'metavar': 'DIRECTORY', 'type': str, 'help': 'directory containing the routes to process'},
+                '--encounters': {'metavar': 'LIMIT', 'type': int, 'help': 'if specified, prints encounters for each seed up to the given step limit'},
             }
         },
         'range': {
