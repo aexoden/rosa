@@ -3,12 +3,16 @@
 import argparse
 import curses
 import datetime
+import json
 import os
 import re
 import statistics
 import subprocess
+import sys
 import tempfile
 import time
+
+from collections import deque
 
 #------------------------------------------------------------------------------
 # Constants
@@ -28,13 +32,61 @@ def format_log_entry(msg):
     return f'[{datetime.datetime.now()}] {msg}'
 
 
-def get_base_time_multiplier(current_processes):
-    return (((current_processes - 1) ** 1.5) / 116.1895) + 1
+def generate_timings(max_threads):
+    print('Generating timings...')
+
+    cmd_args = ['/usr/bin/time', '-f', 'BENCHMARK %e', 'src/rosa', '-r', 'paladin', '-s', '0', '-m', '64']
+    timings = []
+    base_time = None
+
+    for i in range(max_threads):
+        suffix = '' if i == 0 else 's'
+        print(f'Testing {i+1} simultaneous thread{suffix}...', end='')
+        sys.stdout.flush()
+        processes = deque()
+        for _ in range(i + 1):
+            processes.append(subprocess.Popen(cmd_args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE))
+
+        samples = []
+
+        while len(processes) > 0:
+            process = processes.popleft()
+            _, err = process.communicate()
+            err = err.decode('utf-8')
+            for line in err.split('\n'):
+                if line.startswith('BENCHMARK'):
+                    t = float(line.strip().split(' ')[1])
+                    samples.append(t)
+
+        if i == 0:
+            base_time = samples[0]
+
+        timings.append(statistics.mean(samples) / base_time)
+
+        print(f' {statistics.mean(samples):0.3f}s, {timings[i]:0.3f}x')
+
+    return timings
 
 
-def get_time_multiplier(max_processes, current_processes):
-    current_multiplier = get_base_time_multiplier(current_processes)
-    target_multiplier = get_base_time_multiplier(max_processes)
+def get_base_time_multiplier(current_processes, timings):
+    if timings:
+        index = int(current_processes) - 1
+        base = timings[index]
+
+        if len(timings) > index + 1:
+            delta = timings[index + 1] - base
+        else:
+            delta = 0
+
+        x = current_processes - 1 - index
+        return (x * delta) + base
+    else:
+        return (((current_processes - 1) ** 1.5) / 116.1895) + 1
+
+
+def get_time_multiplier(max_processes, current_processes, timings):
+    current_multiplier = get_base_time_multiplier(current_processes, timings)
+    target_multiplier = get_base_time_multiplier(max_processes, timings)
     return target_multiplier / current_multiplier
 
 
@@ -67,6 +119,7 @@ def parse_arguments():
 
     parser.add_argument('--max-memory', type=float, default=1.0, help='target maximum memory to use in gigabytes (NOTE: this is not a hard limit)')
     parser.add_argument('--max-threads', type=int, default=1, help='maximum number of worker threads')
+    parser.add_argument('--timings', metavar='FILENAME', type=str, help='filename to use for multithreaded timings, will be created if it does not exist')
 
     return parser.parse_args()
 
@@ -170,10 +223,11 @@ class Process(object):
 
 
 class Optimizer(object):
-    def __init__(self, window, args):
+    def __init__(self, window, args, timings):
         self._window_main = window
         self._args = args
         self._seeds = load_seeds(self._args.seed_list)
+        self._timings = timings
         self._curses_init()
 
     def _curses_init(self):
@@ -241,7 +295,7 @@ class Optimizer(object):
                     factor = (31 - len(time_values)) / 30
                     index = min(len(time_values) - 1, int(len(time_values) * factor))
 
-                scaled_time_values = [t * get_time_multiplier(max_processes, p) for t, p in adjusted_time_values]
+                scaled_time_values = [t * get_time_multiplier(max_processes, p, self._timings) for t, p in adjusted_time_values]
                 expected_time = sorted(scaled_time_values)[index]
             else:
                 expected_time = 86400
@@ -257,9 +311,10 @@ class Optimizer(object):
             time_estimate = 0
 
             if len(time_values) > 0:
-                time_estimate = len(seeds) * statistics.mean(time_values) * get_time_multiplier(max_processes, min(len(time_values), max_processes)) / max_processes
+                time_estimate = len(seeds) * statistics.mean(time_values) * get_time_multiplier(max_processes, min(len(time_values), max_processes), self._timings) / max_processes
                 time_estimate += statistics.mean(time_values)
                 time_estimate -= time.time() - last_dispatch
+                eta = datetime.datetime.now() + datetime.timedelta(seconds=time_estimate)
 
             info = {
                 'Current Threads:': f'{len(processes)} / {max_processes} ({ideal_max_processes})',
@@ -271,10 +326,12 @@ class Optimizer(object):
                 info['Time:'] = f'{format_time(min(time_values))} - {format_time(max(time_values))} ({format_time(statistics.mean(time_values))})'
                 info['Scaled Time:'] = f'{format_time(min(scaled_time_values))} - {format_time(max(scaled_time_values))} ({format_time(statistics.mean(scaled_time_values))})'
                 info['Remaining:'] = f'{format_time(time_estimate)}'
+                info['ETA:'] = eta.strftime('%Y-%m-%d %H:%M:%S')
             else:
                 info['Memory Usage:'] = 'N/A'
                 info['Time:'] = 'N/A'
                 info['Remaining:'] = 'N/A'
+                info['ETA:'] = 'N/A'
 
             max_key_length = max([len(key) for key in info])
 
@@ -308,12 +365,29 @@ class Optimizer(object):
 # Main Execution
 #-------------------------------------------------------------------------------
 
-def run(stdscr, args):
-    optimizer = Optimizer(stdscr, args)
+def main():
+    args = parse_arguments()
+
+    timings = None
+
+    if args.timings:
+        if os.path.exists(args.timings):
+            with open(args.timings) as f:
+                timings = json.load(f)
+
+        if not timings or len(timings) < args.max_threads:
+            timings = generate_timings(args.max_threads)
+            with open(args.timings, 'w') as f:
+                json.dump(timings, f)
+
+    for entry in curses.wrapper(run, args, timings):
+        print(entry)
+
+
+def run(stdscr, args, timings):
+    optimizer = Optimizer(stdscr, args, timings)
     return optimizer.run()
 
 
 if __name__ == '__main__':
-    args = parse_arguments()
-    for entry in curses.wrapper(run, args):
-        print(entry)
+    main()
