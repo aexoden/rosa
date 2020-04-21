@@ -280,8 +280,9 @@ class Optimizer(object):
 
             if len(memory_values) > 0 and max(memory_values) > 0:
                 estimated_memory = max(memory_values)
-                if len(memory_values) < 16:
-                    estimated_memory = ((46 - len(memory_values)) / 30) * max(memory_values)
+                if len(memory_values) < 32:
+                    # The following formula multiplies by 1.15 when x is 1 and by 1 when x is 32.
+                    estimated_memory = ((716 - 3 * len(memory_values)) / 620) * max(memory_values)
                 ideal_max_processes = max(1, int((self._args.max_memory * 2 - estimated_memory) / estimated_memory))
             else:
                 ideal_max_processes = 1
@@ -310,7 +311,7 @@ class Optimizer(object):
 
             time_estimate = 0
 
-            if len(scaled_time_values) > 0:
+            if len(time_values) > 0:
                 time_estimate = len(seeds) * statistics.mean(scaled_time_values) * get_time_multiplier(max_processes, min(len(scaled_time_values), max_processes), self._timings) / max_processes
                 time_estimate += statistics.mean(scaled_time_values)
                 time_estimate -= time.time() - last_dispatch
