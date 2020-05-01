@@ -1,8 +1,8 @@
 #!/bin/bash
 
-DEFAULT_VERSION=v0.0.0
+DEFAULT_VERSION=v1.2.0
 
-if [ -d .git ] ; then
+if [ -e .git ] ; then
 	VERSION=$(git describe --always --dirty 2>/dev/null)
 fi
 
@@ -14,5 +14,5 @@ if [ ! -f src/version.hh ] || ! grep -q \"$VERSION\" src/version.hh ; then
 	echo "#define ROSA_VERSION \"$VERSION\"" > src/version.hh
 fi
 
-cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ .
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
 make
