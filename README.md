@@ -3,7 +3,7 @@
 Rosa is a tool to generate step routes for the SNES/SFC release of Final Fantasy
 IV. Step routes are specific walking patterns designed to manipulate the timing
 and details of random encounters. They are primarily used for speedrunning the
-game. Additional details can be found at [ff4.aexoden.com](https://ff4.aexoden.com).
+game. Additional details can be found at [ff4kb.aexoden.com](https://ff4kb.aexoden.com).
 
 ## Prerequisites
 
