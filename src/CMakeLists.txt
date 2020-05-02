@@ -2,7 +2,8 @@ file(GLOB SOURCE_FILES "*.cc")
 
 add_executable(rosa ${SOURCE_FILES})
 
-target_include_directories(rosa PUBLIC ../include)
+target_include_directories(rosa SYSTEM PUBLIC ../include)
+target_include_directories(rosa SYSTEM PRIVATE ../external/sparse-map/include)
 
 target_link_libraries(rosa PRIVATE stdc++fs ${LMDB_LIBRARY})
 

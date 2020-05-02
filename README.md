@@ -9,6 +9,14 @@ game. Additional details can be found at [ff4.aexoden.com](https://ff4.aexoden.c
 
 Rosa requires Boost and LMDB to be installed on your system.
 
+Currently, if building from a tarball, submodules will not be available and will
+need to be copied to the `external` directory manually. If building directly
+from git, you should ensure submodules are initialized before building. The
+following third-party submodules are required:
+
+* [tsl::sparse_map](https://github.com/Tessil/sparse-map), a memory efficient
+  replacement for std::unordered_map released under the MIT license.
+
 ## Building
 
 Rosa may or may not build in your particular environment. The code should be
@@ -394,6 +402,3 @@ using the generated routes in runs to help prove their viability and accuracy.
 
 * [LMDB++](https://github.com/hoytech/lmdbxx), a C++17 wrapper for LMDB released
   under the Unlicense.
-
-* [tsl::sparse_map](https://github.com/Tessil/sparse-map), a memory efficient
-  replacement for std::unordered_map released under the MIT license.
