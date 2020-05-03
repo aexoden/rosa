@@ -1,0 +1,1 @@
+#define ROSA_VERSION "@VCS_TAG@"

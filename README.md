@@ -7,27 +7,39 @@ game. Additional details can be found at [ff4kb.aexoden.com](https://ff4kb.aexod
 
 ## Prerequisites
 
-Rosa requires Boost and LMDB to be installed on your system.
+Rosa requires meson, Boost and LMDB to be installed on your system.
 
 Currently, if building from a tarball, submodules will not be available and will
 need to be copied to the `external` directory manually. If building directly
 from git, you should ensure submodules are initialized before building. The
 following third-party submodules are required:
 
+* [CLI11](https://github.com/CLIUtils/CLI11), a C++11 command line parser,
+  released under a 3-clause BSD license.
+
+* [LMDB++](https://github.com/hoytech/lmdbxx), a C++17 wrapper for LMDB released
+  under the Unlicense.
+
 * [tsl::sparse_map](https://github.com/Tessil/sparse-map), a memory efficient
   replacement for std::unordered_map released under the MIT license.
 
 ## Building
 
-Rosa may or may not build in your particular environment. The code should be
-standard C++17 and as such, may compile on any modern standards-compliant
-compiler. However, the build is currently only tested on Clang 6 and 7. The
-included build machinery assumes as much.
+Rosa makes use of C++17 (and potentially beyond) features, so it requires a
+modern compiler to build. It is currently tested with g++ 8 and clang++ 10.
+Slightly older versions of clang++ may work as well.
 
-Rosa is primarily designed to be run from within the main repository directory.
-To build the executable, enter that main directory and execute `./build`. It
-expects certain data files to be in particular locations relative to the
-current working directory.
+To build the executable, enter that main directory and execute the following:
+
+```sh
+mkdir build
+meson build
+cd build
+ninja
+```
+
+To run the executable, you should return to the main directory as your working
+directory, as Rosa expects data files to be in certain locations.
 
 ## Usage
 
@@ -394,11 +406,3 @@ since been added, necessitating this release of Rosa.
 The entire FF4 speedrunning community has been incredibly supportive, not only
 by providing information and by helping with research, but also by actually
 using the generated routes in runs to help prove their viability and accuracy.
-
-## Included Third-Party Libraries
-
-* [CLI11](https://github.com/CLIUtils/CLI11), a C++11 command line parser,
-  released under a 3-clause BSD license.
-
-* [LMDB++](https://github.com/hoytech/lmdbxx), a C++17 wrapper for LMDB released
-  under the Unlicense.

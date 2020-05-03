@@ -1,11 +1,5 @@
-*.o
-CMakeCache.txt
-CMakeFiles
-cmake_install.cmake
-Makefile
+/.clangd
 /.vscode
+/build
 /cache
 /compile_commands.json
-/output
-/src/rosa
-/src/version.hh

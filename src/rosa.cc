@@ -7,7 +7,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/format.hpp>
 
-#include "CLI11.hpp"
+#include "CLI/CLI.hpp"
 
 #include "encounter.hh"
 #include "engine.hh"
