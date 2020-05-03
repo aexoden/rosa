@@ -1,6 +1,10 @@
 #ifndef ROSA_OPTIONS_HH
 #define ROSA_OPTIONS_HH
 
+#include <string>
+
+constexpr int CACHE_DEFAULT_SIZE = 1048576;
+
 class Options {
 	public:
 		std::string route{"paladin"};
@@ -11,7 +15,7 @@ class Options {
 		std::string cache_location{""};
 		std::string cache_filename{""};
 
-		std::size_t cache_size{1048576};
+		std::size_t cache_size{CACHE_DEFAULT_SIZE};
 
 		bool tas_mode{false};
 		bool prefer_fewer_locations{false};

@@ -16,7 +16,7 @@ class Maps {
 	public:
 		explicit Maps(std::istream & input);
 
-		const Map & get_map(int id) const;
+		auto get_map(int id) const -> const Map &;
 
 	private:
 		const Map _default_map{0, 0, "", ""};

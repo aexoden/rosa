@@ -4,23 +4,25 @@
 
 #include <iostream>
 
+const int PARTY_LENGTH = 20;
+
 Party::Party(std::string party) : _party{std::move(party)} {
-	if (_party.length() == 20) {
+	if (_party.length() == PARTY_LENGTH) {
 		_three_front = _party[0] == '3';
 		_has_gp = _party[1] == 'G';
 		_on_world_map = _party[2] == '+';
 
-		_level = std::stoi(_party.substr(18, 2));
+		_level = std::stoi(_party.substr(18, 2)); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
-		for (std::size_t i = 3; i < 18; i += 3) {
+		for (std::size_t i = 3; i < 18; i += 3) { // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 			auto character{static_cast<int>(_party[i])};
 
-			if (character == 0x2D) {
+			if (character == '-') {
 				character = 0;
-			} else if (character >= 0x41 && character <= 0x5A) {
-				character = character - 0x41 + 1;
-			} else if (character >= 0x61 && character <= 0x7A) {
-				character = character - 0x61 + 27;
+			} else if (character >= 'A' && character <= 'Z') {
+				character = character - 'A' + 1;
+			} else if (character >= 'a' && character <= 'z') {
+				character = character - 'a' + ('Z' - 'A' + 1) + 1;
 			} else {
 				std::cerr << "WARNING: Invalid character '" << _party[i] << "' in party '" << _party << "'\n";
 			}
@@ -35,9 +37,9 @@ Party::Party(std::string party) : _party{std::move(party)} {
 		}
 	}
 
-	_key1 += _three_front ? 1ull << 15u : 0;
-	_key1 += _has_gp ? 1ull << 14u : 0;
-	_key1 += _on_world_map ? 1ull << 13u : 0;
+	_key1 += _three_front ? 1ULL << 15U : 0; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+	_key1 += _has_gp ? 1ULL << 14U : 0; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+	_key1 += _on_world_map ? 1ULL << 13U : 0; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 	_key1 += static_cast<uint16_t>(_level);
 
@@ -45,18 +47,18 @@ Party::Party(std::string party) : _party{std::move(party)} {
 	uint64_t agilities{0};
 
 	for (const auto & [character, agility] : _characters) {
-		characters = (characters << 6u) + static_cast<uint64_t>(character);
-		agilities = agilities * 100 + static_cast<uint64_t>(agility);
+		characters = (characters << 6U) + static_cast<uint64_t>(character); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+		agilities = agilities * 100 + static_cast<uint64_t>(agility); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 	}
 
-	_key2 = (characters << 34u) + agilities;
+	_key2 = (characters << 34U) + agilities;// NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 }
 
-std::pair<uint16_t, uint64_t> Party::get_keys() const {
+auto Party::get_keys() const -> std::pair<uint16_t, uint64_t> {
 	return std::make_pair(_key1, _key2);
 }
 
-std::ostream & operator<<(std::ostream & os, const Party & party) {
+auto operator<<(std::ostream & os, const Party & party) -> std::ostream & {
 	os << party._party;
 	return os;
 }

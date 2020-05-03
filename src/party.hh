@@ -5,17 +5,19 @@
 #include <string>
 #include <vector>
 
+const int _HASH_MULTIPLIER = 31;
+
 class Party {
 	public:
 		explicit Party(std::string party);
 
-		std::pair<uint16_t, uint64_t> get_keys() const;
+		[[nodiscard]] auto get_keys() const -> std::pair<uint16_t, uint64_t>;
 
-		bool operator==(const Party & other) const {
+		auto operator==(const Party & other) const -> bool {
 			return _key1 == other._key1 && _key2 == other._key2;
 		}
 
-		friend std::ostream & operator<<(std::ostream & os, const Party & party);
+		friend auto operator<<(std::ostream & os, const Party & party) -> std::ostream &;
 
 	private:
 		bool _three_front{true};
@@ -35,9 +37,9 @@ class Party {
 namespace std {
 	template <>
 	struct hash<Party> {
-		size_t operator()(const Party & party) const {
+		auto operator()(const Party & party) const -> size_t {
 			const auto [key1, key2] = party.get_keys();
-			return hash<uint16_t>()(key1) * 31 + hash<uint64_t>()(key2);
+			return hash<uint16_t>()(key1) * _HASH_MULTIPLIER + hash<uint64_t>()(key2);
 		}
 	};
 } // namespace std

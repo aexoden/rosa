@@ -1,22 +1,22 @@
 #ifndef ROSA_ENCOUNTER_HH
 #define ROSA_ENCOUNTER_HH
 
+#include "duration.hh"
+#include "party.hh"
+
 #include <memory>
 #include <unordered_map>
 #include <vector>
-
-#include "duration.hh"
-#include "party.hh"
 
 class Encounter {
 	public:
 		Encounter(std::size_t id, std::string description);
 
-		std::size_t get_id() const;
-		std::string get_description() const;
+		auto get_id() const -> std::size_t;
+		auto get_description() const -> std::string;
 
 		void add_duration(const Party & party, const Duration & duration);
-		Milliframes get_duration(const Party & party, bool minimum) const;
+		auto get_duration(const Party & party, bool minimum) const -> Milliframes;
 
 	private:
 		const std::size_t _id;
@@ -29,8 +29,8 @@ class Encounters {
 	public:
 		explicit Encounters(std::istream & input);
 
-		std::shared_ptr<const Encounter> get_encounter(std::size_t id) const;
-		std::shared_ptr<const Encounter> get_encounter_from_group(std::size_t group_index, std::size_t encounter_index) const;
+		[[nodiscard]] auto get_encounter(std::size_t id) const -> std::shared_ptr<const Encounter>;
+		[[nodiscard]] auto get_encounter_from_group(std::size_t group_index, std::size_t encounter_index) const -> std::shared_ptr<const Encounter>;
 
 	private:
 		std::vector<std::shared_ptr<Encounter>> _encounters;

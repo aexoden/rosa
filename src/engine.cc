@@ -6,6 +6,10 @@
 #include "engine.hh"
 #include "version.hh"
 
+constexpr int SEED_UPDATE_DELTA = 17;
+constexpr auto FRAMES_PER_TRANSITION = 82_f;
+constexpr auto FRAMES_PER_TILE = 16_f;
+
 Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
 	switch (parameters.cache_type) {
 		case CacheType::Dynamic:
@@ -50,7 +54,7 @@ void Engine::set_variable_maximum(int variable, int value) {
 	_variables[variable].maximum = value;
 }
 
-std::string Engine::optimize(int seed) {
+auto Engine::optimize(int seed) -> std::string {
 	State state{seed};
 
 	int minimum_step_segments{-1};
@@ -88,7 +92,7 @@ std::string Engine::optimize(int seed) {
 	return _generate_output_text(state, log);
 }
 
-Log Engine::_finalize(State state) {
+auto Engine::_finalize(State state) -> Log {
 	Log log;
 
 	while (state.index < _parameters.route.size()) {
@@ -120,7 +124,7 @@ Log Engine::_finalize(State state) {
 	return log;
 }
 
-std::string Engine::_generate_output_text(const State & state, const Log & log) {
+auto Engine::_generate_output_text(const State & state, const Log & log) -> std::string {
 	Milliframes total_frames{0_mf};
 	Milliframes encounter_frames{0_mf};
 
@@ -272,7 +276,7 @@ std::string Engine::_generate_output_text(const State & state, const Log & log) 
 	return output;
 }
 
-Milliframes Engine::_optimize(const State & state) {
+auto Engine::_optimize(const State & state) -> Milliframes {
 	if (state.index == _parameters.route.size()) {
 		return 0_mf;
 	}
@@ -327,9 +331,9 @@ Milliframes Engine::_optimize(const State & state) {
 	return frames;
 }
 
-Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
+auto Engine::_cycle(State * state, LogEntry * log, int value) -> Milliframes {
 	Milliframes frames{0};
-	auto & instruction{_parameters.route[state->index]};
+	const auto & instruction{_parameters.route[state->index]};
 
 	switch (instruction.type) {
 		case InstructionType::Choice:
@@ -351,9 +355,9 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 				value--;
 			}
 
-			frames += instruction.transition_count * 82_f;
+			frames += instruction.transition_count * FRAMES_PER_TRANSITION;
 
-			if (log) {
+			if (log != nullptr) {
 				log->extra_text = _parameters.route[state->index].text;
 			}
 
@@ -362,7 +366,6 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 			frames += Frames{instruction.number};
 			break;
 		case InstructionType::End:
-			break;
 		case InstructionType::Note:
 			break;
 		case InstructionType::Option: {
@@ -384,7 +387,7 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 			state->party = Party{instruction.text};
 			break;
 		case InstructionType::Path: {
-			frames += instruction.transition_count * 82_f;
+			frames += instruction.transition_count * FRAMES_PER_TRANSITION;
 			frames += _step(state, log, instruction.tiles, instruction.required_steps);
 
 			if (value > 0) {
@@ -409,8 +412,8 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 				frames += _step(state, log, tiles, optional_steps + extra_steps);
 			}
 
-			if (log && state->search_active) {
-				int extra_steps{256 - instruction.required_steps - value};
+			if ((log != nullptr) && state->search_active) {
+				int extra_steps{UINT8_MAX + 1 - instruction.required_steps - value};
 
 				if (extra_steps > 0) {
 					State work_state{*state};
@@ -434,8 +437,9 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 			_route_title = instruction.text;
 			break;
 		case InstructionType::Save:
-			// TODO: This needs to be implemented, but it can wait for TAS mode.
-			//       A reset is defined as 697 frames minus the number in the instruction.
+			// TODO(jason@calindora.com): This needs to be implemented, but it
+			// can wait for TAS mode. A reset is defined as 697 frames minus the
+			// number in the instruction.
 			break;
 		case InstructionType::Search:
 			for (const auto & number : instruction.numbers) {
@@ -457,44 +461,44 @@ Milliframes Engine::_cycle(State * state, LogEntry * log, int value) {
 
 	state->index++;
 
-	if (log) {
+	if (log != nullptr) {
 		log->frames = frames;
 	}
 
 	return frames;
 }
 
-Milliframes Engine::_step(State * state, LogEntry * log, int tiles, int steps) {
+auto Engine::_step(State * state, LogEntry * log, int tiles, int steps) -> Milliframes {
 	const auto & instruction{_parameters.route[state->index]};
 	const auto & map{_parameters.maps.get_map(instruction.map)};
 
-	Milliframes frames{tiles * 16_f};
+	Milliframes frames{tiles * FRAMES_PER_TILE};
 
 	for (auto i{0}; i < steps; i++) {
-		state->step_index = (state->step_index + 1) % 256;
+		state->step_index = (state->step_index + 1) % (UINT8_MAX + 1);
 
 		if (state->step_index == 0) {
-			state->step_seed = (state->step_seed + 17) % 256;
+			state->step_seed = (state->step_seed + SEED_UPDATE_DELTA) % (UINT8_MAX + 1);
 		}
 
-		if ((_rng_data[static_cast<std::size_t>(state->step_index)] + state->step_seed) % 256 < map.encounter_rate) {
-			auto encounter_rng{(_rng_data[static_cast<std::size_t>(state->encounter_index)] + state->encounter_seed) % 256};
-			std::size_t encounter_group_index{7};
+		if ((_rng_data[static_cast<std::size_t>(state->step_index)] + state->step_seed) % (UINT8_MAX + 1) < map.encounter_rate) {
+			auto encounter_rng{(_rng_data[static_cast<std::size_t>(state->encounter_index)] + state->encounter_seed) % (UINT8_MAX + 1)};
+			std::size_t encounter_group_index{7}; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
-			if (encounter_rng < 43) {
+			if (encounter_rng < 43) { // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 				encounter_group_index = 0;
-			} else if (encounter_rng < 86) {
+			} else if (encounter_rng < 86) { // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 				encounter_group_index = 1;
-			} else if (encounter_rng < 129) {
+			} else if (encounter_rng < 129) { // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 				encounter_group_index = 2;
-			} else if (encounter_rng < 172) {
+			} else if (encounter_rng < 172) { // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 				encounter_group_index = 3;
-			} else if (encounter_rng < 204) {
+			} else if (encounter_rng < 204) { // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 				encounter_group_index = 4;
-			} else if (encounter_rng < 236) {
-				encounter_group_index = 5;
-			} else if (encounter_rng < 252) {
-				encounter_group_index = 6;
+			} else if (encounter_rng < 236) { // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+				encounter_group_index = 5; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+			} else if (encounter_rng < 252) { // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+				encounter_group_index = 6; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 			}
 
 			auto encounter{_parameters.encounters.get_encounter_from_group(static_cast<std::size_t>(map.encounter_group), encounter_group_index)};
@@ -503,14 +507,14 @@ Milliframes Engine::_step(State * state, LogEntry * log, int tiles, int steps) {
 
 			frames += encounter_frames;
 
-			if (log) {
+			if (log != nullptr) {
 				auto encounter_step{state->step_index - log->state.step_index};
 				auto step_seed_delta{state->step_seed - log->state.step_seed};
 
 				if (step_seed_delta > 0) {
-					encounter_step += (step_seed_delta / 17) * 256;
+					encounter_step += (step_seed_delta / SEED_UPDATE_DELTA) * (UINT8_MAX + 1);
 				} else if (step_seed_delta < 0) {
-					encounter_step += ((step_seed_delta + 256) / 17) * 256;
+					encounter_step += ((step_seed_delta + (UINT8_MAX + 1)) / SEED_UPDATE_DELTA) * (UINT8_MAX + 1);
 				}
 
 				log->encounters.emplace_back(std::make_tuple(encounter_step, state->encounter_index, encounter_id, encounter_frames));
@@ -528,15 +532,15 @@ Milliframes Engine::_step(State * state, LogEntry * log, int tiles, int steps) {
 				}
 			}
 
-			state->encounter_index = (state->encounter_index + 1) % 256;
+			state->encounter_index = (state->encounter_index + 1) % (UINT8_MAX + 1);
 
 			if (state->encounter_index == 0) {
-				state->encounter_seed = (state->encounter_seed + 17) % 256;
+				state->encounter_seed = (state->encounter_seed + SEED_UPDATE_DELTA) % (UINT8_MAX + 1);
 			}
 		}
 	}
 
-	if (log) {
+	if (log != nullptr) {
 		log->steps += steps;
 	}
 

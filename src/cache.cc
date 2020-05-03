@@ -1,14 +1,15 @@
-#include <filesystem>
-#include <iostream>
+#include "cache.hh"
+
+#include "state.hh"
 
 #include <boost/format.hpp>
 
-#include "cache.hh"
-#include "state.hh"
+#include <filesystem>
+#include <iostream>
 
-Cache::~Cache() {}
+Cache::~Cache() = default;
 
-std::pair<int, Milliframes> DynamicCache::get(const State & state) {
+auto DynamicCache::get(const State & state) -> std::pair<int, Milliframes> {
 	auto keys{state.get_keys()};
 
 	if (_cache.count(keys) == 0) {
@@ -22,7 +23,7 @@ void DynamicCache::set(const State & state, int value, Milliframes frames) {
 	_cache[state.get_keys()] = std::make_pair(value, frames);
 }
 
-std::size_t DynamicCache::get_size() const {
+auto DynamicCache::get_size() const -> std::size_t {
 	return _cache.size();
 }
 
@@ -34,8 +35,8 @@ PersistentCache::PersistentCache(const std::string & filename, std::size_t cache
 		std::filesystem::create_directories(filename);
 	}
 
-	_env.set_mapsize(1UL * 1024UL * 1024UL * 1024UL * 1024UL);
-	_env.open(filename.c_str(), MDB_NOSYNC, 0664);
+	_env.set_mapsize(1UL * 1024UL * 1024UL * 1024UL * 1024UL); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+	_env.open(filename.c_str(), MDB_NOSYNC, 0664); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 	auto txn{lmdb::txn::begin(_env)};
 	_dbi = lmdb::dbi::open(txn, nullptr);
@@ -47,7 +48,7 @@ PersistentCache::~PersistentCache() {
 	_purge_cache();
 }
 
-std::pair<int, Milliframes> PersistentCache::get(const State & state) {
+auto PersistentCache::get(const State & state) -> std::pair<int, Milliframes> {
 	auto keys{state.get_keys()};
 
 	if (_cache.count(keys) > 0) {
@@ -77,11 +78,11 @@ void PersistentCache::set(const State & state, int value, Milliframes frames) {
 	}
 }
 
-std::size_t PersistentCache::get_size() const {
+auto PersistentCache::get_size() const -> std::size_t {
 	return _cache.size();
 }
 
-std::string PersistentCache::_encode_key(std::tuple<uint64_t, uint64_t, uint64_t> keys) const {
+auto PersistentCache::_encode_key(std::tuple<uint64_t, uint64_t, uint64_t> keys) -> std::string {
 	auto & [key1, key2, key3] = keys;
 	std::string result{sizeof(key1) + sizeof(key2) + sizeof(key3), 0, std::string::allocator_type{}};
 
@@ -92,7 +93,7 @@ std::string PersistentCache::_encode_key(std::tuple<uint64_t, uint64_t, uint64_t
 	return result;
 }
 
-std::string PersistentCache::_encode_value(int value, Milliframes frames) const {
+auto PersistentCache::_encode_value(int value, Milliframes frames) -> std::string {
 	int64_t value1{static_cast<int64_t>(value)};
 	int64_t value2{static_cast<int64_t>(frames.count())};
 
@@ -104,7 +105,7 @@ std::string PersistentCache::_encode_value(int value, Milliframes frames) const 
 	return result;
 }
 
-std::pair<int, Milliframes> PersistentCache::_decode_value(const std::string_view & data) const {
+auto PersistentCache::_decode_value(const std::string_view & data) -> std::pair<int, Milliframes> {
 	int64_t value1{0};
 	int64_t value2{0};
 
@@ -114,16 +115,20 @@ std::pair<int, Milliframes> PersistentCache::_decode_value(const std::string_vie
 	return std::make_pair(static_cast<int>(value1), Milliframes{value2});
 }
 
-void PersistentCache::_purge_cache() {
-	auto txn{lmdb::txn::begin(_env)};
+void PersistentCache::_purge_cache() noexcept {
+	try {
+		auto txn{lmdb::txn::begin(_env)};
 
-	for (const auto & [keys, value] : _cache) {
-		auto key{_encode_key(keys)};
-		auto encoded_value{_encode_value(value.first, value.second)};
+		for (const auto & [keys, value] : _cache) {
+			auto key{_encode_key(keys)};
+			auto encoded_value{_encode_value(value.first, value.second)};
 
-		_dbi.put(txn, key, encoded_value);
+			_dbi.put(txn, key, encoded_value);
+		}
+
+		txn.commit();
+		_cache.clear();
+	} catch (const lmdb::error &) {
+		std::cerr << "WARNING: Error while purging the in-memory cache. Results from this point forward may be incorrect.";
 	}
-
-	txn.commit();
-	_cache.clear();
 }

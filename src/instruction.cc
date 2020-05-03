@@ -6,13 +6,13 @@
 
 #include "instruction.hh"
 
-static int parse_variable(const std::string & s) {
+static auto parse_variable(const std::string & s) -> int {
 	if (s == "-") {
 		return -1;
 	}
 
 	try {
-		int result{std::stoi(s, nullptr, 16)};
+		int result{std::stoi(s, nullptr, 16)}; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 		return result;
 	} catch (...) {
 		std::cerr << "WARNING: Ignoring invalid variable name: " << s << '\n';
@@ -44,17 +44,17 @@ Instruction::Instruction(const std::string & line) {
 			} else if (tokens[0] == "PARTY" && tokens.size() == 2) {
 				type = InstructionType::Party;
 				text = tokens[1];
-			} else if (tokens[0] == "PATH" && tokens.size() == 10) {
+			} else if (tokens[0] == "PATH" && tokens.size() == 10) { // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 				type = InstructionType::Path;
 				variable = parse_variable(tokens[1]);
-				map = std::stoi(tokens[2], nullptr, 16);
+				map = std::stoi(tokens[2], nullptr, 16); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 				tiles = std::stoi(tokens[3]);
 				required_steps = std::stoi(tokens[4]);
-				optional_steps = std::stoi(tokens[5]);
-				transition_count = std::stoi(tokens[6]);
-				can_single_step = tokens[7] == "+";
-				can_double_step = tokens[8] == "+";
-				can_step_during_save = tokens[9] == "+";
+				optional_steps = std::stoi(tokens[5]); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+				transition_count = std::stoi(tokens[6]); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+				can_single_step = tokens[7] == "+"; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+				can_double_step = tokens[8] == "+"; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+				can_step_during_save = tokens[9] == "+"; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 				if (variable >= 0 && (optional_steps == 0 && !can_single_step && !can_double_step)) {
 					std::cerr << "WARNING: Path segment with no extra steps available has assigned variable: " << line << '\n';
@@ -91,7 +91,7 @@ Instruction::Instruction(const std::string & line) {
 	}
 }
 
-Route read_route(std::istream & input) {
+auto read_route(std::istream & input) -> Route {
 	std::string line;
 	Route route;
 

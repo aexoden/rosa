@@ -21,7 +21,7 @@
  * Main Function
  */
 
-int main (int argc, char ** argv) {
+auto main (int argc, char ** argv) -> int {
 	/*
 	 * Initialization
 	 */
@@ -34,7 +34,7 @@ int main (int argc, char ** argv) {
 	 * Option Parsing
 	 */
 
-	CLI::App app{"Rosa " ROSA_VERSION};
+	CLI::App app{std::string{"Rosa "} + std::string{ROSA_VERSION}};
 
 	app.add_option("-r,--route", options.route, "Route to process", true);
 	app.add_option("-s,--seed", options.seed, "Seed to process", true);
@@ -125,7 +125,7 @@ int main (int argc, char ** argv) {
 				std::vector<std::string> values;
 				boost::algorithm::split(values, tokens[1], boost::is_any_of("-"));
 
-				auto index{std::stoi(tokens[0], nullptr, 16)};
+				auto index{std::stoi(tokens[0], nullptr, 16)}; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 				auto minimum{std::stoi(values[0])};
 				auto maximum{minimum};
 

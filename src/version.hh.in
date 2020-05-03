@@ -1,1 +1,1 @@
-#define ROSA_VERSION "@VCS_TAG@"
+constexpr char const * ROSA_VERSION = "@VCS_TAG@";

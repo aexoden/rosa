@@ -1,11 +1,13 @@
 #ifndef ROSA_PARAMETERS_HH
 #define ROSA_PARAMETERS_HH
 
+#include "cache.hh"
+#include "encounter.hh"
+#include "instruction.hh"
+#include "variable.hh"
+
 #include <memory>
 #include <unordered_map>
-
-#include "cache.hh"
-#include "variable.hh"
 
 struct Parameters {
 	public:

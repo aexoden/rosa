@@ -1,8 +1,6 @@
 #ifndef ROSA_ENGINE_HH
 #define ROSA_ENGINE_HH
 
-#include <vector>
-
 #include "cache.hh"
 #include "duration.hh"
 #include "encounter.hh"
@@ -10,6 +8,8 @@
 #include "map.hh"
 #include "parameters.hh"
 #include "state.hh"
+
+#include <vector>
 
 struct LogEntry {
 	const State state;
@@ -31,15 +31,15 @@ class Engine {
 		void set_variable_minimum(int variable, int value);
 		void set_variable_maximum(int variable, int value);
 
-		std::string optimize(int seed);
+		auto optimize(int seed) -> std::string;
 
 	private:
-		Milliframes _optimize(const State & state);
-		Log _finalize(State state);
-		std::string _generate_output_text(const State & state, const Log & log);
+		auto _optimize(const State & state) -> Milliframes;
+		auto _finalize(State state) -> Log;
+		auto _generate_output_text(const State & state, const Log & log) -> std::string;
 
-		Milliframes _cycle(State * state, LogEntry * log, int value);
-		Milliframes _step(State * state, LogEntry * log, int tiles, int steps);
+		auto _cycle(State * state, LogEntry * log, int value) -> Milliframes;
+		auto _step(State * state, LogEntry * log, int tiles, int steps) -> Milliframes;
 
 		const Parameters _parameters;
 

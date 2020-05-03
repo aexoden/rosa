@@ -3,21 +3,27 @@
 
 #include <chrono>
 
-using Seconds = std::chrono::duration<double>;
-using Frames = std::chrono::duration<int64_t, std::ratio<655171, 39375000>>;
-using Milliframes = std::chrono::duration<int64_t, std::ratio<655171, 39375000000>>;
+const uint64_t SNES_SECONDS_PER_FRAME_NUMERATOR{655171};
+const uint64_t SNES_SECONDS_PER_FRAME_DENOMINATOR{39375000};
 
-constexpr Seconds operator ""_s(long double s) {
+const uint64_t SNES_SECONDS_PER_MILLIFRAME_NUMERATOR{SNES_SECONDS_PER_FRAME_NUMERATOR};
+const uint64_t SNES_SECONDS_PER_MILLIFRAME_DENOMINATOR{SNES_SECONDS_PER_FRAME_DENOMINATOR * 1000};
+
+using Seconds = std::chrono::duration<double>;
+using Frames = std::chrono::duration<int64_t, std::ratio<SNES_SECONDS_PER_FRAME_NUMERATOR, SNES_SECONDS_PER_FRAME_DENOMINATOR>>;
+using Milliframes = std::chrono::duration<int64_t, std::ratio<SNES_SECONDS_PER_MILLIFRAME_NUMERATOR, SNES_SECONDS_PER_MILLIFRAME_DENOMINATOR>>;
+
+constexpr auto operator ""_s(long double s) -> Seconds {
 	return Seconds(s);
 }
 
 // NOLINTNEXTLINE(google-runtime-int)
-constexpr Frames operator ""_f(unsigned long long f) {
+constexpr auto operator ""_f(unsigned long long f) -> Frames {
 	return Frames(f);
 }
 
 // NOLINTNEXTLINE(google-runtime-int)
-constexpr Milliframes operator ""_mf(unsigned long long mf) {
+constexpr auto operator ""_mf(unsigned long long mf) -> Milliframes {
 	return Milliframes(mf);
 }
 

@@ -1,8 +1,8 @@
 ---
-Checks:          '*,-fuchsia-default-arguments,-fuchsia-overloaded-operator,-llvm-header-guard'
-WarningsAsErrors: ''
-HeaderFilterRegex: 'src/.*hh'
+Checks:                '*,-fuchsia-default-arguments,-fuchsia-default-arguments-calls,-fuchsia-overloaded-operator,-fuchsia-trailing-return,-llvm-header-guard'
+WarningsAsErrors:      ''
+HeaderFilterRegex:     'src/.*hh'
 AnalyzeTemporaryDtors: false
-FormatStyle:     none
-CheckOptions:    
+FormatStyle:           none
+CheckOptions:
 ...
