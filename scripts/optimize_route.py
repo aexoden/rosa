@@ -35,7 +35,7 @@ def format_log_entry(msg):
 def generate_timings(max_threads):
     print('Generating timings...')
 
-    cmd_args = ['/usr/bin/time', '-f', 'BENCHMARK %e', 'src/rosa', '-r', 'paladin', '-s', '0', '-m', '64']
+    cmd_args = ['/usr/bin/time', '-f', 'BENCHMARK %e', 'build/rosa', '-r', 'paladin', '-s', '0', '-m', '64']
     timings = []
     base_time = None
 
@@ -208,7 +208,7 @@ class Process(object):
 
     def _dispatch(self):
         time_fmt = '%Uuser %Ssystem %eelapsed %PCPU (%Xtext+%Ddata %Mmax)k %Iinputs+%Ooutputs (%Fmajor+%Rminor)pagefaults %Wswaps'
-        cmd_args = ['/usr/bin/time', '-o', self._time_filename, '-f', time_fmt, 'src/rosa', '-r', self._args.route, '-s', str(self.seed), '-m', str(self._args.max_steps)]
+        cmd_args = ['/usr/bin/time', '-o', self._time_filename, '-f', time_fmt, 'build/rosa', '-r', self._args.route, '-s', str(self.seed), '-m', str(self._args.max_steps)]
 
         if self._args.max_segments is not None:
             cmd_args.extend(['-p', '-n', str(self._args.max_segments)])
