@@ -1,0 +1,29 @@
+name: C++
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - name: Install Python Dependencies
+      run: pip install meson ninja
+    - name: Install Dependencies
+      run: sudo apt-get install libboost-dev liblmdb-dev
+    - name: meson
+      run: meson setup build
+      env:
+        CXX: g++-9
+    - name: ninja
+      run: ninja -C build
