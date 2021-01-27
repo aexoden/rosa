@@ -30,6 +30,7 @@ Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
 					case InstructionType::Path:
 						_variables.emplace(std::make_pair(instruction.variable, Variable{VariableType::Step, 0, 0, _parameters.maximum_extra_steps}));
 						break;
+					case InstructionType::Data:
 					case InstructionType::Delay:
 					case InstructionType::End:
 					case InstructionType::Note:
@@ -163,6 +164,7 @@ auto Engine::_generate_output_text(const State & state, const Log & log) -> std:
 			case InstructionType::End:
 				new_indent_level--;
 				break;
+			case InstructionType::Data:
 			case InstructionType::Delay:
 			case InstructionType::Option:
 			case InstructionType::Party:
@@ -456,6 +458,8 @@ auto Engine::_cycle(State * state, LogEntry * log, int value) -> Milliframes {
 			break;
 		case InstructionType::Version:
 			_route_version = instruction.number;
+			break;
+		case InstructionType::Data:
 			break;
 	}
 

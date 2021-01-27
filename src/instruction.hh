@@ -8,6 +8,7 @@
 
 enum class InstructionType {
 	Choice,
+	Data,
 	Delay,
 	End,
 	Note,

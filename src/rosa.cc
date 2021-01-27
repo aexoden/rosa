@@ -60,26 +60,6 @@ auto main (int argc, char ** argv) -> int {
 	 * Base Data
 	 */
 
-	std::string encounters_filename{"data/encounters/ff2us.txt"};
-	std::ifstream encounters_file{encounters_filename, std::ios_base::in};
-
-	if (!encounters_file.is_open()) {
-		std::cerr << "ERROR: Failed to open " << encounters_filename << '\n';
-		return EXIT_FAILURE;
-	}
-
-	Encounters encounters{encounters_file};
-
-	std::string maps_filename{"data/maps/ff2us.txt"};
-	std::ifstream maps_file{maps_filename, std::ios_base::in};
-
-	if (!maps_file.is_open()) {
-		std::cerr << "ERROR: Failed to open " << maps_filename << '\n';
-		return EXIT_FAILURE;
-	}
-
-	Maps maps{maps_file};
-
 	std::string route_source_filename{"data/routes/" + options.route + ".txt"};
 	std::ifstream route_source_file{route_source_filename, std::ios_base::in};
 
@@ -89,6 +69,34 @@ auto main (int argc, char ** argv) -> int {
 	}
 
 	auto route{read_route(route_source_file)};
+
+	std::string data_key{"ff2us"};
+
+	for (const auto & instruction : route) {
+		if (instruction.type == InstructionType::Data) {
+			data_key = instruction.text;
+		}
+	}
+
+	std::string encounters_filename{"data/encounters/" + data_key + ".txt"};
+	std::ifstream encounters_file{encounters_filename, std::ios_base::in};
+
+	if (!encounters_file.is_open()) {
+		std::cerr << "ERROR: Failed to open " << encounters_filename << '\n';
+		return EXIT_FAILURE;
+	}
+
+	Encounters encounters{encounters_file};
+
+	std::string maps_filename{"data/maps/" + data_key + ".txt"};
+	std::ifstream maps_file{maps_filename, std::ios_base::in};
+
+	if (!maps_file.is_open()) {
+		std::cerr << "ERROR: Failed to open " << maps_filename << '\n';
+		return EXIT_FAILURE;
+	}
+
+	Maps maps{maps_file};
 
 	auto cache_type{CacheType::Dynamic};
 	auto cache_location{options.cache_filename};

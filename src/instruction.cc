@@ -82,6 +82,9 @@ Instruction::Instruction(const std::string & line) {
 			} else if (tokens[0] == "VERSION" && tokens.size() == 2) {
 				type = InstructionType::Version;
 				number = std::stoi(tokens[1]);
+			} else if (tokens[0] == "DATA" && tokens.size() == 2) {
+				type = InstructionType::Data;
+				text = tokens[1];
 			} else {
 				std::cerr << "WARNING: Unrecognized instruction: " << line << std::endl;
 			}
