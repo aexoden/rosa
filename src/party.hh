@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-const int _HASH_MULTIPLIER = 31;
+const int HASH_MULTIPLIER = 31;
 
 class Party {
 	public:
@@ -39,7 +39,7 @@ namespace std {
 	struct hash<Party> {
 		auto operator()(const Party & party) const -> size_t {
 			const auto [key1, key2] = party.get_keys();
-			return hash<uint16_t>()(key1) * _HASH_MULTIPLIER + hash<uint64_t>()(key2);
+			return hash<uint16_t>()(key1) * HASH_MULTIPLIER + hash<uint64_t>()(key2);
 		}
 	};
 } // namespace std
