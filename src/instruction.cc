@@ -1,4 +1,5 @@
 #include <iostream>
+#include <locale>
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
@@ -71,11 +72,46 @@ Instruction::Instruction(const std::string & line) {
 				type = InstructionType::Search;
 				text = tokens[1];
 
-				std::vector<std::string> temp_numbers;
-				boost::algorithm::split(temp_numbers, tokens[2], boost::is_any_of("+"), boost::token_compress_on);
+				std::locale locale;
+				std::string current_number;
+				size_t current_index{0};
 
-				for (const auto & temp_number : temp_numbers) {
-					numbers.push_back(std::stoi(temp_number));
+				for (const auto & c : tokens[2]) {
+					if (isdigit(c, locale)) {
+						current_number.push_back(c);
+					} else {
+						if (current_number.length() > 0) {
+							numbers.push_back(std::stoi(current_number));
+							expression_string.push_back('0' + current_index);
+
+							current_number = "";
+							current_index++;
+						}
+
+						expression_string.push_back(c);
+					}
+				}
+
+				if (current_number.length() > 0) {
+					numbers.push_back(std::stoi(current_number));
+					expression_string.push_back('0' + current_index);
+				}
+
+				peg::parser parser(R"(
+					sequence <- disjunction ('>' disjunction)*
+					disjunction <- conjunction ('|' conjunction)*
+					conjunction <- unit ('+' unit)*
+					unit <- number / '(' sequence ')'
+					number <- < [0-9]+ >
+					%whitespace <- [ ]*
+				)");
+
+				parser.enable_ast();
+
+				if (parser.parse(expression_string, expression)) {
+					expression = parser.optimize_ast(expression);
+				} else {
+					std::cerr << "WARNING: Invalid expression in search: " << expression_string << std::endl;
 				}
 
 				party = tokens[3];

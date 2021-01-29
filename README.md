@@ -19,6 +19,9 @@ following third-party submodules are required:
 * [CLI11](https://github.com/CLIUtils/CLI11), a C++11 command line parser,
   released under a 3-clause BSD license.
 
+* [cpp-peglib](https://github.com/yhirose/cpp-peglib), a C++17 PEG library
+  released under the MIT license.
+
 * [LMDB++](https://github.com/hoytech/lmdbxx), a C++17 wrapper for LMDB released
   under the Unlicense.
 
@@ -186,8 +189,8 @@ variable.
 ### Encounter Formation Specification
 
 This file defines the encounter formations and their groups. The only currently
-available data is for the USA release of Final Fantasy II. The system is
-designed to allow for future expansion, however.
+available data is for the USA release of Final Fantasy II. Custom data sets can
+be created by the user, however.
 
 These files live in the `data/encounters` directory, and consist of
 tab-delimited lines. Note that all fields must be filled. If a field needs to be
@@ -227,7 +230,7 @@ This line defines a group of formations. The fields are:
 
 This file provides data about the maps available in the game. Similar to the
 encounter formation data, this file currently contains data for the USA release
-of Final Fantasy II, but is designed for future expansion.
+of Final Fantasy II, but custom data sets can be created by the user.
 
 The file is located in the `data/maps` directory and consists of many
 tab-delimited lines, with lines conforming to the below format:
@@ -278,6 +281,12 @@ the name.
 
 This line provides the route version. This should be `VERSION` followed by an
 integer, ideally incremented after every change.
+
+##### DATA
+
+This line determines which data set to use. The default and standard is `ff2us`,
+which describes the maps and encounters of Final Fantasy II (USA). Custom data
+sets can be created by creating the appropriate files in the data directories.
 
 #### Standard Types
 
@@ -372,12 +381,22 @@ fields:
 
 2. A string with a description of the search.
 
-3. A plus-delimited list of encounters to search for. These are currently non-
-   sequential, and the search will be declared successful as long as they are
-   all found during the relevant segments, regardless of ordering. There can be
-   up to four distinct formations listed, and each formation can be listed up
-   to seven times if multiple encounters are required. These limits are not
-   enforced by the code, but the behavior is undefined if you exceed them.
+3. An expression listing the desired encounter numbers to search for. The
+   expression can contain up to 48 terms. The terms can be separated by any of
+   three operators: `+` will require that both operands occur. `|` will require
+   that one of the two operands occurs. `>` will require that the first operand
+   occurs followed by the second operand. The operators can be used in any
+   combination. The order of operations is `+`, `|`, followed by `>`. However,
+   it is also possible to group them in any desired pattern with parentheses.
+   For example, `(2+3)|(5>7)` would require either both encounters 2 and 3 or
+   encounter 5 followed by encounter 7. Due to the way these searches are
+   processed, certain combinations of values where `+` has operands consisting
+   of groups with `|` will not operate as expected. It is recommended to
+   refactor these to ensure the `+` operator is the innermost.
+
+4. The new party formation after the conclusion of the fight. This is somewhat
+   limited, in that in the case of multiple fights, it might be desirable to
+   list a new formation after each. However, this is not currently possible.
 
 ##### WAIT
 

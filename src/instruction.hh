@@ -6,6 +6,8 @@
 #include <set>
 #include <vector>
 
+#include "peglib.h"
+
 enum class InstructionType {
 	Choice,
 	Data,
@@ -28,6 +30,9 @@ class Instruction {
 		InstructionType type = InstructionType::Note; // NOLINT(misc-non-private-member-variables-in-classes)
 		std::string text; // NOLINT(misc-non-private-member-variables-in-classes)
 		std::string party; // NOLINT(misc-non-private-member-variables-in-classes)
+
+		std::string expression_string; // NOLINT(misc-non-private-member-variables-in-classes)
+		std::shared_ptr<peg::Ast> expression; // NOLINT(misc-non-private-member-variables-in-classes)
 
 		std::vector<int> numbers; // NOLINT(misc-non-private-member-variables-in-classes)
 

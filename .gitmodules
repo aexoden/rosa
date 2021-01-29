@@ -7,3 +7,6 @@
 [submodule "external/lmdbxx"]
 	path = external/lmdbxx
 	url = https://github.com/hoytech/lmdbxx.git
+[submodule "external/cpp-peglib"]
+	path = external/cpp-peglib
+	url = https://github.com/yhirose/cpp-peglib.git

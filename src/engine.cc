@@ -2,6 +2,9 @@
 #include <numeric>
 
 #include <boost/format.hpp>
+#include <boost/range/adaptor/indexed.hpp>
+
+#include "peglib.h"
 
 #include "engine.hh"
 #include "version.hh"
@@ -9,6 +12,22 @@
 constexpr int SEED_UPDATE_DELTA = 17;
 constexpr auto FRAMES_PER_TRANSITION = 82_f;
 constexpr auto FRAMES_PER_TILE = 16_f;
+
+auto search_expression_next_token(const std::string & expression, std::size_t & index) -> std::string {
+	while (expression.at(index) == ' ') {
+		index++;
+	}
+
+	std::locale locale;
+	std::size_t original_index{index};
+	std::size_t length{1};
+
+	while (std::isdigit(expression.at(++index), locale)) {
+		length++;
+	}
+
+	return expression.substr(original_index, length);
+}
 
 Engine::Engine(Parameters parameters) : _parameters{std::move(parameters)} {
 	switch (parameters.cache_type) {
@@ -425,7 +444,7 @@ auto Engine::_cycle(State * state, LogEntry * log, int value) -> Milliframes {
 			}
 
 			if (instruction.end_search) {
-				if (!state->search_targets.empty()) {
+				if (state->search_active) {
 					return Milliframes::max();
 				}
 
@@ -444,14 +463,14 @@ auto Engine::_cycle(State * state, LogEntry * log, int value) -> Milliframes {
 			// number in the instruction.
 			break;
 		case InstructionType::Search:
-			for (const auto & number : instruction.numbers) {
-				if (state->search_targets.count(static_cast<std::size_t>(number)) > 0) {
-					state->search_targets[static_cast<std::size_t>(number)]++;
-				} else {
-					state->search_targets[static_cast<std::size_t>(number)] = 1;
-				}
+			state->search_targets.clear();
+
+			for (const auto & encounter_id : instruction.numbers) {
+				state->search_targets.push_back(static_cast<std::size_t>(encounter_id));
 			}
 
+			state->search_expression = instruction.expression;
+			state->search_values.fill(false);
 			state->search_party = Party{instruction.party};
 			state->search_active = true;
 
@@ -524,15 +543,12 @@ auto Engine::_step(State * state, LogEntry * log, int tiles, int steps) -> Milli
 				log->encounters.emplace_back(std::make_tuple(encounter_step, state->encounter_index, encounter_id, encounter_frames));
 			}
 
-			if (!state->search_targets.empty() && state->search_targets.count(encounter_id) > 0) {
-				state->search_targets[encounter_id]--;
+			if (state->search_active) {
+				_assign_search_encounter(state, encounter_id, *state->search_expression);
 
-				if (state->search_targets[encounter_id] == 0) {
-					state->search_targets.erase(encounter_id);
-				}
-
-				if (state->search_targets.empty()) {
+				if (_check_search_complete(state, *state->search_expression)) {
 					state->party = state->search_party;
+					state->search_active = false;
 				}
 			}
 
@@ -549,4 +565,69 @@ auto Engine::_step(State * state, LogEntry * log, int tiles, int steps) -> Milli
 	}
 
 	return frames;
+}
+
+auto Engine::_check_search_complete(State * state, const peg::Ast & expression) -> bool {
+	using peg::udl::operator""_;
+
+	switch (expression.tag) {
+		case "disjunction"_:
+			return std::any_of(expression.nodes.begin(), expression.nodes.end(), [state](const auto & node){ return _check_search_complete(state, *node); });
+		case "conjunction"_:
+		case "sequence"_:
+			return std::all_of(expression.nodes.begin(), expression.nodes.end(), [state](const auto & node){ return _check_search_complete(state, *node); });
+		case "number"_:
+			return state->search_values.at(expression.token_to_number<std::size_t>());
+		default:
+			std::cerr << "BUG: Unimplemented tag in _check_search_complete. Please report this." << std::endl;
+			break;
+	}
+
+	return false;
+}
+
+auto Engine::_assign_search_encounter(State * state, std::size_t encounter_id, const peg::Ast & expression) -> bool {
+	using peg::udl::operator""_;
+
+	switch (expression.tag) {
+		case "conjunction"_:
+			for (const auto & node : expression.nodes) {
+				if (!_check_search_complete(state, *node)) {
+					if (_assign_search_encounter(state, encounter_id, *node)) {
+						return true;
+					}
+				}
+			}
+
+			break;
+		case "disjunction"_:
+			for (const auto & node : expression.nodes) {
+				_assign_search_encounter(state, encounter_id, *node);
+			}
+
+			break;
+		case "number"_: {
+			auto number = expression.token_to_number<std::size_t>();
+
+			if (!state->search_values.at(number) && state->search_targets.at(number) == encounter_id) {
+				state->search_values.at(number) = true;
+				return true;
+			}
+
+			break;
+		}
+		case "sequence"_:
+			for (const auto & node: expression.nodes) {
+				if (!_check_search_complete(state, *node)) {
+					return _assign_search_encounter(state, encounter_id, *node);
+				}
+			}
+
+			break;
+		default:
+			std::cerr << "BUG: Unimplemented tag in _assign_search_encounter. Please report this." << std::endl;
+			break;
+	}
+
+	return false;
 }

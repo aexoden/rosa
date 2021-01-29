@@ -41,6 +41,9 @@ class Engine {
 		auto _cycle(State * state, LogEntry * log, int value) -> Milliframes;
 		auto _step(State * state, LogEntry * log, int tiles, int steps) -> Milliframes;
 
+		static auto _check_search_complete(State * state, const peg::Ast & expression) -> bool;
+		static auto _assign_search_encounter(State * state, std::size_t encounter_id, const peg::Ast & expression) -> bool;
+
 		const Parameters _parameters;
 
 		Variables _variables;
