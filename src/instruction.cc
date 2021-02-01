@@ -21,7 +21,8 @@ static auto parse_variable(const std::string & s) -> int {
 	}
 }
 
-Instruction::Instruction(const std::string & line) {
+Instruction::Instruction(const std::string & line) :
+		expression_string(std::make_shared<std::string>()) {
 	std::vector<std::string> tokens;
 	boost::algorithm::split(tokens, line, boost::is_any_of("\t"), boost::token_compress_on);
 
@@ -82,19 +83,19 @@ Instruction::Instruction(const std::string & line) {
 					} else {
 						if (current_number.length() > 0) {
 							numbers.push_back(std::stoi(current_number));
-							expression_string.push_back('0' + current_index);
+							expression_string->push_back('0' + current_index);
 
 							current_number = "";
 							current_index++;
 						}
 
-						expression_string.push_back(c);
+						expression_string->push_back(c);
 					}
 				}
 
 				if (current_number.length() > 0) {
 					numbers.push_back(std::stoi(current_number));
-					expression_string.push_back('0' + current_index);
+					expression_string->push_back('0' + current_index);
 				}
 
 				peg::parser parser(R"(
@@ -108,7 +109,7 @@ Instruction::Instruction(const std::string & line) {
 
 				parser.enable_ast();
 
-				if (parser.parse(expression_string, expression)) {
+				if (parser.parse(*expression_string, expression)) {
 					expression = parser.optimize_ast(expression);
 				} else {
 					std::cerr << "WARNING: Invalid expression in search: " << expression_string << std::endl;

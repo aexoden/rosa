@@ -31,7 +31,7 @@ class Instruction {
 		std::string text; // NOLINT(misc-non-private-member-variables-in-classes)
 		std::string party; // NOLINT(misc-non-private-member-variables-in-classes)
 
-		std::string expression_string; // NOLINT(misc-non-private-member-variables-in-classes)
+		std::shared_ptr<std::string> expression_string; // NOLINT(misc-non-private-member-variables-in-classes)
 		std::shared_ptr<peg::Ast> expression; // NOLINT(misc-non-private-member-variables-in-classes)
 
 		std::vector<int> numbers; // NOLINT(misc-non-private-member-variables-in-classes)

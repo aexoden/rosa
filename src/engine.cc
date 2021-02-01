@@ -449,7 +449,6 @@ auto Engine::_cycle(State * state, LogEntry * log, int value) -> Milliframes {
 				}
 
 				state->search_party = Party{""};
-				state->search_active = false;
 			}
 
 			break;
