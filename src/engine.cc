@@ -444,11 +444,12 @@ auto Engine::_cycle(State * state, LogEntry * log, int value) -> Milliframes {
 			}
 
 			if (instruction.end_search) {
-				if (state->search_active) {
+				if (state->search_active && !state->search_complete) {
 					return Milliframes::max();
 				}
 
 				state->search_party = Party{""};
+				state->search_active = false;
 			}
 
 			break;
@@ -472,6 +473,7 @@ auto Engine::_cycle(State * state, LogEntry * log, int value) -> Milliframes {
 			state->search_values.fill(false);
 			state->search_party = Party{instruction.party};
 			state->search_active = true;
+			state->search_complete = false;
 
 			break;
 		case InstructionType::Version:
@@ -542,12 +544,12 @@ auto Engine::_step(State * state, LogEntry * log, int tiles, int steps) -> Milli
 				log->encounters.emplace_back(std::make_tuple(encounter_step, state->encounter_index, encounter_id, encounter_frames));
 			}
 
-			if (state->search_active) {
+			if (state->search_active && !state->search_complete) {
 				_assign_search_encounter(state, encounter_id, *state->search_expression);
 
 				if (_check_search_complete(state, *state->search_expression)) {
 					state->party = state->search_party;
-					state->search_active = false;
+					state->search_complete = true;
 				}
 			}
 

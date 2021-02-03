@@ -26,6 +26,7 @@ struct State {
 	std::vector<std::size_t> search_targets{}; // NOLINT(misc-non-private-member-variables-in-classes)
 	std::array<bool, 48> search_values{false}; // NOLINT(misc-non-private-member-variables-in-classes,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 	bool search_active{false}; // NOLINT(misc-non-private-member-variables-in-classes)
+	bool search_complete{false}; // NOLINT(misc-non-private-member-variables-in-classes)
 
 	[[nodiscard]] auto get_keys() const -> std::tuple<uint64_t, uint64_t, uint64_t> {
 		const auto [party_key1, party_key2] = party.get_keys();
