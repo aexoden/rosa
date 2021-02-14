@@ -334,6 +334,10 @@ This is the primary line type. It consists of the following fields:
     `-` if not. This is a TAS-specific feature that currently has no relevance
     in the software.
 
+11. A number of frames (can be floating point) to apply as a penalty to the
+    first encounter in this segment. Must be determined experimentally for the
+    desired segment.
+
 #### Choices
 
 These three lines are used to define branching in the route. (For instance, to

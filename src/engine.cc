@@ -408,6 +408,8 @@ auto Engine::_cycle(State * state, LogEntry * log, int value) -> Milliframes {
 			state->party = Party{instruction.text};
 			break;
 		case InstructionType::Path: {
+			state->segment_encounters = 0;
+
 			frames += instruction.transition_count * FRAMES_PER_TRANSITION;
 			frames += _step(state, log, instruction.tiles, instruction.required_steps);
 
@@ -528,6 +530,12 @@ auto Engine::_step(State * state, LogEntry * log, int tiles, int steps) -> Milli
 			auto encounter{_parameters.encounters.get_encounter_from_group(static_cast<std::size_t>(map.encounter_group), encounter_group_index)};
 			auto encounter_id{encounter->get_id()};
 			auto encounter_frames{encounter->get_duration(state->party, _parameters.tas_mode)};
+
+			if (state->segment_encounters == 0) {
+				encounter_frames += instruction.first_battle_penalty;
+			}
+
+			state->segment_encounters++;
 
 			frames += encounter_frames;
 

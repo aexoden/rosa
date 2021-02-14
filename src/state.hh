@@ -15,6 +15,8 @@ struct State {
 	int encounter_seed{(step_seed * 2) % (UINT8_MAX + 1)}; // NOLINT(misc-non-private-member-variables-in-classes)
 	int encounter_index{0}; // NOLINT(misc-non-private-member-variables-in-classes)
 
+	int segment_encounters{0}; // NOLINT(misc-non-private-member-variables-in-classes)
+
 	std::size_t index{0}; // NOLINT(misc-non-private-member-variables-in-classes)
 
 	uint16_t remaining_segments{std::numeric_limits<uint16_t>::max()}; // NOLINT(misc-non-private-member-variables-in-classes)

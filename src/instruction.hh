@@ -8,6 +8,8 @@
 
 #include "peglib.h"
 
+#include "duration.hh"
+
 enum class InstructionType {
 	Choice,
 	Data,
@@ -52,6 +54,8 @@ class Instruction {
 		bool can_single_step = false; // NOLINT(misc-non-private-member-variables-in-classes)
 		bool can_double_step = false; // NOLINT(misc-non-private-member-variables-in-classes)
 		bool can_step_during_save = false; // NOLINT(misc-non-private-member-variables-in-classes)
+
+		Milliframes first_battle_penalty{0}; // NOLINT(misc-non-private-member-variables-in-classes)
 
 		bool end_search = false; // NOLINT(misc-non-private-member-variables-in-classes)
 };

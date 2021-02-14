@@ -46,7 +46,7 @@ Instruction::Instruction(const std::string & line) :
 			} else if (tokens[0] == "PARTY" && tokens.size() == 2) {
 				type = InstructionType::Party;
 				text = tokens[1];
-			} else if (tokens[0] == "PATH" && tokens.size() == 10) { // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+			} else if (tokens[0] == "PATH" && tokens.size() == 11) { // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 				type = InstructionType::Path;
 				variable = parse_variable(tokens[1]);
 				map = std::stoi(tokens[2], nullptr, 16); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
@@ -57,6 +57,7 @@ Instruction::Instruction(const std::string & line) :
 				can_single_step = tokens[7] == "+"; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 				can_double_step = tokens[8] == "+"; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 				can_step_during_save = tokens[9] == "+"; // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+				first_battle_penalty = Milliframes(static_cast<int>(std::stod(tokens[10]) * 1000)); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 				if (variable >= 0 && (optional_steps == 0 && !can_single_step && !can_double_step)) {
 					std::cerr << "WARNING: Path segment with no extra steps available has assigned variable: " << line << '\n';
