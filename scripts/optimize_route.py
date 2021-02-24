@@ -116,6 +116,7 @@ def parse_arguments():
 
     parser.add_argument('--persistent-cache', action='store_true', help='use a persistent on-disk cache')
     parser.add_argument('--cache-location', metavar='DIRECTORY', type=str, help='custom location for the persistent cache')
+    parser.add_argument('--cache-size', type=int, help='size of in-memory cache')
 
     parser.add_argument('--max-memory', type=float, default=1.0, help='target maximum memory to use in gigabytes (NOTE: this is not a hard limit)')
     parser.add_argument('--max-threads', type=int, default=1, help='maximum number of worker threads')
@@ -218,6 +219,9 @@ class Process(object):
 
         if self._args.cache_location:
             cmd_args.extend(['-l', self._args.cache_location])
+
+        if self._args.cache_size:
+            cmd_args.extend(['-x', str(self._args.cache_size)])
 
         self._process = subprocess.Popen(cmd_args, stdout=self._output_file)
 
