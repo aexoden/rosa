@@ -223,7 +223,7 @@ class Process(object):
         if self._args.cache_size:
             cmd_args.extend(['-x', str(self._args.cache_size)])
 
-        self._process = subprocess.Popen(cmd_args, stdout=self._output_file)
+        self._process = subprocess.Popen(cmd_args, stdout=self._output_file, stderr=subprocess.DEVNULL)
 
 
 class Optimizer(object):
