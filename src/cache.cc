@@ -7,6 +7,8 @@
 #include <filesystem>
 #include <iostream>
 
+const std::size_t MAX_QUEUE_SIZE = 1024;
+
 Cache::~Cache() = default;
 
 auto DynamicCache::get(const State & state) -> std::pair<int, Milliframes> {
@@ -45,7 +47,7 @@ PersistentCache::PersistentCache(const std::string & filename, std::size_t cache
 }
 
 PersistentCache::~PersistentCache() {
-	_purge_cache();
+	_flush_write_queue();
 }
 
 auto PersistentCache::get(const State & state) -> std::pair<int, Milliframes> {
@@ -71,10 +73,21 @@ auto PersistentCache::get(const State & state) -> std::pair<int, Milliframes> {
 }
 
 void PersistentCache::set(const State & state, int value, Milliframes frames) {
-	_cache[state.get_keys()] = std::make_pair(value, frames);
+	auto keys{state.get_keys()};
+
+	_cache[keys] = std::make_pair(value, frames);
 
 	if (_cache.size() > _cache_size) {
-		_purge_cache();
+		_cache.clear();
+	}
+
+	auto key{_encode_key(keys)};
+	auto encoded_value{_encode_value(value, frames)};
+
+	_write_queue.emplace(key, encoded_value);
+
+	if (_write_queue.size() > MAX_QUEUE_SIZE) {
+		_flush_write_queue();
 	}
 }
 
@@ -115,20 +128,13 @@ auto PersistentCache::_decode_value(const std::string_view & data) -> std::pair<
 	return std::make_pair(static_cast<int>(value1), Milliframes{value2});
 }
 
-void PersistentCache::_purge_cache() noexcept {
-	try {
-		auto txn{lmdb::txn::begin(_env)};
+auto PersistentCache::_flush_write_queue() noexcept -> void {
+	auto txn{lmdb::txn::begin(_env)};
 
-		for (const auto & [keys, value] : _cache) {
-			auto key{_encode_key(keys)};
-			auto encoded_value{_encode_value(value.first, value.second)};
-
-			_dbi.put(txn, key, encoded_value);
-		}
-
-		txn.commit();
-		_cache.clear();
-	} catch (const lmdb::error &) {
-		std::cerr << "WARNING: Error while purging the in-memory cache. Results from this point forward may be incorrect.";
+	for (const auto & [key, value] : _write_queue) {
+		_dbi.put(txn, key, value);
 	}
+
+	txn.commit();
+	_write_queue.clear();
 }

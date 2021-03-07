@@ -12,7 +12,6 @@
 #include <cstdint>
 #include <string>
 #include <tuple>
-#include <unordered_map>
 
 enum class CacheType {
 	Dynamic,
@@ -66,9 +65,10 @@ class PersistentCache : public Cache {
 		static auto _encode_value(int value, Milliframes frames) -> std::string;
 		static auto _decode_value(const std::string_view & data) -> std::pair<int, Milliframes>;
 
-		void _purge_cache() noexcept;
+		void _flush_write_queue() noexcept;
 
 		tsl::sparse_map<std::tuple<uint64_t, uint64_t, uint64_t>, std::pair<int, Milliframes>, boost::hash<std::tuple<uint64_t, uint64_t, uint64_t>>> _cache;
+		std::map<std::string, std::string> _write_queue;
 
 		const std::size_t _cache_size;
 

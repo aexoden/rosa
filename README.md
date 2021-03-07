@@ -110,16 +110,18 @@ degree, as it requires calculating additional states.
 #### `-c, --cache-type`
 
 Sets the type of cache used. There are two options available: `dynamic` or
-`persistent`. The default is `dynamic`, which will cache all states.
-This will use lots of memory on complicated routes.
+`persistent`. The default is `dynamic`, which will cache all states in memory,
+discarding the data when complete.
 
-The final option is `persistent`, which uses a persistent database on the disk.
-Early testing indicates a roughly 3x increase in execution time, but memory
-usage becomes much less of an issue. Rosa makes no attempt to manage the
-lifetime of this cache, and you are expected to know what you are doing. The
-cache should only be used to mitigate high memory usage or to spread a
-calculation across several runs. If the route definition changes or parameters
-are modified, using the old cache could result in suboptimal generated routes.
+The second option is `persistent`, which, in addition to an in-memory cache,
+saves the data in a persistent database on disk. Rosa makes no attempt to manage
+the lifetime of this cache, and you are expected to know what you are doing. The
+primary purpose of this option is to persist the database for use in repeated
+runs (potentially fixing only the first variables in a route). Performance is
+too degraded to recommend for any other purpose, especially if the entire
+database cannot fit in memory. When using this cache, if the route definition
+changes or parameters are modified, using an existing cache can result in
+suboptimal generated routes.
 
 #### `-l,--cache-location`
 
@@ -139,9 +141,12 @@ overrides the previous option.
 
 #### `-x,--cache-size`
 
-If using a persistent cache, determines the size of the temporary in-memory
-cache before committing to the on-disk database. The default is 1048576, which
-should offer a good tradeoff between extra memory usage and performance.
+If using a persistent cache, determines the size of the in-memory cache. The
+default is 2^32 - 1, which will most likely result in the database being kept
+entirely in memory.The default is 1048576, which should offer a good tradeoff
+between extra memory usage and performance. Values are written to the persistent
+cache simultaneously, and keeping the in-memory cache is a performance
+optimization.
 
 ## File Formats
 
