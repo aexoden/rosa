@@ -37,8 +37,8 @@ PersistentCache::PersistentCache(const std::string & filename, std::size_t cache
 		std::filesystem::create_directories(filename);
 	}
 
-	_env.set_mapsize(1UL * 1024UL * 1024UL * 1024UL * 1024UL); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-	_env.open(filename.c_str(), MDB_NOSYNC, 0664); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+	_env.set_mapsize(128UL * 1024UL * 1024UL * 1024UL); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+	_env.open(filename.c_str(), MDB_NOSYNC | MDB_WRITEMAP | MDB_NOLOCK, 0664); // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 	auto txn{lmdb::txn::begin(_env)};
 	_dbi = lmdb::dbi::open(txn, nullptr);

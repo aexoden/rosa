@@ -121,7 +121,9 @@ runs (potentially fixing only the first variables in a route). Performance is
 too degraded to recommend for any other purpose, especially if the entire
 database cannot fit in memory. When using this cache, if the route definition
 changes or parameters are modified, using an existing cache can result in
-suboptimal generated routes.
+suboptimal generated routes. The current maximum size of this database is 128GB.
+While none of the default routes should exceed this, the `no64-excalbur` route
+is close to the boundary.
 
 #### `-l,--cache-location`
 
@@ -142,11 +144,10 @@ overrides the previous option.
 #### `-x,--cache-size`
 
 If using a persistent cache, determines the size of the in-memory cache. The
-default is 2^32 - 1, which will most likely result in the database being kept
-entirely in memory.The default is 1048576, which should offer a good tradeoff
-between extra memory usage and performance. Values are written to the persistent
-cache simultaneously, and keeping the in-memory cache is a performance
-optimization.
+default is system-dependent, but should be at least 2^31 - 1, which will most
+likely result in the database being kept entirely in memory. Values are written
+to memory and the persistent cache simultaneously, and keeping the in-memory
+cache is a performance optimization.
 
 ## File Formats
 
