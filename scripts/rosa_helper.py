@@ -314,6 +314,33 @@ def subcommand_twins(args):
                 break
 
 
+def subcommand_varfrequency(args):
+    variables = {}
+
+    with open(args.filename) as f:
+        for line in f:
+            tokens = line.split('\t')
+            if tokens[0] in ['PATH', 'CHOICE'] and tokens[1] != '-':
+                variables[tokens[1]] = 0
+
+    for seed in range(256):
+        with open(os.path.join(args.directory, f'{seed:03d}.txt')) as f:
+            for line in f:
+                tokens = line.split('\t')
+                if tokens[0] == 'VARS':
+                    all_vars = tokens[1].split(' ')
+
+                    for var in all_vars:
+                        var, value = var.split(':')
+
+                        if int(value) > 0:
+                            variables[var] += 1
+
+    for variable, count in sorted(variables.items(), key=lambda x: x[1], reverse=True):
+        print(variable, count)
+
+
+
 #-------------------------------------------------------------------------------
 # Main Execution
 #-------------------------------------------------------------------------------
@@ -356,6 +383,14 @@ def main():
             'help': 'checks generated routes for problematic twin seeds',
             'arguments': {
                 'directory': {'metavar': 'DIRECTORY', 'type': str, 'help': 'directory to check for problematic twin seeds'}
+            }
+        },
+        'varfrequency': {
+            'function': subcommand_varfrequency,
+            'help': 'finds unused variables for a given route',
+            'arguments': {
+                'filename': {'metavar': 'FILENAME', 'type': str, 'help': 'filename for the route description'},
+                'directory': {'metavar': 'DIRECTORY', 'type': str, 'help': 'directory containing the generated routes to check'}
             }
         },
     }
