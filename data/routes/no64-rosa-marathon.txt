@@ -1,5 +1,5 @@
 ROUTE	Final Fantasy IV Any% No64 (Rosa) (Marathon)
-VERSION	5
+VERSION	6
 PARTY	3G+K11---C11------10
 PATH	-	0002	1	1	0	0	-	+	-	0
 PARTY	3G+------C11------11
@@ -295,8 +295,8 @@ END
 CHOICE	C200000	2
 OPTION	Skip Hummingway Before FuSoYa
 OPTION	Visit Hummingway First
-PATH	E316500 3165	1	0	0	1	-	+	-	0
-PATH	E200000	2000	1	1	0	1	-	+	-	0
+PATH	E316501 3165	1	0	0	1	-	+	-	0
+PATH	E200010	2000	1	1	0	1	-	+	-	0
 END
 NOTE	Fly to Lunar Path
 PATH	E200001	2000	6	5	0	0	-	+	-	0
