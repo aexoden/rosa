@@ -201,8 +201,12 @@ def subcommand_range(args):
 def subcommand_rate(args):
     selected_counts = None
     selected_times = None
+    selected_full_count = None
+    selected_full_time = None
     total_counts = []
     total_times = []
+    full_counts = []
+    full_times = []
 
     for seed in range(256):
         filename = os.path.join(args.directory, f'{seed:03d}.txt')
@@ -214,18 +218,23 @@ def subcommand_rate(args):
             counts = []
             times = []
             current_count = 0
+            full_count = 0
             current_time = 0
+            full_time = 0
 
             for line in f:
                 matches = re.search(r'Step.*: (?P<index>[0-9]+) / .*[^0-9.](?P<time>[0-9.]*)s\)', line.strip())
 
                 if matches:
                     current_count += 1
+                    full_count += 1
                     current_time += float(matches.group('time'))
+                    full_time += float(matches.group('time'))
 
                 matches = re.search(r' +Extra Steps: (?P<steps>[0-9]+)', line.rstrip())
 
                 if matches:
+                    full_time += int(matches.group('steps')) * 16 * 655171 / 39375000
                     current_time += int(matches.group('steps')) * 16 * 655171 / 39375000
 
                 if line.startswith('Paladin'):
@@ -250,6 +259,11 @@ def subcommand_rate(args):
             if seed == args.seed:
                 selected_counts = counts[:]
                 selected_times = times[:]
+                selected_full_count = full_count
+                selected_full_time = full_time
+
+            full_counts.append(full_count)
+            full_times.append(full_time)
 
             while len(total_counts) < len(counts):
                 total_counts.append([])
@@ -266,12 +280,20 @@ def subcommand_rate(args):
         selected = (selected_counts[index] - statistics.mean(counts)) / statistics.stdev(counts)
         print(f'Group {index} {min(counts):8d} {median:8.0f} {max(counts):8d}   {selected_counts[index]:8d} {selected:8.3f}')
 
+    median = statistics.median(full_counts)
+    selected = (selected_full_count - statistics.mean(full_counts)) / statistics.stdev(full_counts)
+    print(f'Total   {min(full_counts):8d} {median:8.0f} {max(full_counts):8d}   {selected_full_count:8d} {selected:8.3f}')
+
     print()
 
     for index, times in enumerate(total_times):
         median = statistics.median(times)
         selected = (selected_times[index] - statistics.mean(times)) / statistics.stdev(times)
         print(f'Group {index} {min(times):8.2f} {median:8.2f} {max(times):8.2f}   {selected_times[index]:8.2f} {selected:8.3f}')
+
+    median = statistics.median(full_times)
+    selected = (selected_full_time - statistics.mean(full_times)) / statistics.stdev(full_times)
+    print(f'Total   {min(full_times):8.2f} {median:8.2f} {max(full_times):8.2f}   {selected_full_time:8.2f} {selected:8.3f}')
 
 
 def subcommand_twins(args):
