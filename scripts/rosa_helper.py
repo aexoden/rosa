@@ -181,7 +181,17 @@ def subcommand_range(args):
             seed = (start + i) % 256
             range_frames.append(frames[seed])
 
-        average = statistics.mean(range_frames)
+        sigma = args.size / 2 / 1.96
+        dist = statistics.NormalDist(args.size / 2, sigma)
+
+        total = 0.0
+        divisor = 0.0
+
+        for i, value in enumerate(range_frames):
+            total += dist.pdf(i) * value
+            divisor += dist.pdf(i)
+
+        average = total / divisor
         range_averages[start] = average
 
     for start, average in sorted(range_averages.items(), key=lambda x: x[1]):
