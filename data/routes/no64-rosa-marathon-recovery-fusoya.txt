@@ -1,5 +1,5 @@
 ROUTE	Final Fantasy IV Any% No64 (Rosa) (Marathon) (Recovery: FuSoYa)
-VERSION	1
+VERSION	2
 PARTY	3G+C11D13---R13G3321
 NOTE	Fly to Lunar Path
 PATH	-	2000	6	5	0	0	-	+	-	0
