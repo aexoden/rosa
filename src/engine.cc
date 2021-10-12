@@ -194,7 +194,7 @@ auto Engine::_generate_output_text(const State & state, const Log & log) -> std:
 		}
 
 		if (!description.empty()) {
-			raw_output += (boost::format("%-58sSeed: %3d   Index: %3d\n") % (boost::format("%s%s") % std::string(indent_level * 2, ' ') % description).str() % entry.state.step_seed % entry.state.step_index).str();
+			raw_output += (boost::format("%-78sSeed: %3d   Index: %3d\n") % (boost::format("%s%s") % std::string(indent_level * 2, ' ') % description).str() % entry.state.step_seed % entry.state.step_index).str();
 		}
 
 		if (entry.steps > 0 || instruction.optional_steps > 0) {
