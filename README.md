@@ -17,16 +17,26 @@ from git, you should ensure submodules are initialized before building. The
 following third-party submodules are required:
 
 * [CLI11](https://github.com/CLIUtils/CLI11), a C++11 command line parser,
-  released under a 3-clause BSD license.
+  released under a 3-clause BSD license. (v2.3.2)
 
 * [cpp-peglib](https://github.com/yhirose/cpp-peglib), a C++17 PEG library
-  released under the MIT license.
+  released under the MIT license. (v1.8.3)
 
 * [LMDB++](https://github.com/hoytech/lmdbxx), a C++17 wrapper for LMDB released
-  under the Unlicense.
+  under the Unlicense. (v1.0.0)
 
 * [tsl::sparse_map](https://github.com/Tessil/sparse-map), a memory efficient
-  replacement for std::unordered_map released under the MIT license.
+  replacement for std::unordered_map released under the MIT license. (git
+  master)
+
+The listed versions are the tested versions. Other versions may or may not work.
+If you are using git, simply execute the following instructions to get the
+correct versions:
+
+```sh
+git submodule init
+git submodule update
+```
 
 ## Building
 
@@ -38,12 +48,11 @@ To build the executable, enter that main directory and execute the following:
 
 ```sh
 mkdir build
-meson build
-cd build
-ninja
+meson setup build
+ninja -C build
 ```
 
-To run the executable, you should return to the main directory as your working
+To run the executable, you should remain in the main directory as your working
 directory, as Rosa expects data files to be in certain locations.
 
 ## Usage
@@ -219,7 +228,8 @@ This line defines a particular encounter formation. The six fields are:
    three digits after the decimal point.
 
 6. The minimum duration of an encounter in frames, again specified as a decimal
-   with three digits after the decimal point. In this case, those three digits should be zero.
+   with three digits after the decimal point. In this case, those three digits
+   should be zero.
 
 #### GROUP
 

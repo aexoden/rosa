@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "cache.hh"
+
 constexpr int CACHE_DEFAULT_SIZE = 1048576;
 
 class Options {
@@ -11,7 +13,7 @@ class Options {
 
 		std::string variables{""};
 
-		std::string cache_type{"dynamic"};
+		CacheType cache_type{CacheType::Dynamic};
 		std::string cache_location{""};
 		std::string cache_filename{""};
 

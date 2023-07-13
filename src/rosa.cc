@@ -36,16 +36,23 @@ auto main (int argc, char ** argv) -> int {
 
 	CLI::App app{std::string{"Rosa "} + std::string{ROSA_VERSION}};
 
-	app.add_option("-r,--route", options.route, "Route to process", true);
-	app.add_option("-s,--seed", options.seed, "Seed to process", true);
-	app.add_option("-m,--maximum-steps", options.maximum_steps, "Maximum number of extra steps per segment", true);
-	app.add_option("-n,--maximum-step-segments", options.maximum_step_segments, "Maximum number of segments where extra steps can be taken", false);
-	app.add_option("-v,--variables", options.variables, "Explicitly set variable constraints in the form variable:value[-max_value]", false);
+	std::map<std::string, CacheType> cache_type_map{{"dynamic", CacheType::Dynamic}, {"persistent", CacheType::Persistent}};
+
+	app.add_option("-r,--route", options.route, "Route to process")
+		->capture_default_str();
+	app.add_option("-s,--seed", options.seed, "Seed to process")
+		->capture_default_str();
+	app.add_option("-m,--maximum-steps", options.maximum_steps, "Maximum number of extra steps per segment")
+		->capture_default_str();
+	app.add_option("-n,--maximum-step-segments", options.maximum_step_segments, "Maximum number of segments where extra steps can be taken");
+	app.add_option("-v,--variables", options.variables, "Explicitly set variable constraints in the form variable:value[-max_value]");
 
 	app.add_flag("-t,--tas-mode", options.tas_mode, "Use options appropriate for TAS Routing");
 	app.add_flag("-p,--prefer-fewer-locations", options.prefer_fewer_locations, "Prefer fewer locations with extra steps when maximum step segments is set.");
 
-	app.add_set("-c,--cache-type", options.cache_type, {"dynamic", "persistent"}, "The type of cache to use", true);
+	app.add_option("-c,--cache-type", options.cache_type, "The type of cache to use")
+		->capture_default_str()
+		->transform(CLI::CheckedTransformer(cache_type_map, CLI::ignore_case).description(CLI::detail::generate_map(CLI::detail::smart_deref(cache_type_map), true)));
 	app.add_option("-l,--cache-location", options.cache_location, "The location for the cache if using a persistent cache");
 	app.add_option("-f,--cache-filename", options.cache_filename, "The filename for the cache if using a persistent cache");
 	app.add_option("-x,--cache-size", options.cache_size, "The size of the temporary in-memory cache if using a persistent cache");
@@ -98,12 +105,10 @@ auto main (int argc, char ** argv) -> int {
 
 	Maps maps{maps_file};
 
-	auto cache_type{CacheType::Dynamic};
+	auto cache_type{options.cache_type};
 	auto cache_location{options.cache_filename};
 
-	if (options.cache_type == "persistent") {
-		cache_type = CacheType::Persistent;
-
+	if (cache_type == CacheType::Persistent) {
 		if (cache_location.empty()) {
 			if (options.cache_location.empty()) {
 				cache_location = "cache";

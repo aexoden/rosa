@@ -80,5 +80,5 @@ auto Encounters::get_encounter_from_group(std::size_t group_index, std::size_t e
 		std::cerr << "WARNING: Attempted to use nonexistent encounter: " << _encounter_groups[group_index][encounter_index] << std::endl;
 	}
 
-	return std::move(encounter);
+	return encounter;
 }
