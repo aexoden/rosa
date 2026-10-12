@@ -344,6 +344,11 @@ fn parse_route_line(
 				party: parse_party(party)?,
 			})
 		}
+		["SAVE", ..] => {
+			// A no-op in the C++ engine, whose parser for it reads past the end
+			// of its fields. Accept and ignore it until saves are modelled.
+			return Ok(());
+		}
 		["WAIT"] => {
 			return match body.last_mut() {
 				Some(Node::Path(path)) => {
@@ -575,6 +580,12 @@ mod tests {
 		assert_eq!(choice.variable, Some(VariableId(0xC1)));
 		assert_eq!(choice.options[0].body.len(), 1);
 		assert!(matches!(choice.options[1].body[0], Node::Choice(_)));
+	}
+
+	#[test]
+	fn save_is_ignored() {
+		let route = parse_route("SAVE\t-\tBefore Giant\t200\nNOTE\tx\n", "test").unwrap();
+		assert_eq!(route.body, vec![Node::Note { text: "x".into() }]);
 	}
 
 	#[test]

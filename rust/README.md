@@ -47,16 +47,21 @@ figures against a replay with no variables set.
 
 ## Behaviour carried over from C++
 
+Until the port is verified, the Rust version matches the C++ results exactly,
+oddities included (see `notes/cpp-bug-decisions.md` in the project files):
+
 - A path that ends a search takes as many additional steps as the search
   needs, even beyond its assigned value.
 - Search expressions keep the C++ crediting rules, including the `|` quirk
   the main README warns about.
-- Battle lengths and penalties are truncated to whole milliframes as in C++.
+- Battle lengths and penalties are truncated to whole milliframes through
+  `f64`, as in C++, so a few values come out one milliframe low.
+- Consecutive tabs act as one separator, and variable `0` means "no
+  variable".
+- `SAVE` lines are accepted and ignored, as the C++ engine ignores them.
 
 ## Deliberate differences
 
 - Malformed lines are errors with a line number, not warnings.
-- `SAVE` is not accepted yet; no bundled route uses it, and the C++ parser
-  reads past the end of its fields.
 - The "(Step N: …)" look-ahead lines C++ prints during a search are output
   formatting and are not reproduced.
