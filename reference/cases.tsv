@@ -1,0 +1,9 @@
+# name	routes (* = every route in data/routes)	seeds	extra arguments
+m0	*	0-255	-m 0
+m0-tas	*	0-255	-m 0 -t
+m4	*	0-255	-m 4
+m4-tas	*	0-15	-m 4 -t
+paladin-m16	paladin	0-255	-m 16
+n2	paladin,nocw	0-31	-m 8 -n 2
+n2-prefer	paladin,nocw	0-31	-m 8 -n 2 -p
+vars	paladin	0-31	-m 4 -v "E000202:0 E302500:0-2"
