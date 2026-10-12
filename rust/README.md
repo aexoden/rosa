@@ -38,7 +38,20 @@ rust/target/release/rosa replay -r paladin -s 0 \
     -v "E000202:4 E000400:4 E302500:1 E302600:4 E308000:2"
 ```
 
-Add `--json` to either for the full structured result. The C++ cache options
+Add `--json` to either for the full structured result.
+
+`sweep` solves one seed once per value of a variable, as separate `-v` runs
+would, and writes each route to `OUT/SEED-VALUE.txt`. Cache entries after the
+variable's last use are shared between values, so sweeping `E305400` (the
+first decision in its routes) costs about one solve:
+
+```sh
+rust/target/release/rosa sweep -r paladin -s 30 -m 256 --variable E305400 --out work/sweep
+```
+
+`rust/scripts/twin_sweep.py -r ROUTE -m STEPS --out DIR` runs that for every
+twin pair in `doc/twin-seed-notes.md` and summarises each seed's loss per
+shared value, and whether the two routes still split on steps. The C++ cache options
 (`-c`, `-l`, `-f`, `-x`) are not ported; the cache always lives in memory.
 
 ## How the solver works

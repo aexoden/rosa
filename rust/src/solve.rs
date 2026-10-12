@@ -235,8 +235,52 @@ pub fn variable_bounds(route: &Route, options: &Options) -> BTreeMap<VariableId,
 /// allows an option the choice lacks, or a search can never finish.
 pub fn solve(route: &Route, data: &GameData, options: &Options, seed: u8) -> Result<Solution, SolveError> {
 	let simulator = Simulator::new(route, data, options.tas_mode);
+	solve_with(route, &simulator, options, seed, &mut Cache::default())
+}
+
+/// Solves once for each value of `variable` in `values`, fixing it to that
+/// value, as separate `-v VARIABLE:VALUE` runs would.
+///
+/// The runs share the cache for states after the variable's last use in the
+/// route, which do not depend on its value. When the variable is the
+/// route's first decision, the whole sweep costs little more than one solve.
+///
+/// # Errors
+///
+/// As for [`solve`].
+pub fn sweep(
+	route: &Route,
+	data: &GameData,
+	options: &Options,
+	seed: u8,
+	variable: VariableId,
+	values: std::ops::RangeInclusive<u32>,
+) -> Result<Vec<(u32, Solution)>, SolveError> {
+	let simulator = Simulator::new(route, data, options.tas_mode);
+	let program = Program::compile(route, &simulator, &variable_bounds(route, options))?;
+	let last_use = program.last_use(variable).unwrap_or(0);
+	let mut cache = Cache::default();
+	let mut solutions = Vec::new();
+
+	for value in values {
+		let mut fixed = options.clone();
+		fixed.constraints.insert(variable, (value, value));
+		solutions.push((value, solve_with(route, &simulator, &fixed, seed, &mut cache)?));
+		cache.retain_after(last_use);
+	}
+
+	Ok(solutions)
+}
+
+fn solve_with(
+	route: &Route,
+	simulator: &Simulator<'_>,
+	options: &Options,
+	seed: u8,
+	cache: &mut Cache,
+) -> Result<Solution, SolveError> {
 	let bounds = variable_bounds(route, options);
-	let program = Program::compile(route, &simulator, &bounds)?;
+	let program = Program::compile(route, simulator, &bounds)?;
 	let context = Context {
 		program: &program,
 		durations: &simulator.durations,
@@ -244,7 +288,6 @@ pub fn solve(route: &Route, data: &GameData, options: &Options, seed: u8) -> Res
 		limited: options.maximum_step_segments.is_some(),
 	};
 
-	let mut cache = Cache::default();
 	let initial = State::new(seed);
 
 	// Try each allowed segment limit and keep the best, as the C++ engine
@@ -264,7 +307,7 @@ pub fn solve(route: &Route, data: &GameData, options: &Options, seed: u8) -> Res
 			state.remaining = limit;
 		}
 
-		let frames = context.solve(&mut cache, 0, state);
+		let frames = context.solve(cache, 0, state);
 
 		if best.is_none_or(|(best_frames, _)| frames < best_frames) {
 			best = Some((frames, limit));
@@ -283,13 +326,13 @@ pub fn solve(route: &Route, data: &GameData, options: &Options, seed: u8) -> Res
 		state.remaining = limit;
 	}
 
-	let trace = context.finalize(&mut cache, state)?;
+	let trace = context.finalize(cache, state)?;
 
 	let base_bounds = variable_bounds(route, &Options::default())
 		.into_keys()
 		.map(|variable| (variable, (0, 0)))
 		.collect();
-	let base_program = Program::compile(route, &simulator, &base_bounds)?;
+	let base_program = Program::compile(route, simulator, &base_bounds)?;
 	let base_context = Context {
 		program: &base_program,
 		limited: false,
@@ -388,6 +431,16 @@ impl<'a> Program<'a> {
 		}
 
 		Ok(program)
+	}
+
+	/// The last operation that uses `variable`. Control only moves forward
+	/// through the program, so nothing after it can reach a use.
+	fn last_use(&self, variable: VariableId) -> Option<usize> {
+		self.ops.iter().rposition(|op| match *op {
+			Op::Path(index) => self.paths[index].path.variable == Some(variable),
+			Op::Choice(index) => self.choices[index].choice.variable == Some(variable),
+			_ => false,
+		})
 	}
 
 	fn add(
@@ -603,6 +656,11 @@ impl Cache {
 
 	fn len(&self) -> usize {
 		self.map.len()
+	}
+
+	/// Drops every entry for operations up to and including `pc`.
+	fn retain_after(&mut self, pc: usize) {
+		self.map.retain(|key, _| (key.0 >> 48) as usize > pc);
 	}
 }
 

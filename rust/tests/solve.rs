@@ -115,3 +115,26 @@ fn variable_constraints() {
 		variables("E000400:4 E000401:4 E000500:4 E000501:4 E302500:1 E302600:4 E307701:4 E308000:4")
 	);
 }
+
+#[test]
+fn sweep_matches_separate_runs() {
+	let loaded = legacy::load(data_dir(), "paladin").unwrap();
+	let variable = VariableId(0xE30_5400);
+	let options = steps(8);
+	let swept = solve::sweep(&loaded.route, &loaded.data, &options, 7, variable, 0..=8).unwrap();
+
+	for (value, mut solution) in swept {
+		// The shared cache holds more states; everything else must match.
+		let separate = |fixed| {
+			let mut solution = solve::solve(&loaded.route, &loaded.data, &fixed, 7).unwrap();
+			solution.cached_states = 0;
+			solution
+		};
+		solution.cached_states = 0;
+		let fixed = Options {
+			constraints: [(variable, (value, value))].into(),
+			..options.clone()
+		};
+		assert_eq!(solution, separate(fixed), "value {value}");
+	}
+}
