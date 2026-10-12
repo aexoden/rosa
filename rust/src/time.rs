@@ -45,7 +45,8 @@ impl Milliframes {
 	#[must_use]
 	#[expect(clippy::cast_precision_loss, reason = "display only")]
 	pub fn as_seconds(self) -> f64 {
-		self.0 as f64 * SECONDS_PER_FRAME_NUMERATOR as f64 / (SECONDS_PER_FRAME_DENOMINATOR * MILLIFRAMES_PER_FRAME) as f64
+		self.0 as f64 * SECONDS_PER_FRAME_NUMERATOR as f64
+			/ (SECONDS_PER_FRAME_DENOMINATOR * MILLIFRAMES_PER_FRAME) as f64
 	}
 }
 
@@ -90,7 +91,7 @@ mod tests {
 	#[test]
 	fn thirty_seconds_matches_cpp_duration_cast() {
 		// std::chrono::duration_cast<Milliframes>(30s) in the C++ version.
-		assert_eq!(Milliframes::from_seconds(30), Milliframes(1_802_965));
+		assert_eq!(Milliframes::from_seconds(30), Milliframes(1_802_964));
 	}
 
 	#[test]

@@ -10,13 +10,13 @@
 //! are empty or start with `#` are ignored.
 
 use std::collections::HashMap;
-use std::fmt;
+use std::fmt::{self, Write as _};
 use std::fs;
 use std::path::Path as FsPath;
 
 use crate::data::{BattleDuration, Formation, GameData, MapInfo};
 use crate::model::{
-	ChoiceOption, Choice, FormationId, MAX_SEARCH_TARGETS, MapId, Member, Node, PARTY_SLOTS, Party, Path, Route,
+	Choice, ChoiceOption, FormationId, MAX_SEARCH_TARGETS, MapId, Member, Node, PARTY_SLOTS, Party, Path, Route,
 	Search, SearchExpr, VariableId,
 };
 use crate::rng::GROUP_SLOTS;
@@ -108,7 +108,11 @@ pub fn parse_party(text: &str) -> FieldResult<Party> {
 			_ => return Err(format!("invalid character in party {text:?}")),
 		};
 
-		member.agility = if agility == "--" { 0 } else { number(agility, "agility")? };
+		member.agility = if agility == "--" {
+			0
+		} else {
+			number(agility, "agility")?
+		};
 	}
 
 	Ok(Party {
@@ -131,16 +135,17 @@ pub fn party_notation(party: &Party) -> String {
 	for member in &party.members {
 		match member.character {
 			0 if member.agility == 0 => text.push_str("---"),
-			0 => text.push_str(&format!("-{:02}", member.agility)),
+			0 => {
+				let _ = write!(text, "-{:02}", member.agility);
+			}
 			c => {
 				let letter = if c <= 26 { b'A' + c - 1 } else { b'a' + c - 27 };
-				text.push(char::from(letter));
-				text.push_str(&format!("{:02}", member.agility));
+				let _ = write!(text, "{}{:02}", char::from(letter), member.agility);
 			}
 		}
 	}
 
-	text.push_str(&format!("{:02}", party.level));
+	let _ = write!(text, "{:02}", party.level);
 	text
 }
 
@@ -163,7 +168,12 @@ pub fn parse_search_expression(text: &str) -> FieldResult<(Vec<FormationId>, Sea
 			self.text.get(self.position).copied()
 		}
 
-		fn list(&mut self, separator: u8, make: fn(Vec<SearchExpr>) -> SearchExpr, item: fn(&mut Self) -> FieldResult<SearchExpr>) -> FieldResult<SearchExpr> {
+		fn list(
+			&mut self,
+			separator: u8,
+			make: fn(Vec<SearchExpr>) -> SearchExpr,
+			item: fn(&mut Self) -> FieldResult<SearchExpr>,
+		) -> FieldResult<SearchExpr> {
 			let mut nodes = vec![item(self)?];
 
 			while self.peek() == Some(separator) {
@@ -220,8 +230,14 @@ pub fn parse_search_expression(text: &str) -> FieldResult<(Vec<FormationId>, Sea
 		}
 	}
 
-	let mut parser = Parser { text: text.as_bytes(), position: 0, targets: Vec::new() };
-	let expression = parser.sequence().map_err(|e| format!("{e} in search expression {text:?}"))?;
+	let mut parser = Parser {
+		text: text.as_bytes(),
+		position: 0,
+		targets: Vec::new(),
+	};
+	let expression = parser
+		.sequence()
+		.map_err(|e| format!("{e} in search expression {text:?}"))?;
 
 	if parser.peek().is_some() {
 		return Err(format!("unexpected text in search expression {text:?}"));
@@ -238,24 +254,40 @@ struct OpenChoice {
 
 /// Parses a route file.
 pub fn parse_route(text: &str, source: &str) -> Result<Route, ParseError> {
-	let mut route = Route { data_set: "ff2us".into(), ..Route::default() };
+	let mut route = Route {
+		data_set: "ff2us".into(),
+		..Route::default()
+	};
 	let mut body: Vec<Node> = Vec::new();
 	let mut choices: Vec<(OpenChoice, Vec<Node>)> = Vec::new();
 
 	for (line_number, line) in content_lines(text) {
-		parse_route_line(line, &mut route, &mut body, &mut choices)
-			.map_err(|message| ParseError { source: source.into(), line: line_number, message })?;
+		parse_route_line(line, &mut route, &mut body, &mut choices).map_err(|message| ParseError {
+			source: source.into(),
+			line: line_number,
+			message,
+		})?;
 	}
 
 	if !choices.is_empty() {
-		return Err(ParseError { source: source.into(), line: text.lines().count(), message: "CHOICE without END".into() });
+		return Err(ParseError {
+			source: source.into(),
+			line: text.lines().count(),
+			message: "CHOICE without END".into(),
+		});
 	}
 
 	route.body = body;
 	Ok(route)
 }
 
-fn parse_route_line(line: &str, route: &mut Route, body: &mut Vec<Node>, choices: &mut Vec<(OpenChoice, Vec<Node>)>) -> FieldResult<()> {
+#[expect(clippy::too_many_lines, reason = "one arm per instruction")]
+fn parse_route_line(
+	line: &str,
+	route: &mut Route,
+	body: &mut Vec<Node>,
+	choices: &mut Vec<(OpenChoice, Vec<Node>)>,
+) -> FieldResult<()> {
 	let tokens = fields(line);
 
 	let node = match tokens.as_slice() {
@@ -272,9 +304,25 @@ fn parse_route_line(line: &str, route: &mut Route, body: &mut Vec<Node>, choices
 			return Ok(());
 		}
 		["NOTE", text] => Node::Note { text: (*text).into() },
-		["PARTY", party] => Node::Party { party: parse_party(party)? },
-		["DELAY", frames] => Node::Delay { frames: number(frames, "delay")? },
-		["PATH", var, map, tiles, required, optional, transitions, single, double, save, penalty] => Node::Path(Path {
+		["PARTY", party] => Node::Party {
+			party: parse_party(party)?,
+		},
+		["DELAY", frames] => Node::Delay {
+			frames: number(frames, "delay")?,
+		},
+		[
+			"PATH",
+			var,
+			map,
+			tiles,
+			required,
+			optional,
+			transitions,
+			single,
+			double,
+			save,
+			penalty,
+		] => Node::Path(Path {
 			variable: variable(var)?,
 			map: MapId(hex(map, "map")?),
 			tiles: number(tiles, "tile count")?,
@@ -289,7 +337,12 @@ fn parse_route_line(line: &str, route: &mut Route, body: &mut Vec<Node>, choices
 		}),
 		["SEARCH", label, expression, party] => {
 			let (targets, expression) = parse_search_expression(expression)?;
-			Node::Search(Search { label: (*label).into(), targets, expression, party: parse_party(party)? })
+			Node::Search(Search {
+				label: (*label).into(),
+				targets,
+				expression,
+				party: parse_party(party)?,
+			})
 		}
 		["WAIT"] => {
 			return match body.last_mut() {
@@ -301,7 +354,11 @@ fn parse_route_line(line: &str, route: &mut Route, body: &mut Vec<Node>, choices
 			};
 		}
 		["CHOICE", var, count] => {
-			let choice = OpenChoice { variable: variable(var)?, expected_options: number(count, "option count")?, options: Vec::new() };
+			let choice = OpenChoice {
+				variable: variable(var)?,
+				expected_options: number(count, "option count")?,
+				options: Vec::new(),
+			};
 			choices.push((choice, std::mem::take(body)));
 			return Ok(());
 		}
@@ -311,7 +368,10 @@ fn parse_route_line(line: &str, route: &mut Route, body: &mut Vec<Node>, choices
 			};
 
 			close_option(choice, body)?;
-			choice.options.push(ChoiceOption { label: (*label).into(), body: Vec::new() });
+			choice.options.push(ChoiceOption {
+				label: (*label).into(),
+				body: Vec::new(),
+			});
 			return Ok(());
 		}
 		["END"] => {
@@ -322,11 +382,18 @@ fn parse_route_line(line: &str, route: &mut Route, body: &mut Vec<Node>, choices
 			close_option(&mut choice, body)?;
 
 			if choice.options.len() != choice.expected_options {
-				return Err(format!("CHOICE declares {} options but has {}", choice.expected_options, choice.options.len()));
+				return Err(format!(
+					"CHOICE declares {} options but has {}",
+					choice.expected_options,
+					choice.options.len()
+				));
 			}
 
 			*body = outer;
-			Node::Choice(Choice { variable: choice.variable, options: choice.options })
+			Node::Choice(Choice {
+				variable: choice.variable,
+				options: choice.options,
+			})
 		}
 		[keyword, ..] => return Err(format!("unrecognized or malformed {keyword} instruction")),
 		[] => return Ok(()),
@@ -349,7 +416,11 @@ fn close_option(choice: &mut OpenChoice, body: &mut Vec<Node>) -> FieldResult<()
 /// Parses a map data file.
 pub fn parse_maps(text: &str, source: &str, data: &mut GameData) -> Result<(), ParseError> {
 	for (line_number, line) in content_lines(text) {
-		let error = |message| ParseError { source: source.into(), line: line_number, message };
+		let error = |message| ParseError {
+			source: source.into(),
+			line: line_number,
+			message,
+		};
 
 		match fields(line).as_slice() {
 			["MAP", id, rate, group, title, description] => {
@@ -375,7 +446,11 @@ pub fn parse_maps(text: &str, source: &str, data: &mut GameData) -> Result<(), P
 /// Parses an encounter data file.
 pub fn parse_encounters(text: &str, source: &str, data: &mut GameData) -> Result<(), ParseError> {
 	for (line_number, line) in content_lines(text) {
-		let error = |message| ParseError { source: source.into(), line: line_number, message };
+		let error = |message| ParseError {
+			source: source.into(),
+			line: line_number,
+			message,
+		};
 
 		match fields(line).as_slice() {
 			["ENCOUNT", id, description, party, average, minimum] => {
@@ -386,10 +461,10 @@ pub fn parse_encounters(text: &str, source: &str, data: &mut GameData) -> Result
 					minimum: fractional_frames(minimum).map_err(error)?,
 				};
 
-				let formation = data
-					.formations
-					.entry(id)
-					.or_insert_with(|| Formation { description: (*description).into(), durations: Vec::new() });
+				let formation = data.formations.entry(id).or_insert_with(|| Formation {
+					description: (*description).into(),
+					durations: Vec::new(),
+				});
 
 				match formation.durations.iter_mut().find(|(p, _)| *p == party) {
 					Some((_, existing)) => *existing = duration,
@@ -426,12 +501,19 @@ pub struct Loaded {
 ///
 /// Returns an error if a file is missing or malformed.
 pub fn load(data_dir: &FsPath, route_name: &str) -> Result<Loaded, Box<dyn std::error::Error>> {
-	let read = |path: std::path::PathBuf| fs::read_to_string(&path).map(|text| (text, path.display().to_string())).map_err(|e| format!("{}: {e}", path.display()));
+	let read = |path: std::path::PathBuf| {
+		fs::read_to_string(&path)
+			.map(|text| (text, path.display().to_string()))
+			.map_err(|e| format!("{}: {e}", path.display()))
+	};
 
 	let (text, source) = read(data_dir.join("routes").join(format!("{route_name}.txt")))?;
 	let route = parse_route(&text, &source)?;
 
-	let mut data = GameData { maps: HashMap::new(), ..GameData::default() };
+	let mut data = GameData {
+		maps: HashMap::new(),
+		..GameData::default()
+	};
 	let (text, source) = read(data_dir.join("maps").join(format!("{}.txt", route.data_set)))?;
 	parse_maps(&text, &source, &mut data)?;
 	let (text, source) = read(data_dir.join("encounters").join(format!("{}.txt", route.data_set)))?;
@@ -464,7 +546,14 @@ mod tests {
 
 		let (targets, expression) = parse_search_expression("13|15|16").unwrap();
 		assert_eq!(targets.len(), 3);
-		assert_eq!(expression, SearchExpr::Any(vec![SearchExpr::Target(0), SearchExpr::Target(1), SearchExpr::Target(2)]));
+		assert_eq!(
+			expression,
+			SearchExpr::Any(vec![
+				SearchExpr::Target(0),
+				SearchExpr::Target(1),
+				SearchExpr::Target(2)
+			])
+		);
 
 		let (_, expression) = parse_search_expression("(1 + (2)) > 3|4").unwrap();
 		assert_eq!(

@@ -82,11 +82,17 @@ pub struct Route {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Node {
 	/// Text shown in the route output; no effect on timing.
-	Note { text: String },
+	Note {
+		text: String,
+	},
 	/// The party changes from here on.
-	Party { party: Party },
+	Party {
+		party: Party,
+	},
 	/// A fixed delay.
-	Delay { frames: u32 },
+	Delay {
+		frames: u32,
+	},
 	Path(Path),
 	Choice(Choice),
 	Search(Search),

@@ -88,9 +88,14 @@ impl std::fmt::Display for SimError {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
 			Self::SearchNeverCompletes { map } => write!(f, "search never completes by the end of map {:04X}", map.0),
-			Self::NoSuchOption { variable: Some(variable), value } => write!(f, "choice {variable} has no option {value}"),
+			Self::NoSuchOption {
+				variable: Some(variable),
+				value,
+			} => write!(f, "choice {variable} has no option {value}"),
 			Self::NoSuchOption { variable: None, value } => write!(f, "choice has no option {value}"),
-			Self::MissingFormation { group, slot } => write!(f, "encounter group {group} slot {slot} names an unknown formation"),
+			Self::MissingFormation { group, slot } => {
+				write!(f, "encounter group {group} slot {slot} names an unknown formation")
+			}
 		}
 	}
 }
@@ -141,7 +146,11 @@ impl<'a> Simulator<'a> {
 		let mut parties = vec![Party::default()];
 		collect_parties(&route.body, &mut parties);
 
-		let party_index = parties.iter().enumerate().map(|(i, p)| (*p, u16::try_from(i).expect("too many parties"))).collect();
+		let party_index = parties
+			.iter()
+			.enumerate()
+			.map(|(i, p)| (*p, u16::try_from(i).expect("too many parties")))
+			.collect();
 
 		let mut formation_ids: Vec<FormationId> = data.formations.keys().copied().collect();
 		formation_ids.sort_unstable();
@@ -156,7 +165,14 @@ impl<'a> Simulator<'a> {
 			}
 		}
 
-		Self { route, data, parties, party_index, formation_index, durations }
+		Self {
+			route,
+			data,
+			parties,
+			party_index,
+			formation_index,
+			durations,
+		}
 	}
 
 	/// Every party the route uses, in order of first appearance.
@@ -178,12 +194,20 @@ impl<'a> Simulator<'a> {
 
 				match (formation, index) {
 					(Some(formation), Some(&index)) => *target = (formation, index),
-					_ => return Err(SimError::MissingFormation { group: map.encounter_group, slot }),
+					_ => {
+						return Err(SimError::MissingFormation {
+							group: map.encounter_group,
+							slot,
+						});
+					}
 				}
 			}
 		}
 
-		Ok(ResolvedMap { rate: map.encounter_rate, slots })
+		Ok(ResolvedMap {
+			rate: map.encounter_rate,
+			slots,
+		})
 	}
 
 	/// Replays the route from the given seed.
@@ -199,7 +223,11 @@ impl<'a> Simulator<'a> {
 		let mut run = Run {
 			sim: self,
 			assignments,
-			state: State { rng: Rng::new(seed), party: 0, search: None },
+			state: State {
+				rng: Rng::new(seed),
+				party: 0,
+				search: None,
+			},
 			outcome: Outcome {
 				seed,
 				frames: Milliframes::ZERO,
@@ -265,16 +293,27 @@ impl<'a> Run<'_, 'a> {
 					self.outcome.events.push(Event::Delay { frames });
 				}
 				Node::Search(search) => {
-					self.state.search =
-						Some(ActiveSearch { search, party: self.sim.party_index[&search.party], found: 0, complete: false });
+					self.state.search = Some(ActiveSearch {
+						search,
+						party: self.sim.party_index[&search.party],
+						found: 0,
+						complete: false,
+					});
 				}
 				Node::Choice(choice) => {
 					let value = self.value(choice.variable);
 					let index = usize::try_from(value).unwrap_or(usize::MAX);
-					let option = choice.options.get(index).ok_or(SimError::NoSuchOption { variable: choice.variable, value })?;
+					let option = choice.options.get(index).ok_or(SimError::NoSuchOption {
+						variable: choice.variable,
+						value,
+					})?;
 
 					self.record(choice.variable, value);
-					self.outcome.events.push(Event::Choice { variable: choice.variable, option: index, label: option.label.clone() });
+					self.outcome.events.push(Event::Choice {
+						variable: choice.variable,
+						option: index,
+						label: option.label.clone(),
+					});
 					self.nodes(&option.body)?;
 				}
 				Node::Path(path) => self.path(path)?,
@@ -333,7 +372,13 @@ impl<'a> Run<'_, 'a> {
 
 	/// Walks a path with `value` extra steps. Returns the frames spent and the
 	/// number of steps taken.
-	fn walk_path(&mut self, path: &Path, map: &ResolvedMap, value: u32, encounters: &mut Vec<EncounterRecord>) -> (Milliframes, u32) {
+	fn walk_path(
+		&mut self,
+		path: &Path,
+		map: &ResolvedMap,
+		value: u32,
+		encounters: &mut Vec<EncounterRecord>,
+	) -> (Milliframes, u32) {
 		let mut frames = Milliframes::from_frames(i64::from(path.transitions) * FRAMES_PER_TRANSITION);
 		frames += self.walk(path, map, path.tiles, path.required_steps, 0, encounters);
 		let mut steps = path.required_steps;
@@ -351,10 +396,21 @@ impl<'a> Run<'_, 'a> {
 				extra_steps -= 1;
 			}
 
-			let tiles = if path.can_double_step { extra_steps } else { extra_steps * 2 };
+			let tiles = if path.can_double_step {
+				extra_steps
+			} else {
+				extra_steps * 2
+			};
 			let tiles = tiles + tiles % 2;
 
-			frames += self.walk(path, map, tiles, optional_steps + extra_steps, path.required_steps, encounters);
+			frames += self.walk(
+				path,
+				map,
+				tiles,
+				optional_steps + extra_steps,
+				path.required_steps,
+				encounters,
+			);
 			steps += optional_steps + extra_steps;
 		}
 
@@ -363,7 +419,15 @@ impl<'a> Run<'_, 'a> {
 
 	/// Takes `steps` steps over `tiles` tiles. `step_offset` is the number of
 	/// steps already taken on this path.
-	fn walk(&mut self, path: &Path, map: &ResolvedMap, tiles: u32, steps: u32, step_offset: u32, encounters: &mut Vec<EncounterRecord>) -> Milliframes {
+	fn walk(
+		&mut self,
+		path: &Path,
+		map: &ResolvedMap,
+		tiles: u32,
+		steps: u32,
+		step_offset: u32,
+		encounters: &mut Vec<EncounterRecord>,
+	) -> Milliframes {
 		let mut frames = Milliframes::from_frames(i64::from(tiles) * FRAMES_PER_TILE);
 
 		for step in 1..=steps {
@@ -372,7 +436,8 @@ impl<'a> Run<'_, 'a> {
 			}
 
 			let (formation, formation_index) = map.slots[self.state.rng.encounter_slot()];
-			let mut battle = self.sim.durations[usize::from(self.state.party) * self.sim.formation_index.len() + formation_index];
+			let mut battle =
+				self.sim.durations[usize::from(self.state.party) * self.sim.formation_index.len() + formation_index];
 
 			if encounters.is_empty() {
 				battle += path.first_battle_penalty;
@@ -443,9 +508,9 @@ fn assign(search: &mut ActiveSearch<'_>, expression: &SearchExpr, formation: For
 
 			false
 		}
-		SearchExpr::All(nodes) => {
-			nodes.iter().any(|node| !check(search.found, node) && assign(search, node, formation))
-		}
+		SearchExpr::All(nodes) => nodes
+			.iter()
+			.any(|node| !check(search.found, node) && assign(search, node, formation)),
 		SearchExpr::Any(nodes) => {
 			for node in nodes {
 				assign(search, node, formation);

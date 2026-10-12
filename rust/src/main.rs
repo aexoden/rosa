@@ -18,7 +18,7 @@ struct Cli {
 enum Command {
 	/// Replay a route with fixed variable values and report its time.
 	Replay {
-		/// Route to load from DATA_DIR/routes/ROUTE.txt.
+		/// Route to load from `DATA_DIR/routes/ROUTE.txt`.
 		#[arg(short, long, default_value = "paladin")]
 		route: String,
 
@@ -48,7 +48,9 @@ enum Command {
 fn parse_assignments(text: &str) -> Result<Assignments, String> {
 	text.split_whitespace()
 		.map(|pair| {
-			let (variable, value) = pair.split_once(':').ok_or_else(|| format!("expected variable:value, found {pair:?}"))?;
+			let (variable, value) = pair
+				.split_once(':')
+				.ok_or_else(|| format!("expected variable:value, found {pair:?}"))?;
 			let variable = u32::from_str_radix(variable, 16).map_err(|_| format!("invalid variable {variable:?}"))?;
 			let value = value.parse().map_err(|_| format!("invalid value in {pair:?}"))?;
 			Ok((VariableId(variable), value))
@@ -57,7 +59,14 @@ fn parse_assignments(text: &str) -> Result<Assignments, String> {
 }
 
 fn main() -> ExitCode {
-	let Command::Replay { route, seed, variables, tas_mode, data_dir, json } = Cli::parse().command;
+	let Command::Replay {
+		route,
+		seed,
+		variables,
+		tas_mode,
+		data_dir,
+		json,
+	} = Cli::parse().command;
 
 	let result = (|| -> Result<(), Box<dyn std::error::Error>> {
 		let assignments = parse_assignments(&variables)?;
@@ -70,7 +79,11 @@ fn main() -> ExitCode {
 			return Ok(());
 		}
 
-		let variables: Vec<String> = outcome.variables.iter().map(|(variable, value)| format!("{variable}:{value}")).collect();
+		let variables: Vec<String> = outcome
+			.variables
+			.iter()
+			.map(|(variable, value)| format!("{variable}:{value}"))
+			.collect();
 
 		println!("Route:      {} (version {})", loaded.route.title, loaded.route.version);
 		println!("Seed:       {seed}");
@@ -82,7 +95,15 @@ fn main() -> ExitCode {
 
 		for event in &outcome.events {
 			match event {
-				Event::Path { map, step_seed, step_index, extra_steps, optional_steps, encounters, .. } => {
+				Event::Path {
+					map,
+					step_seed,
+					step_index,
+					extra_steps,
+					optional_steps,
+					encounters,
+					..
+				} => {
 					let description = &loaded.data.map(*map).description;
 					println!("{description:<60} Seed: {step_seed:3}   Index: {step_index:3}");
 
@@ -92,7 +113,12 @@ fn main() -> ExitCode {
 
 					for encounter in encounters {
 						let formation = &loaded.data.formations[&encounter.formation].description;
-						println!("  Step {:3}: {} / {formation} ({})", encounter.step, u16::from(encounter.encounter_index) + 1, encounter.frames);
+						println!(
+							"  Step {:3}: {} / {formation} ({})",
+							encounter.step,
+							u16::from(encounter.encounter_index) + 1,
+							encounter.frames
+						);
 					}
 				}
 				Event::Choice { label, .. } => println!("{label}"),
