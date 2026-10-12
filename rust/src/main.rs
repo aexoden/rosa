@@ -1,17 +1,67 @@
-use std::path::PathBuf;
+use std::collections::BTreeMap;
+use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use clap::{Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 
-use rosa::legacy;
 use rosa::model::VariableId;
 use rosa::sim::{Assignments, Event, Simulator};
+use rosa::solve::{self, Options};
+use rosa::{legacy, report};
 
+/// Step route optimizer for Final Fantasy IV.
+///
+/// With no subcommand, finds the best route for one seed and prints it in
+/// the C++ version's format. The options match the C++ version's.
 #[derive(Parser)]
-#[command(version, about)]
+#[command(version, about, args_conflicts_with_subcommands = true)]
 struct Cli {
 	#[command(subcommand)]
-	command: Command,
+	command: Option<Command>,
+
+	#[command(flatten)]
+	solve: SolveArgs,
+}
+
+#[derive(Args)]
+struct SolveArgs {
+	/// Route to load from `DATA_DIR/routes/ROUTE.txt`.
+	#[arg(short, long, default_value = "paladin")]
+	route: String,
+
+	/// Seed to solve.
+	#[arg(short, long, default_value_t = 0)]
+	seed: u8,
+
+	/// Maximum number of extra steps per path.
+	#[arg(short, long, default_value_t = 0)]
+	maximum_steps: u32,
+
+	/// Maximum number of paths that may take extra steps (negative for no
+	/// limit).
+	#[arg(short = 'n', long, default_value_t = -1, allow_negative_numbers = true)]
+	maximum_step_segments: i32,
+
+	/// Variable constraints, as space-separated `variable:value` or
+	/// `variable:minimum-maximum` with hexadecimal variable names.
+	#[arg(short, long, default_value = "")]
+	variables: String,
+
+	/// Use minimum rather than average battle lengths.
+	#[arg(short, long)]
+	tas_mode: bool,
+
+	/// With a segment limit, prefer fewer paths with extra steps.
+	#[arg(short, long)]
+	prefer_fewer_locations: bool,
+
+	/// Directory containing routes/, maps/ and encounters/.
+	#[arg(long, default_value = "data")]
+	data_dir: PathBuf,
+
+	/// Print the full result as JSON.
+	#[arg(long)]
+	json: bool,
 }
 
 #[derive(Subcommand)]
@@ -45,6 +95,45 @@ enum Command {
 	},
 }
 
+/// Parses `-v` constraints such as `E000202:0 E302500:0-2`.
+fn parse_constraints(text: &str) -> Result<BTreeMap<VariableId, (u32, u32)>, String> {
+	text.split_whitespace()
+		.map(|pair| {
+			let invalid = || format!("expected variable:value or variable:minimum-maximum, found {pair:?}");
+			let (variable, range) = pair.split_once(':').ok_or_else(invalid)?;
+			let variable = u32::from_str_radix(variable, 16).map_err(|_| invalid())?;
+			let (minimum, maximum) = range.split_once('-').unwrap_or((range, range));
+			let minimum = minimum.parse().map_err(|_| invalid())?;
+			let maximum = maximum.parse().map_err(|_| invalid())?;
+			Ok((VariableId(variable), (minimum, maximum)))
+		})
+		.collect()
+}
+
+fn run_solve(args: &SolveArgs) -> Result<(), Box<dyn std::error::Error>> {
+	let options = Options {
+		maximum_steps: args.maximum_steps,
+		maximum_step_segments: u16::try_from(args.maximum_step_segments).ok(),
+		prefer_fewer_locations: args.prefer_fewer_locations,
+		tas_mode: args.tas_mode,
+		constraints: parse_constraints(&args.variables)?,
+	};
+	let loaded = legacy::load(&args.data_dir, &args.route)?;
+	let solution = solve::solve(&loaded.route, &loaded.data, &options, args.seed)?;
+
+	if args.json {
+		println!("{}", serde_json::to_string_pretty(&solution)?);
+	} else {
+		let version = concat!("rust-", env!("CARGO_PKG_VERSION"));
+		print!(
+			"{}",
+			report::text(&solution, &loaded.route, &loaded.data, &options, version)
+		);
+	}
+
+	Ok(())
+}
+
 fn parse_assignments(text: &str) -> Result<Assignments, String> {
 	text.split_whitespace()
 		.map(|pair| {
@@ -59,75 +148,19 @@ fn parse_assignments(text: &str) -> Result<Assignments, String> {
 }
 
 fn main() -> ExitCode {
-	let Command::Replay {
-		route,
-		seed,
-		variables,
-		tas_mode,
-		data_dir,
-		json,
-	} = Cli::parse().command;
+	let cli = Cli::parse();
 
-	let result = (|| -> Result<(), Box<dyn std::error::Error>> {
-		let assignments = parse_assignments(&variables)?;
-		let loaded = legacy::load(&data_dir, &route)?;
-		let simulator = Simulator::new(&loaded.route, &loaded.data, tas_mode);
-		let outcome = simulator.replay(seed, &assignments)?;
-
-		if json {
-			println!("{}", serde_json::to_string_pretty(&outcome)?);
-			return Ok(());
-		}
-
-		let variables: Vec<String> = outcome
-			.variables
-			.iter()
-			.map(|(variable, value)| format!("{variable}:{value}"))
-			.collect();
-
-		println!("Route:      {} (version {})", loaded.route.title, loaded.route.version);
-		println!("Seed:       {seed}");
-		println!("Variables:  {}", variables.join(" "));
-		println!("Frames:     {}", outcome.frames.0);
-		println!("Encounters: {} ({})", outcome.encounters, outcome.encounter_frames);
-		println!("Total time: {}", outcome.frames);
-		println!();
-
-		for event in &outcome.events {
-			match event {
-				Event::Path {
-					map,
-					step_seed,
-					step_index,
-					extra_steps,
-					optional_steps,
-					encounters,
-					..
-				} => {
-					let description = &loaded.data.map(*map).description;
-					println!("{description:<60} Seed: {step_seed:3}   Index: {step_index:3}");
-
-					if optional_steps + extra_steps > 0 {
-						println!("  Optional steps: {optional_steps}, extra steps: {extra_steps}");
-					}
-
-					for encounter in encounters {
-						let formation = &loaded.data.formations[&encounter.formation].description;
-						println!(
-							"  Step {:3}: {} / {formation} ({})",
-							encounter.step,
-							u16::from(encounter.encounter_index) + 1,
-							encounter.frames
-						);
-					}
-				}
-				Event::Choice { label, .. } => println!("{label}"),
-				Event::Delay { .. } => {}
-			}
-		}
-
-		Ok(())
-	})();
+	let result = match cli.command {
+		None => run_solve(&cli.solve),
+		Some(Command::Replay {
+			route,
+			seed,
+			variables,
+			tas_mode,
+			data_dir,
+			json,
+		}) => run_replay(&route, seed, &variables, tas_mode, &data_dir, json),
+	};
 
 	match result {
 		Ok(()) => ExitCode::SUCCESS,
@@ -136,4 +169,72 @@ fn main() -> ExitCode {
 			ExitCode::FAILURE
 		}
 	}
+}
+
+fn run_replay(
+	route: &str,
+	seed: u8,
+	variables: &str,
+	tas_mode: bool,
+	data_dir: &Path,
+	json: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+	let assignments = parse_assignments(variables)?;
+	let loaded = legacy::load(data_dir, route)?;
+	let simulator = Simulator::new(&loaded.route, &loaded.data, tas_mode);
+	let outcome = simulator.replay(seed, &assignments)?;
+
+	if json {
+		println!("{}", serde_json::to_string_pretty(&outcome)?);
+		return Ok(());
+	}
+
+	let variables: Vec<String> = outcome
+		.variables
+		.iter()
+		.map(|(variable, value)| format!("{variable}:{value}"))
+		.collect();
+
+	println!("Route:      {} (version {})", loaded.route.title, loaded.route.version);
+	println!("Seed:       {seed}");
+	println!("Variables:  {}", variables.join(" "));
+	println!("Frames:     {}", outcome.frames.0);
+	println!("Encounters: {} ({})", outcome.encounters, outcome.encounter_frames);
+	println!("Total time: {}", outcome.frames);
+	println!();
+
+	for event in &outcome.events {
+		match event {
+			Event::Path {
+				map,
+				step_seed,
+				step_index,
+				extra_steps,
+				optional_steps,
+				encounters,
+				..
+			} => {
+				let description = &loaded.data.map(*map).description;
+				println!("{description:<60} Seed: {step_seed:3}   Index: {step_index:3}");
+
+				if optional_steps + extra_steps > 0 {
+					println!("  Optional steps: {optional_steps}, extra steps: {extra_steps}");
+				}
+
+				for encounter in encounters {
+					let formation = &loaded.data.formations[&encounter.formation].description;
+					println!(
+						"  Step {:3}: {} / {formation} ({})",
+						encounter.step,
+						u16::from(encounter.encounter_index) + 1,
+						encounter.frames
+					);
+				}
+			}
+			Event::Choice { label, .. } => println!("{label}"),
+			Event::Delay { .. } => {}
+		}
+	}
+
+	Ok(())
 }
