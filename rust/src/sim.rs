@@ -110,10 +110,10 @@ pub struct Simulator<'a> {
 	route: &'a Route,
 	data: &'a GameData,
 	parties: Vec<Party>,
-	party_index: HashMap<Party, u16>,
-	formation_index: HashMap<FormationId, usize>,
+	pub(crate) party_index: HashMap<Party, u16>,
+	pub(crate) formation_index: HashMap<FormationId, usize>,
 	/// `durations[party * formations + formation]`
-	durations: Vec<Milliframes>,
+	pub(crate) durations: Vec<Milliframes>,
 }
 
 #[derive(Clone, Copy)]
@@ -133,9 +133,9 @@ struct State<'a> {
 
 /// A map's encounter rate and the formation in each slot, resolved once per
 /// path rather than once per step.
-struct ResolvedMap {
-	rate: u8,
-	slots: [(FormationId, usize); GROUP_SLOTS],
+pub(crate) struct ResolvedMap {
+	pub(crate) rate: u8,
+	pub(crate) slots: [(FormationId, usize); GROUP_SLOTS],
 }
 
 impl<'a> Simulator<'a> {
@@ -181,7 +181,7 @@ impl<'a> Simulator<'a> {
 		&self.parties
 	}
 
-	fn resolve_map(&self, id: MapId) -> Result<ResolvedMap, SimError> {
+	pub(crate) fn resolve_map(&self, id: MapId) -> Result<ResolvedMap, SimError> {
 		let map = self.data.map(id);
 		let mut slots = [(FormationId(0), 0); GROUP_SLOTS];
 
@@ -455,9 +455,9 @@ impl<'a> Run<'_, 'a> {
 				&& !search.complete
 			{
 				let expression = &search.search.expression;
-				assign(search, expression, formation);
+				search_assign(&mut search.found, &search.search.targets, expression, formation);
 
-				if check(search.found, expression) {
+				if search_check(search.found, expression) {
 					search.complete = true;
 					self.state.party = search.party;
 				}
@@ -472,7 +472,7 @@ impl<'a> Run<'_, 'a> {
 
 /// Splits steps beyond the required ones into optional and extra steps, as
 /// the route output reports them.
-fn split_steps(path: &Path, steps: u32) -> (u32, u32) {
+pub(crate) fn split_steps(path: &Path, steps: u32) -> (u32, u32) {
 	let mut optional_steps = path.optional_steps.min(steps);
 	let mut extra_steps = steps - optional_steps;
 
@@ -484,11 +484,12 @@ fn split_steps(path: &Path, steps: u32) -> (u32, u32) {
 	(optional_steps, extra_steps)
 }
 
-fn check(found: u64, expression: &SearchExpr) -> bool {
+/// Reports whether the targets found so far satisfy a search expression.
+pub(crate) fn search_check(found: u64, expression: &SearchExpr) -> bool {
 	match expression {
 		SearchExpr::Target(index) => found & (1 << index) != 0,
-		SearchExpr::Any(nodes) => nodes.iter().any(|node| check(found, node)),
-		SearchExpr::All(nodes) | SearchExpr::Sequence(nodes) => nodes.iter().all(|node| check(found, node)),
+		SearchExpr::Any(nodes) => nodes.iter().any(|node| search_check(found, node)),
+		SearchExpr::All(nodes) | SearchExpr::Sequence(nodes) => nodes.iter().all(|node| search_check(found, node)),
 	}
 }
 
@@ -496,13 +497,18 @@ fn check(found: u64, expression: &SearchExpr) -> bool {
 /// behaviour exactly, including its quirks: under `|`, every alternative is
 /// credited and the result is always "not consumed", so an enclosing `+` may
 /// credit the same encounter again.
-fn assign(search: &mut ActiveSearch<'_>, expression: &SearchExpr, formation: FormationId) -> bool {
+pub(crate) fn search_assign(
+	found: &mut u64,
+	targets: &[FormationId],
+	expression: &SearchExpr,
+	formation: FormationId,
+) -> bool {
 	match expression {
 		SearchExpr::Target(index) => {
 			let bit = 1 << index;
 
-			if search.found & bit == 0 && search.search.targets[*index] == formation {
-				search.found |= bit;
+			if *found & bit == 0 && targets[*index] == formation {
+				*found |= bit;
 				return true;
 			}
 
@@ -510,16 +516,16 @@ fn assign(search: &mut ActiveSearch<'_>, expression: &SearchExpr, formation: For
 		}
 		SearchExpr::All(nodes) => nodes
 			.iter()
-			.any(|node| !check(search.found, node) && assign(search, node, formation)),
+			.any(|node| !search_check(*found, node) && search_assign(found, targets, node, formation)),
 		SearchExpr::Any(nodes) => {
 			for node in nodes {
-				assign(search, node, formation);
+				search_assign(found, targets, node, formation);
 			}
 
 			false
 		}
-		SearchExpr::Sequence(nodes) => match nodes.iter().find(|node| !check(search.found, node)) {
-			Some(node) => assign(search, node, formation),
+		SearchExpr::Sequence(nodes) => match nodes.iter().find(|node| !search_check(*found, node)) {
+			Some(node) => search_assign(found, targets, node, formation),
 			None => false,
 		},
 	}

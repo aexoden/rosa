@@ -1,9 +1,8 @@
 # ROSA in Rust
 
-A Rust port of ROSA, in progress. It currently replays a route with fixed
-variable values (extra steps per path, options per choice) and reports the
-total time and every encounter. The solver that searches over those values is
-the next step.
+A Rust port of ROSA, in progress. It finds the fastest route for a seed, as the
+C++ version does, with the same results, and can also replay a route with
+fixed variable values (extra steps per path, options per choice).
 
 ## Layout
 
@@ -14,6 +13,8 @@ the next step.
 | `legacy` | Importer for the original tab-separated route and data files |
 | `rng` | The FF4 step and encounter generator |
 | `sim` | Replays a route for one seed and one set of variable values |
+| `solve` | Finds the best variable values for one seed, with an in-memory cache |
+| `report` | Prints a solution in the C++ version's text format |
 | `time` | Integer milliframe arithmetic |
 
 The core never sees the old file format: `legacy` builds `model` and `data`
@@ -21,19 +22,50 @@ values, and a future importer for a richer format can do the same.
 
 ## Usage
 
-Run from the repository root so the default `data/` directory is found:
+Run from the repository root so the default `data/` directory is found. With
+no subcommand, `rosa` solves a seed and takes the same options as the C++
+version (`-r`, `-s`, `-m`, `-n`, `-p`, `-t`, `-v`), printing the same text:
 
 ```sh
-cargo run --release --manifest-path rust/Cargo.toml -- replay -r paladin -s 0 \
+cargo build --release --manifest-path rust/Cargo.toml
+rust/target/release/rosa -r paladin -s 0 -m 4
+```
+
+`replay` runs fixed values instead:
+
+```sh
+rust/target/release/rosa replay -r paladin -s 0 \
     -v "E000202:4 E000400:4 E302500:1 E302600:4 E308000:2"
 ```
 
-Add `--json` for the full structured result.
+Add `--json` to either for the full structured result. The C++ cache options
+(`-c`, `-l`, `-f`, `-x`) are not ported; the cache always lives in memory.
+
+## How the solver works
+
+The route is compiled into a flat list of operations. The solver searches it
+depth first: at each path with a variable it tries every number of extra steps
+from the lowest allowed up, and at each choice every option, keeping the
+cheapest and remembering it for that state. Ties keep the lowest value, as in
+C++. The cache key holds the same state as the C++ one (operation, generator
+position, party, search progress and remaining step segments).
+
+Two changes make it faster without changing results. Only decisions are
+cached, not every instruction. And candidate step counts on a path are walked
+incrementally, each continuing from the previous one, so a path costs O(m)
+steps instead of O(m²).
 
 ## Checking against the C++ version
 
-`cargo test` includes spot checks with values taken from the C++ build. For a
-full comparison, build the C++ version into `build/` and the Rust version in
+`cargo test` includes spot checks with values taken from the C++ build. The
+solver prints the C++ text format, so the reference set checks it directly:
+
+```sh
+scripts/reference.py -b rust/target/release/rosa -c m4 check -s 0-15   # quick
+scripts/reference.py -b rust/target/release/rosa check                 # everything
+```
+
+For the replay simulator alone, build the C++ version into `build/` and the Rust version in
 release mode, then from the repository root:
 
 ```sh
@@ -59,9 +91,13 @@ oddities included (see `notes/cpp-bug-decisions.md` in the project files):
 - Consecutive tabs act as one separator, and variable `0` means "no
   variable".
 - `SAVE` lines are accepted and ignored, as the C++ engine ignores them.
+- Extra steps a search forces on a path with no variable are reported as
+  variable `FFFFFFFF`, and the cache key leaves out the active search, as in
+  C++ (the operation implies it).
 
 ## Deliberate differences
 
 - Malformed lines are errors with a line number, not warnings.
-- The "(Step N: …)" look-ahead lines C++ prints during a search are output
-  formatting and are not reproduced.
+- `replay` does not print the "(Step N: …)" look-ahead lines C++ shows during
+  a search; the solver's output does.
+- A search that can never finish is an error rather than an endless loop.
