@@ -1,0 +1,16 @@
+[package]
+name = "rosa"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Step route optimizer for Final Fantasy IV (SNES)"
+publish = false
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+lto = true
+codegen-units = 1
