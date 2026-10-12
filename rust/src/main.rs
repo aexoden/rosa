@@ -66,6 +66,25 @@ struct SolveArgs {
 
 #[derive(Subcommand)]
 enum Command {
+	/// Solve one seed once per value of a variable, writing each result in
+	/// the C++ format to `OUT/SEED-VALUE.txt`.
+	Sweep {
+		#[command(flatten)]
+		solve: SolveArgs,
+
+		/// The variable to sweep (hexadecimal, as in `-v`).
+		#[arg(long)]
+		variable: String,
+
+		/// Values to try, as `minimum-maximum` (default: 0 to the maximum
+		/// steps).
+		#[arg(long)]
+		values: Option<String>,
+
+		/// Output directory.
+		#[arg(long)]
+		out: PathBuf,
+	},
 	/// Replay a route with fixed variable values and report its time.
 	Replay {
 		/// Route to load from `DATA_DIR/routes/ROUTE.txt`.
@@ -110,14 +129,49 @@ fn parse_constraints(text: &str) -> Result<BTreeMap<VariableId, (u32, u32)>, Str
 		.collect()
 }
 
-fn run_solve(args: &SolveArgs) -> Result<(), Box<dyn std::error::Error>> {
-	let options = Options {
+fn options(args: &SolveArgs) -> Result<Options, String> {
+	Ok(Options {
 		maximum_steps: args.maximum_steps,
 		maximum_step_segments: u16::try_from(args.maximum_step_segments).ok(),
 		prefer_fewer_locations: args.prefer_fewer_locations,
 		tas_mode: args.tas_mode,
 		constraints: parse_constraints(&args.variables)?,
+	})
+}
+
+const VERSION: &str = concat!("rust-", env!("CARGO_PKG_VERSION"));
+
+fn run_sweep(
+	args: &SolveArgs,
+	variable: &str,
+	values: Option<&str>,
+	out: &Path,
+) -> Result<(), Box<dyn std::error::Error>> {
+	let options = options(args)?;
+	let variable = VariableId(u32::from_str_radix(variable, 16).map_err(|_| format!("invalid variable {variable:?}"))?);
+	let values = match values {
+		Some(text) => {
+			let (low, high) = text.split_once('-').unwrap_or((text, text));
+			low.parse()?..=high.parse()?
+		}
+		None => 0..=options.maximum_steps,
 	};
+	let loaded = legacy::load(&args.data_dir, &args.route)?;
+	std::fs::create_dir_all(out)?;
+
+	for (value, solution) in solve::sweep(&loaded.route, &loaded.data, &options, args.seed, variable, values)? {
+		let mut fixed = options.clone();
+		fixed.constraints.insert(variable, (value, value));
+		let text = report::text(&solution, &loaded.route, &loaded.data, &fixed, VERSION);
+		std::fs::write(out.join(format!("{:03}-{value:03}.txt", args.seed)), text)?;
+		println!("{value}\t{}", solution.frames.0);
+	}
+
+	Ok(())
+}
+
+fn run_solve(args: &SolveArgs) -> Result<(), Box<dyn std::error::Error>> {
+	let options = options(args)?;
 	let loaded = legacy::load(&args.data_dir, &args.route)?;
 	let solution = solve::solve(&loaded.route, &loaded.data, &options, args.seed)?;
 
@@ -152,6 +206,12 @@ fn main() -> ExitCode {
 
 	let result = match cli.command {
 		None => run_solve(&cli.solve),
+		Some(Command::Sweep {
+			solve,
+			variable,
+			values,
+			out,
+		}) => run_sweep(&solve, &variable, values.as_deref(), &out),
 		Some(Command::Replay {
 			route,
 			seed,
