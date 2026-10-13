@@ -14,8 +14,9 @@
 //! stopped instead of starting over, so a path costs O(m) steps rather than
 //! O(m²).
 
-use std::collections::{BTreeMap, HashMap};
-use std::hash::{BuildHasher, Hash, Hasher};
+mod table;
+
+use std::collections::BTreeMap;
 
 use serde::Serialize;
 
@@ -24,6 +25,7 @@ use crate::model::{Choice, FormationId, MAX_SEARCH_TARGETS, Node, Path, Route, S
 use crate::rng::{GROUP_SLOTS, Rng};
 use crate::sim::{EncounterRecord, SimError, Simulator, search_assign, search_check, split_steps};
 use crate::time::Milliframes;
+use table::SLOT_BYTES;
 
 const FRAMES_PER_TRANSITION: i64 = 82;
 const FRAMES_PER_TILE: i64 = 16;
@@ -581,10 +583,7 @@ impl State {
 	}
 }
 
-/// Packed to two-byte alignment so that a table slot, with its [`Packed`]
-/// value, takes 22 bytes rather than 24.
 #[derive(Clone, Copy, PartialEq, Eq)]
-#[repr(C, packed(2))]
 struct Key(u64, u64);
 
 impl Key {
@@ -596,79 +595,32 @@ impl Key {
 	}
 }
 
-impl Hash for Key {
-	fn hash<H: Hasher>(&self, state: &mut H) {
-		state.write_u64(self.hash_value());
-	}
-}
-
 #[expect(clippy::cast_possible_truncation, reason = "folds the halves of the product")]
 fn fold(a: u64, b: u64) -> u64 {
 	let product = u128::from(a) * u128::from(b);
 	(product as u64) ^ ((product >> 64) as u64)
 }
 
-/// Passes through the single `u64` that [`Key`] hashes to.
-#[derive(Default)]
-struct KeyHasher(u64);
-
-impl Hasher for KeyHasher {
-	fn write(&mut self, _bytes: &[u8]) {
-		unreachable!("keys hash as one u64");
-	}
-
-	fn write_u64(&mut self, value: u64) {
-		self.0 = value;
-	}
-
-	fn finish(&self) -> u64 {
-		self.0
-	}
-}
-
-#[derive(Clone, Copy, Default)]
-struct BuildKeyHasher;
-
-impl BuildHasher for BuildKeyHasher {
-	type Hasher = KeyHasher;
-
-	fn build_hasher(&self) -> KeyHasher {
-		KeyHasher::default()
-	}
-}
-
 /// Chosen value and remaining cost of one decision state.
 #[derive(Clone, Copy)]
-#[repr(C, packed(2))]
 struct Packed {
 	frames: u32,
 	value: u16,
 }
 
-const _: () = assert!(size_of::<(Key, Packed)>() == 22);
-
 /// Stored frames for a state that cannot finish.
 const UNFINISHABLE: u32 = u32::MAX;
 
-/// The cache is split into this many tables, chosen by bits of the key's
-/// hash. Each table doubles on its own as it fills, so growth never holds
-/// more than a small slice of the cache twice over; one large table needs
-/// 1.5 times its size while it doubles.
+/// The cache is split into this many tables, chosen by the low bits of the
+/// key's hash. Each grows on its own, so a resize only ever copies a small
+/// slice of the cache.
 ///
 /// The tables are given unequal shares of the states, in a geometric
-/// series spanning a factor of two, so that they reach their doubling
-/// points at different times. The total then grows smoothly with the
-/// number of states instead of in steps of two.
+/// series spanning a factor of two, so that they reach their resize points
+/// at different times and the total grows smoothly.
 const SHARD_BITS: u32 = 8;
 const SHARDS: usize = 1 << SHARD_BITS;
-
-/// Bits of the hash that pick the table. The tables themselves use the low
-/// bits to place entries and the top seven as tags, so these sit between.
-const SHARD_SHIFT: u32 = 40;
 const SHARD_SELECT_BITS: u32 = 12;
-
-/// Bytes per slot: the key, the value and one control byte.
-const SLOT_BYTES: usize = size_of::<(Key, Packed)>() + 1;
 
 /// Size of the cache at one moment.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize)]
@@ -684,7 +636,7 @@ pub struct CacheStats {
 /// Best value and remaining cost for each decision state reached, packed
 /// into one `u64` per state.
 struct Cache {
-	shards: Box<[HashMap<Key, Packed, BuildKeyHasher>]>,
+	shards: Box<[table::Table]>,
 	/// Table for each value of the hash's selection bits.
 	select: Box<[u8]>,
 	/// Interval between progress lines on standard error, if any.
@@ -705,7 +657,7 @@ impl Cache {
 		let now = std::time::Instant::now();
 
 		Self {
-			shards: (0..SHARDS).map(|_| HashMap::default()).collect(),
+			shards: (0..SHARDS).map(|_| table::Table::default()).collect(),
 			select: shard_select(),
 			progress,
 			started: now,
@@ -714,13 +666,16 @@ impl Cache {
 		}
 	}
 
-	fn shard(&self, key: Key) -> usize {
-		let bits = (key.hash_value() >> SHARD_SHIFT) as usize & ((1 << SHARD_SELECT_BITS) - 1);
-		usize::from(self.select[bits])
+	/// The table for a hash. The tables place entries by the high bits,
+	/// so the low bits choose between them.
+	#[expect(clippy::cast_possible_truncation, reason = "masked to SHARD_SELECT_BITS")]
+	fn shard(&self, hash: u64) -> usize {
+		usize::from(self.select[hash as usize & ((1 << SHARD_SELECT_BITS) - 1)])
 	}
 
 	fn get(&self, key: Key) -> Option<(u32, Milliframes)> {
-		self.shards[self.shard(key)].get(&key).map(|&packed| {
+		let hash = key.hash_value();
+		self.shards[self.shard(hash)].get(key, hash).map(|packed| {
 			let frames = if packed.frames == UNFINISHABLE {
 				INFINITE
 			} else {
@@ -742,8 +697,9 @@ impl Cache {
 			},
 			value: u16::try_from(value).expect("values are limited to MAX_VALUE"),
 		};
-		let shard = self.shard(key);
-		self.shards[shard].insert(key, packed);
+		let hash = key.hash_value();
+		let shard = self.shard(hash);
+		self.shards[shard].insert(key, hash, packed);
 
 		self.inserts += 1;
 
@@ -773,11 +729,11 @@ impl Cache {
 	}
 
 	fn len(&self) -> usize {
-		self.shards.iter().map(HashMap::len).sum()
+		self.shards.iter().map(table::Table::len).sum()
 	}
 
 	fn stats(&self) -> CacheStats {
-		let slots = self.shards.iter().map(|shard| slots(shard.capacity())).sum();
+		let slots = self.shards.iter().map(table::Table::slots).sum();
 
 		CacheStats {
 			entries: self.len(),
@@ -789,10 +745,7 @@ impl Cache {
 	/// Drops every entry for operations up to and including `pc`.
 	fn retain_after(&mut self, pc: usize) {
 		for shard in &mut self.shards {
-			shard.retain(|key, _| {
-				let word = key.0;
-				(word >> 48) as usize > pc
-			});
+			shard.retain(|key| (key.0 >> 48) as usize > pc);
 		}
 	}
 }
@@ -813,17 +766,6 @@ fn shard_select() -> Box<[u8]> {
 			((point + 1.0).log2() * f64::from(1 << SHARD_BITS)) as u8
 		})
 		.collect()
-}
-
-/// Slots behind a table that can hold `capacity` entries. The standard
-/// table keeps a power of two of slots and fills at most 7/8 of them (all
-/// but one below eight).
-fn slots(capacity: usize) -> usize {
-	match capacity {
-		0 => 0,
-		1..8 => (capacity + 1).next_power_of_two(),
-		_ => (capacity * 8 / 7).next_power_of_two(),
-	}
 }
 
 /// Converts bytes to GiB for display.

@@ -81,12 +81,12 @@ cached, not every instruction. And candidate step counts on a path are walked
 incrementally, each continuing from the previous one, so a path costs O(m)
 steps instead of O(m²).
 
-The cache is split into 256 hash tables. Each entry takes 22 bytes, plus one
-control byte per slot. A single table doubles all at once when it fills, which
-leaves memory jumping in steps of two and briefly needs 1.5 times the table
-while it moves. The split tables are given unequal shares of the states, so
-they double at different times: memory grows smoothly at about 1.6 times the
-raw entry size, with no spike.
+The cache is split into 256 hash tables of its own design (`src/solve/table.rs`).
+Each slot takes 23 bytes: the 22-byte entry and one byte for its distance from
+its home slot. The tables fill to 90% and grow by a quarter, so they average
+about 80% full; the standard library's table doubles at 7/8 full and averages
+a little over 60%. The tables are given unequal shares of the states, so they
+resize at different times and memory grows smoothly with no spike.
 
 ## Checking against the C++ version
 
