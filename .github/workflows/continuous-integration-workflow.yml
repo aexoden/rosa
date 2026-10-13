@@ -23,7 +23,5 @@ jobs:
       run: sudo apt-get install libboost-dev liblmdb-dev
     - name: meson
       run: meson setup build
-      env:
-        CXX: g++-9
     - name: ninja
       run: ninja -C build
