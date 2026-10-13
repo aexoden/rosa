@@ -20,7 +20,7 @@ jobs:
     - name: Install Python Dependencies
       run: pip install meson ninja
     - name: Install Dependencies
-      run: sudo apt-get install libboost-dev liblmdb-dev
+      run: sudo apt-get install libboost-dev libboost-system-dev liblmdb-dev
     - name: meson
       run: meson setup build
     - name: ninja
