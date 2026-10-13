@@ -40,6 +40,19 @@ rust/target/release/rosa replay -r paladin -s 0 \
 
 Add `--json` to either for the full structured result.
 
+`--progress SECONDS` prints the cache size to standard error at that interval
+while solving, and once at the end:
+
+```
+30 s: 12582912 states, 21168128 slots, 0.45 GiB
+...
+cache: 41502403 states, 65404928 slots, 1.40 GiB
+```
+
+The cache is nearly all of the memory a run uses, so the final line is a good
+guide to peak memory per seed. The `cache` field of `--json` output holds the
+same figures.
+
 `sweep` solves one seed once per value of a variable, as separate `-v` runs
 would, and writes each route to `OUT/SEED-VALUE.txt`. Cache entries after the
 variable's last use are shared between values, so sweeping `E305400` (the
@@ -67,6 +80,13 @@ Two changes make it faster without changing results. Only decisions are
 cached, not every instruction. And candidate step counts on a path are walked
 incrementally, each continuing from the previous one, so a path costs O(m)
 steps instead of O(m²).
+
+The cache is split into 256 hash tables. Each entry takes 22 bytes, plus one
+control byte per slot. A single table doubles all at once when it fills, which
+leaves memory jumping in steps of two and briefly needs 1.5 times the table
+while it moves. The split tables are given unequal shares of the states, so
+they double at different times: memory grows smoothly at about 1.6 times the
+raw entry size, with no spike.
 
 ## Checking against the C++ version
 
