@@ -57,9 +57,25 @@ pub struct Options {
 	pub tas_mode: bool,
 	/// Explicit `(minimum, maximum)` bounds for variables (`-v`).
 	pub constraints: BTreeMap<VariableId, (u32, u32)>,
-	/// Print the cache size to standard error at this interval while
-	/// solving.
-	pub progress: Option<std::time::Duration>,
+	/// Called with the cache size every so often while solving. It runs on
+	/// the solving thread and may block to pause the solve.
+	pub progress: Option<ProgressHook>,
+}
+
+/// A callback for [`Options::progress`].
+#[derive(Clone)]
+pub struct ProgressHook(pub std::sync::Arc<dyn Fn(CacheStats) + Send + Sync>);
+
+impl ProgressHook {
+	pub fn new(hook: impl Fn(CacheStats) + Send + Sync + 'static) -> Self {
+		Self(std::sync::Arc::new(hook))
+	}
+}
+
+impl std::fmt::Debug for ProgressHook {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		f.write_str("ProgressHook")
+	}
 }
 
 /// One printed step of the route, in the order the C++ version logs them.
@@ -240,7 +256,13 @@ pub fn variable_bounds(route: &Route, options: &Options) -> BTreeMap<VariableId,
 /// allows an option the choice lacks, or a search can never finish.
 pub fn solve(route: &Route, data: &GameData, options: &Options, seed: u8) -> Result<Solution, SolveError> {
 	let simulator = Simulator::new(route, data, options.tas_mode);
-	solve_with(route, &simulator, options, seed, &mut Cache::new(options.progress))
+	solve_with(
+		route,
+		&simulator,
+		options,
+		seed,
+		&mut Cache::new(options.progress.clone()),
+	)
 }
 
 /// Solves once for each value of `variable` in `values`, fixing it to that
@@ -264,7 +286,7 @@ pub fn sweep(
 	let simulator = Simulator::new(route, data, options.tas_mode);
 	let program = Program::compile(route, &simulator, &variable_bounds(route, options))?;
 	let last_use = program.last_use(variable).unwrap_or(0);
-	let mut cache = Cache::new(options.progress);
+	let mut cache = Cache::new(options.progress.clone());
 	let mut solutions = Vec::new();
 
 	for value in values {
@@ -622,6 +644,9 @@ const SHARD_BITS: u32 = 8;
 const SHARDS: usize = 1 << SHARD_BITS;
 const SHARD_SELECT_BITS: u32 = 12;
 
+/// The progress hook runs once per this power of two of insertions.
+const PROGRESS_INTERVAL_BITS: u32 = 16;
+
 /// Size of the cache at one moment.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize)]
 pub struct CacheStats {
@@ -639,10 +664,7 @@ struct Cache {
 	shards: Box<[table::Table]>,
 	/// Table for each value of the hash's selection bits.
 	select: Box<[u8]>,
-	/// Interval between progress lines on standard error, if any.
-	progress: Option<std::time::Duration>,
-	started: std::time::Instant,
-	last_progress: std::time::Instant,
+	progress: Option<ProgressHook>,
 	inserts: u64,
 }
 
@@ -653,15 +675,11 @@ impl Default for Cache {
 }
 
 impl Cache {
-	fn new(progress: Option<std::time::Duration>) -> Self {
-		let now = std::time::Instant::now();
-
+	fn new(progress: Option<ProgressHook>) -> Self {
 		Self {
 			shards: (0..SHARDS).map(|_| table::Table::default()).collect(),
 			select: shard_select(),
 			progress,
-			started: now,
-			last_progress: now,
 			inserts: 0,
 		}
 	}
@@ -703,28 +721,10 @@ impl Cache {
 
 		self.inserts += 1;
 
-		if self.inserts.trailing_zeros() >= 20 {
-			self.report_progress();
-		}
-	}
-
-	fn report_progress(&mut self) {
-		let Some(interval) = self.progress else {
-			return;
-		};
-
-		let now = std::time::Instant::now();
-
-		if now.duration_since(self.last_progress) >= interval {
-			self.last_progress = now;
-			let stats = self.stats();
-			eprintln!(
-				"{:.0} s: {} states, {} slots, {:.2} GiB",
-				now.duration_since(self.started).as_secs_f64(),
-				stats.entries,
-				stats.slots,
-				gibibytes(stats.bytes),
-			);
+		if self.inserts.trailing_zeros() >= PROGRESS_INTERVAL_BITS
+			&& let Some(progress) = &self.progress
+		{
+			(progress.0)(self.stats());
 		}
 	}
 

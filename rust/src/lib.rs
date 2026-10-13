@@ -1,6 +1,7 @@
 //! ROSA: step route optimization for Final Fantasy IV (SNES).
 
 pub mod data;
+pub mod farm;
 pub mod legacy;
 pub mod model;
 pub mod report;

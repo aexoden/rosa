@@ -23,15 +23,12 @@ struct Cli {
 	solve: SolveArgs,
 }
 
+/// The route and solver settings, shared by every command that solves.
 #[derive(Args)]
-struct SolveArgs {
+struct RouteArgs {
 	/// Route to load from `DATA_DIR/routes/ROUTE.txt`.
 	#[arg(short, long, default_value = "paladin")]
 	route: String,
-
-	/// Seed to solve.
-	#[arg(short, long, default_value_t = 0)]
-	seed: u8,
 
 	/// Maximum number of extra steps per path.
 	#[arg(short, long, default_value_t = 0)]
@@ -58,6 +55,16 @@ struct SolveArgs {
 	/// Directory containing routes/, maps/ and encounters/.
 	#[arg(long, default_value = "data")]
 	data_dir: PathBuf,
+}
+
+#[derive(Args)]
+struct SolveArgs {
+	#[command(flatten)]
+	route: RouteArgs,
+
+	/// Seed to solve.
+	#[arg(short, long, default_value_t = 0)]
+	seed: u8,
 
 	/// Print the full result as JSON.
 	#[arg(long)]
@@ -89,6 +96,45 @@ enum Command {
 		/// Output directory.
 		#[arg(long)]
 		out: PathBuf,
+	},
+	/// Solve many seeds at once within a memory budget, writing each route
+	/// in the C++ format to `OUT/SEED.txt`, with a live dashboard.
+	///
+	/// Seeds whose file already exists are skipped, so an interrupted farm
+	/// picks up where it left off.
+	Farm {
+		#[command(flatten)]
+		route: RouteArgs,
+
+		/// Seeds to solve, as a comma-separated list of seeds and ranges.
+		#[arg(long, default_value = "0-255")]
+		seeds: String,
+
+		/// Most seeds solving at once (default: the number of CPUs).
+		#[arg(long)]
+		threads: Option<usize>,
+
+		/// Memory budget in GiB for all caches together. Leave some headroom
+		/// below the machine's RAM for everything else.
+		#[arg(long, value_name = "GIB")]
+		memory: Option<f64>,
+
+		/// Seconds between starts until a seed has finished and memory use
+		/// can be forecast.
+		#[arg(long, value_name = "SECONDS", default_value_t = 300)]
+		stagger: u64,
+
+		/// Output directory.
+		#[arg(long)]
+		out: PathBuf,
+
+		/// Write the farm's state as JSON to this file every few seconds.
+		#[arg(long, value_name = "FILE")]
+		status: Option<PathBuf>,
+
+		/// Solve seeds again even if their file exists.
+		#[arg(long)]
+		redo: bool,
 	},
 	/// Replay a route with fixed variable values and report its time.
 	Replay {
@@ -134,14 +180,46 @@ fn parse_constraints(text: &str) -> Result<BTreeMap<VariableId, (u32, u32)>, Str
 		.collect()
 }
 
-fn options(args: &SolveArgs) -> Result<Options, String> {
+fn options(args: &RouteArgs) -> Result<Options, String> {
 	Ok(Options {
 		maximum_steps: args.maximum_steps,
 		maximum_step_segments: u16::try_from(args.maximum_step_segments).ok(),
 		prefer_fewer_locations: args.prefer_fewer_locations,
 		tas_mode: args.tas_mode,
 		constraints: parse_constraints(&args.variables)?,
-		progress: args.progress.map(std::time::Duration::from_secs),
+		progress: None,
+	})
+}
+
+/// Options for a single-seed solve, with `--progress` applied.
+fn solve_options(args: &SolveArgs) -> Result<Options, String> {
+	Ok(Options {
+		progress: args
+			.progress
+			.map(|seconds| progress_printer(std::time::Duration::from_secs(seconds))),
+		..options(&args.route)?
+	})
+}
+
+/// Prints the cache size to standard error at most once per `interval`.
+fn progress_printer(interval: std::time::Duration) -> solve::ProgressHook {
+	let started = std::time::Instant::now();
+	let last = std::sync::Mutex::new(started);
+
+	solve::ProgressHook::new(move |cache| {
+		let now = std::time::Instant::now();
+		let mut last = last.lock().expect("progress lock");
+
+		if now.duration_since(*last) >= interval {
+			*last = now;
+			eprintln!(
+				"{:.0} s: {} states, {} slots, {:.2} GiB",
+				now.duration_since(started).as_secs_f64(),
+				cache.entries,
+				cache.slots,
+				solve::gibibytes(cache.bytes),
+			);
+		}
 	})
 }
 
@@ -165,7 +243,7 @@ fn run_sweep(
 	values: Option<&str>,
 	out: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
-	let options = options(args)?;
+	let options = solve_options(args)?;
 	let variable = VariableId(u32::from_str_radix(variable, 16).map_err(|_| format!("invalid variable {variable:?}"))?);
 	let values = match values {
 		Some(text) => {
@@ -174,7 +252,7 @@ fn run_sweep(
 		}
 		None => 0..=options.maximum_steps,
 	};
-	let loaded = legacy::load(&args.data_dir, &args.route)?;
+	let loaded = legacy::load(&args.route.data_dir, &args.route.route)?;
 	std::fs::create_dir_all(out)?;
 
 	let mut largest = solve::CacheStats::default();
@@ -197,8 +275,8 @@ fn run_sweep(
 }
 
 fn run_solve(args: &SolveArgs) -> Result<(), Box<dyn std::error::Error>> {
-	let options = options(args)?;
-	let loaded = legacy::load(&args.data_dir, &args.route)?;
+	let options = solve_options(args)?;
+	let loaded = legacy::load(&args.route.data_dir, &args.route.route)?;
 	let solution = solve::solve(&loaded.route, &loaded.data, &options, args.seed)?;
 	report_cache(args, solution.cache);
 
@@ -247,6 +325,25 @@ fn main() -> ExitCode {
 			data_dir,
 			json,
 		}) => run_replay(&route, seed, &variables, tas_mode, &data_dir, json),
+		Some(Command::Farm {
+			route,
+			seeds,
+			threads,
+			memory,
+			stagger,
+			out,
+			status,
+			redo,
+		}) => run_farm(&FarmArgs {
+			route,
+			seeds,
+			threads,
+			memory,
+			stagger,
+			out,
+			status,
+			redo,
+		}),
 	};
 
 	match result {
@@ -256,6 +353,131 @@ fn main() -> ExitCode {
 			ExitCode::FAILURE
 		}
 	}
+}
+
+struct FarmArgs {
+	route: RouteArgs,
+	seeds: String,
+	threads: Option<usize>,
+	memory: Option<f64>,
+	stagger: u64,
+	out: PathBuf,
+	status: Option<PathBuf>,
+	redo: bool,
+}
+
+/// Parses a seed list such as `0-15,30,31`.
+fn parse_seeds(text: &str) -> Result<Vec<u8>, String> {
+	let mut seeds = Vec::new();
+
+	for part in text.split(',').map(str::trim).filter(|part| !part.is_empty()) {
+		let invalid = || format!("invalid seed or range {part:?}");
+		let (low, high) = part.split_once('-').unwrap_or((part, part));
+		let low: u8 = low.trim().parse().map_err(|_| invalid())?;
+		let high: u8 = high.trim().parse().map_err(|_| invalid())?;
+
+		if low > high {
+			return Err(invalid());
+		}
+
+		seeds.extend(low..=high);
+	}
+
+	let mut seen = [false; 256];
+	seeds.retain(|&seed| !std::mem::replace(&mut seen[usize::from(seed)], true));
+	Ok(seeds)
+}
+
+fn run_farm(args: &FarmArgs) -> Result<(), Box<dyn std::error::Error>> {
+	use std::io::{IsTerminal, Write};
+
+	let options = options(&args.route)?;
+	let loaded = legacy::load(&args.route.data_dir, &args.route.route)?;
+	std::fs::create_dir_all(&args.out)?;
+
+	let path = |seed: u8| args.out.join(format!("{seed:03}.txt"));
+	let (skipped, seeds): (Vec<u8>, Vec<u8>) = parse_seeds(&args.seeds)?
+		.into_iter()
+		.partition(|&seed| !args.redo && path(seed).exists());
+
+	#[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss, reason = "a budget in GiB")]
+	let memory_budget = args.memory.map(|gib| (gib * f64::from(1 << 30)) as usize);
+	let config = rosa::farm::Config {
+		seeds,
+		skipped,
+		threads: args
+			.threads
+			.unwrap_or_else(|| std::thread::available_parallelism().map_or(1, std::num::NonZero::get)),
+		memory_budget,
+		stagger: std::time::Duration::from_secs(args.stagger),
+	};
+
+	let finish = |seed: u8, solution: &solve::Solution| {
+		let text = report::text(solution, &loaded.route, &loaded.data, &options, VERSION);
+		let partial = args.out.join(format!(".{seed:03}.txt.partial"));
+		std::fs::write(&partial, text)
+			.and_then(|()| std::fs::rename(&partial, path(seed)))
+			.map_err(|error| format!("writing {}: {error}", path(seed).display()))
+	};
+
+	let title = format!(
+		"rosa farm: {} -m {}{}",
+		args.route.route,
+		args.route.maximum_steps,
+		if args.route.maximum_step_segments >= 0 {
+			format!(" -n {}", args.route.maximum_step_segments)
+		} else {
+			String::new()
+		}
+	);
+	let terminal = std::io::stdout().is_terminal();
+	let height = std::env::var("LINES")
+		.ok()
+		.and_then(|lines| lines.parse().ok())
+		.unwrap_or(50);
+	let mut printed = 0_u64;
+	let mut last_status: Option<std::time::Instant> = None;
+
+	let snapshot = rosa::farm::run(&loaded.route, &loaded.data, &options, config, &finish, |snapshot| {
+		let mut stdout = std::io::stdout().lock();
+
+		if terminal {
+			let frame = rosa::farm::render(snapshot, &title, height).replace('\n', "\x1b[K\n");
+			let _ = write!(stdout, "\x1b[H{frame}\x1b[J");
+		} else {
+			// The snapshot holds only recent events; print the new ones.
+			let new = usize::try_from(snapshot.logged - printed)
+				.map_or(snapshot.log.len(), |new| new.min(snapshot.log.len()));
+			for line in &snapshot.log[snapshot.log.len() - new..] {
+				let _ = writeln!(stdout, "{line}");
+			}
+			printed = snapshot.logged;
+		}
+
+		let _ = stdout.flush();
+
+		if let Some(status) = &args.status
+			&& last_status.is_none_or(|last| last.elapsed() >= std::time::Duration::from_secs(5))
+		{
+			last_status = Some(std::time::Instant::now());
+			let partial = status.with_extension("partial");
+			if let Ok(json) = serde_json::to_string(snapshot) {
+				let _ = std::fs::write(&partial, json).and_then(|()| std::fs::rename(&partial, status));
+			}
+		}
+	});
+
+	if let Some(status) = &args.status {
+		std::fs::write(status, serde_json::to_string(&snapshot)?)?;
+	}
+
+	let failed = snapshot.count(|status| matches!(status, rosa::farm::SeedStatus::Failed { .. }));
+
+	if failed > 0 {
+		return Err(format!("{failed} seeds failed; see the log above").into());
+	}
+
+	Ok(())
 }
 
 fn run_replay(

@@ -15,6 +15,7 @@ fixed variable values (extra steps per path, options per choice).
 | `sim` | Replays a route for one seed and one set of variable values |
 | `solve` | Finds the best variable values for one seed, with an in-memory cache |
 | `report` | Prints a solution in the C++ version's text format |
+| `farm` | Solves many seeds at once within a memory budget, with a dashboard |
 | `time` | Integer milliframe arithmetic |
 
 The core never sees the old file format: `legacy` builds `model` and `data`
@@ -66,6 +67,33 @@ rust/target/release/rosa sweep -r paladin -s 30 -m 256 --variable E305400 --out 
 twin pair in `doc/twin-seed-notes.md` and summarises each seed's loss per
 shared value, and whether the two routes still split on steps. The C++ cache options
 (`-c`, `-l`, `-f`, `-x`) are not ported; the cache always lives in memory.
+
+`farm` replaces `scripts/optimize_route.py` for production runs. It solves a
+set of seeds in one process, one thread per seed, and writes each route to
+`OUT/SEED.txt` (seeds whose file exists are skipped, so an interrupted farm
+resumes where it stopped):
+
+```sh
+rust/target/release/rosa farm -r no64-rosa -m 128 --memory 450 --out work/no64-rosa --status work/no64-rosa.json
+```
+
+Memory, not CPU, is what limits how many seeds can run, so `--memory` sets a
+budget for all caches together and the farm schedules against it:
+
+- Until a seed finishes, it starts one seed per `--stagger` seconds (default
+  300) while the caches use at most half the budget.
+- After that, it forecasts each running seed's cache as growing linearly to
+  the largest finished peak (plus 5%) over the median finished time, and starts
+  another seed only if the forecast total stays within budget now and just
+  before each running seed finishes.
+- If the caches still go over budget, every seed except the eldest pauses until
+  they fit again. Pausing does not change any result.
+
+On a terminal it draws a live dashboard: a grid of all 256 seeds, memory used
+against the budget, an estimate of the time remaining, the running seeds' cache
+sizes, and a log. Otherwise it prints the log lines. `--status` writes the same
+state as JSON every 5 seconds for other tools to read. `--threads` caps the
+seeds running at once (default: the number of CPUs).
 
 ## How the solver works
 
