@@ -62,6 +62,11 @@ struct SolveArgs {
 	/// Print the full result as JSON.
 	#[arg(long)]
 	json: bool,
+
+	/// Print the cache size to standard error every SECONDS while solving,
+	/// and once at the end.
+	#[arg(long, value_name = "SECONDS")]
+	progress: Option<u64>,
 }
 
 #[derive(Subcommand)]
@@ -136,7 +141,20 @@ fn options(args: &SolveArgs) -> Result<Options, String> {
 		prefer_fewer_locations: args.prefer_fewer_locations,
 		tas_mode: args.tas_mode,
 		constraints: parse_constraints(&args.variables)?,
+		progress: args.progress.map(std::time::Duration::from_secs),
 	})
+}
+
+/// Reports the final cache size when `--progress` is set.
+fn report_cache(args: &SolveArgs, cache: solve::CacheStats) {
+	if args.progress.is_some() {
+		eprintln!(
+			"cache: {} states, {} slots, {:.2} GiB",
+			cache.entries,
+			cache.slots,
+			solve::gibibytes(cache.bytes)
+		);
+	}
 }
 
 const VERSION: &str = concat!("rust-", env!("CARGO_PKG_VERSION"));
@@ -159,13 +177,21 @@ fn run_sweep(
 	let loaded = legacy::load(&args.data_dir, &args.route)?;
 	std::fs::create_dir_all(out)?;
 
+	let mut largest = solve::CacheStats::default();
+
 	for (value, solution) in solve::sweep(&loaded.route, &loaded.data, &options, args.seed, variable, values)? {
+		if solution.cache.bytes > largest.bytes {
+			largest = solution.cache;
+		}
+
 		let mut fixed = options.clone();
 		fixed.constraints.insert(variable, (value, value));
 		let text = report::text(&solution, &loaded.route, &loaded.data, &fixed, VERSION);
 		std::fs::write(out.join(format!("{:03}-{value:03}.txt", args.seed)), text)?;
 		println!("{value}\t{}", solution.frames.0);
 	}
+
+	report_cache(args, largest);
 
 	Ok(())
 }
@@ -174,6 +200,7 @@ fn run_solve(args: &SolveArgs) -> Result<(), Box<dyn std::error::Error>> {
 	let options = options(args)?;
 	let loaded = legacy::load(&args.data_dir, &args.route)?;
 	let solution = solve::solve(&loaded.route, &loaded.data, &options, args.seed)?;
+	report_cache(args, solution.cache);
 
 	if args.json {
 		println!("{}", serde_json::to_string_pretty(&solution)?);

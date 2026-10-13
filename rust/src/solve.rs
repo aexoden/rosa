@@ -14,8 +14,9 @@
 //! stopped instead of starting over, so a path costs O(m) steps rather than
 //! O(m²).
 
-use std::collections::{BTreeMap, HashMap};
-use std::hash::{BuildHasher, Hash, Hasher};
+mod table;
+
+use std::collections::BTreeMap;
 
 use serde::Serialize;
 
@@ -24,6 +25,7 @@ use crate::model::{Choice, FormationId, MAX_SEARCH_TARGETS, Node, Path, Route, S
 use crate::rng::{GROUP_SLOTS, Rng};
 use crate::sim::{EncounterRecord, SimError, Simulator, search_assign, search_check, split_steps};
 use crate::time::Milliframes;
+use table::SLOT_BYTES;
 
 const FRAMES_PER_TRANSITION: i64 = 82;
 const FRAMES_PER_TILE: i64 = 16;
@@ -55,6 +57,9 @@ pub struct Options {
 	pub tas_mode: bool,
 	/// Explicit `(minimum, maximum)` bounds for variables (`-v`).
 	pub constraints: BTreeMap<VariableId, (u32, u32)>,
+	/// Print the cache size to standard error at this interval while
+	/// solving.
+	pub progress: Option<std::time::Duration>,
 }
 
 /// One printed step of the route, in the order the C++ version logs them.
@@ -116,8 +121,8 @@ pub struct Solution {
 	/// The same route with no extra steps and the first option of every
 	/// choice.
 	pub base: Base,
-	/// Number of states held in the cache at the end.
-	pub cached_states: usize,
+	/// Size of the cache at the end.
+	pub cache: CacheStats,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
@@ -235,7 +240,7 @@ pub fn variable_bounds(route: &Route, options: &Options) -> BTreeMap<VariableId,
 /// allows an option the choice lacks, or a search can never finish.
 pub fn solve(route: &Route, data: &GameData, options: &Options, seed: u8) -> Result<Solution, SolveError> {
 	let simulator = Simulator::new(route, data, options.tas_mode);
-	solve_with(route, &simulator, options, seed, &mut Cache::default())
+	solve_with(route, &simulator, options, seed, &mut Cache::new(options.progress))
 }
 
 /// Solves once for each value of `variable` in `values`, fixing it to that
@@ -259,7 +264,7 @@ pub fn sweep(
 	let simulator = Simulator::new(route, data, options.tas_mode);
 	let program = Program::compile(route, &simulator, &variable_bounds(route, options))?;
 	let last_use = program.last_use(variable).unwrap_or(0);
-	let mut cache = Cache::default();
+	let mut cache = Cache::new(options.progress);
 	let mut solutions = Vec::new();
 
 	for value in values {
@@ -357,7 +362,7 @@ fn solve_with(
 			encounters: count_encounters(&base_trace.entries).0,
 		},
 		entries: trace.entries,
-		cached_states: cache.len(),
+		cache: cache.stats(),
 	})
 }
 
@@ -581,12 +586,12 @@ impl State {
 #[derive(Clone, Copy, PartialEq, Eq)]
 struct Key(u64, u64);
 
-impl Hash for Key {
-	fn hash<H: Hasher>(&self, state: &mut H) {
-		state.write_u64(fold(
+impl Key {
+	fn hash_value(self) -> u64 {
+		fold(
 			fold(self.0 ^ 0x243F_6A88_85A3_08D3, 0x1319_8A2E_0370_7344) ^ self.1,
 			0xA409_3822_299F_31D0,
-		));
+		)
 	}
 }
 
@@ -596,72 +601,178 @@ fn fold(a: u64, b: u64) -> u64 {
 	(product as u64) ^ ((product >> 64) as u64)
 }
 
-/// Passes through the single `u64` that [`Key`] hashes to.
-#[derive(Default)]
-struct KeyHasher(u64);
-
-impl Hasher for KeyHasher {
-	fn write(&mut self, _bytes: &[u8]) {
-		unreachable!("keys hash as one u64");
-	}
-
-	fn write_u64(&mut self, value: u64) {
-		self.0 = value;
-	}
-
-	fn finish(&self) -> u64 {
-		self.0
-	}
+/// Chosen value and remaining cost of one decision state.
+#[derive(Clone, Copy)]
+struct Packed {
+	frames: u32,
+	value: u16,
 }
 
-#[derive(Clone, Copy, Default)]
-struct BuildKeyHasher;
+/// Stored frames for a state that cannot finish.
+const UNFINISHABLE: u32 = u32::MAX;
 
-impl BuildHasher for BuildKeyHasher {
-	type Hasher = KeyHasher;
+/// The cache is split into this many tables, chosen by the low bits of the
+/// key's hash. Each grows on its own, so a resize only ever copies a small
+/// slice of the cache.
+///
+/// The tables are given unequal shares of the states, in a geometric
+/// series spanning a factor of two, so that they reach their resize points
+/// at different times and the total grows smoothly.
+const SHARD_BITS: u32 = 8;
+const SHARDS: usize = 1 << SHARD_BITS;
+const SHARD_SELECT_BITS: u32 = 12;
 
-	fn build_hasher(&self) -> KeyHasher {
-		KeyHasher::default()
-	}
+/// Size of the cache at one moment.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize)]
+pub struct CacheStats {
+	/// States stored.
+	pub entries: usize,
+	/// Slots allocated across all tables, used or not.
+	pub slots: usize,
+	/// Approximate memory held by the tables.
+	pub bytes: usize,
 }
-
-const FRAME_BITS: u32 = 48;
-const FRAME_MASK: u64 = (1 << FRAME_BITS) - 1;
 
 /// Best value and remaining cost for each decision state reached, packed
 /// into one `u64` per state.
-#[derive(Default)]
 struct Cache {
-	map: HashMap<Key, u64, BuildKeyHasher>,
+	shards: Box<[table::Table]>,
+	/// Table for each value of the hash's selection bits.
+	select: Box<[u8]>,
+	/// Interval between progress lines on standard error, if any.
+	progress: Option<std::time::Duration>,
+	started: std::time::Instant,
+	last_progress: std::time::Instant,
+	inserts: u64,
+}
+
+impl Default for Cache {
+	fn default() -> Self {
+		Self::new(None)
+	}
 }
 
 impl Cache {
+	fn new(progress: Option<std::time::Duration>) -> Self {
+		let now = std::time::Instant::now();
+
+		Self {
+			shards: (0..SHARDS).map(|_| table::Table::default()).collect(),
+			select: shard_select(),
+			progress,
+			started: now,
+			last_progress: now,
+			inserts: 0,
+		}
+	}
+
+	/// The table for a hash. The tables place entries by the high bits,
+	/// so the low bits choose between them.
+	#[expect(clippy::cast_possible_truncation, reason = "masked to SHARD_SELECT_BITS")]
+	fn shard(&self, hash: u64) -> usize {
+		usize::from(self.select[hash as usize & ((1 << SHARD_SELECT_BITS) - 1)])
+	}
+
 	fn get(&self, key: Key) -> Option<(u32, Milliframes)> {
-		self.map.get(&key).map(|&packed| {
-			let frames = packed & FRAME_MASK;
-			let frames = if frames == FRAME_MASK {
+		let hash = key.hash_value();
+		self.shards[self.shard(hash)].get(key, hash).map(|packed| {
+			let frames = if packed.frames == UNFINISHABLE {
 				INFINITE
 			} else {
-				Milliframes(frames.cast_signed())
+				Milliframes(i64::from(packed.frames))
 			};
-			((packed >> FRAME_BITS) as u32, frames)
+			(u32::from(packed.value), frames)
 		})
 	}
 
 	fn insert(&mut self, key: Key, value: u32, frames: Milliframes) {
-		debug_assert!(value <= MAX_VALUE);
-		let frames = u64::try_from(frames.0).map_or(FRAME_MASK, |f| f.min(FRAME_MASK));
-		self.map.insert(key, u64::from(value) << FRAME_BITS | frames);
+		let packed = Packed {
+			frames: if frames == INFINITE {
+				UNFINISHABLE
+			} else {
+				u32::try_from(frames.0)
+					.ok()
+					.filter(|&frames| frames != UNFINISHABLE)
+					.expect("a route's remaining time fits in 32 bits of milliframes (about 19 hours)")
+			},
+			value: u16::try_from(value).expect("values are limited to MAX_VALUE"),
+		};
+		let hash = key.hash_value();
+		let shard = self.shard(hash);
+		self.shards[shard].insert(key, hash, packed);
+
+		self.inserts += 1;
+
+		if self.inserts.trailing_zeros() >= 20 {
+			self.report_progress();
+		}
+	}
+
+	fn report_progress(&mut self) {
+		let Some(interval) = self.progress else {
+			return;
+		};
+
+		let now = std::time::Instant::now();
+
+		if now.duration_since(self.last_progress) >= interval {
+			self.last_progress = now;
+			let stats = self.stats();
+			eprintln!(
+				"{:.0} s: {} states, {} slots, {:.2} GiB",
+				now.duration_since(self.started).as_secs_f64(),
+				stats.entries,
+				stats.slots,
+				gibibytes(stats.bytes),
+			);
+		}
 	}
 
 	fn len(&self) -> usize {
-		self.map.len()
+		self.shards.iter().map(table::Table::len).sum()
+	}
+
+	fn stats(&self) -> CacheStats {
+		let slots = self.shards.iter().map(table::Table::slots).sum();
+
+		CacheStats {
+			entries: self.len(),
+			slots,
+			bytes: slots * SLOT_BYTES,
+		}
 	}
 
 	/// Drops every entry for operations up to and including `pc`.
 	fn retain_after(&mut self, pc: usize) {
-		self.map.retain(|key, _| (key.0 >> 48) as usize > pc);
+		for shard in &mut self.shards {
+			shard.retain(|key| (key.0 >> 48) as usize > pc);
+		}
 	}
+}
+
+/// Maps the hash's selection bits to tables, giving table `i` a share of
+/// the states proportional to `2^(i / SHARDS)`.
+#[expect(
+	clippy::cast_possible_truncation,
+	clippy::cast_sign_loss,
+	reason = "the result is below SHARDS"
+)]
+fn shard_select() -> Box<[u8]> {
+	let count = 1 << SHARD_SELECT_BITS;
+
+	(0..count)
+		.map(|bits| {
+			let point = (f64::from(bits) + 0.5) / f64::from(count);
+			((point + 1.0).log2() * f64::from(1 << SHARD_BITS)) as u8
+		})
+		.collect()
+}
+
+/// Converts bytes to GiB for display.
+#[must_use]
+#[expect(clippy::cast_precision_loss, reason = "for display only")]
+pub fn gibibytes(bytes: usize) -> f64 {
+	bytes as f64 / f64::from(1 << 30)
 }
 
 // ---------------------------------------------------------------------------

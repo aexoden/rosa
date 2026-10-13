@@ -10,7 +10,7 @@ use std::path::Path;
 use rosa::legacy;
 use rosa::model::VariableId;
 use rosa::sim::{Assignments, Simulator};
-use rosa::solve::{self, Options, Solution};
+use rosa::solve::{self, CacheStats, Options, Solution};
 
 fn data_dir() -> &'static Path {
 	Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/../data"))
@@ -127,10 +127,10 @@ fn sweep_matches_separate_runs() {
 		// The shared cache holds more states; everything else must match.
 		let separate = |fixed| {
 			let mut solution = solve::solve(&loaded.route, &loaded.data, &fixed, 7).unwrap();
-			solution.cached_states = 0;
+			solution.cache = CacheStats::default();
 			solution
 		};
-		solution.cached_states = 0;
+		solution.cache = CacheStats::default();
 		let fixed = Options {
 			constraints: [(variable, (value, value))].into(),
 			..options.clone()
